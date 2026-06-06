@@ -3,70 +3,33 @@
 @tailwind utilities;
 
 @layer base {
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
   body {
     font-family: 'Nunito', sans-serif;
     background-color: #F4F6F9;
     color: #002855;
     min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
   }
+
+  #root {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: #F4F6F9; }
   ::-webkit-scrollbar-thumb { background: #009639; border-radius: 2px; }
 }
 
 @layer components {
-  /* ── TOKENS ──────────────────────────────────── */
-  :root {
-    --navy:  #002855;
-    --green: #009639;
-    --gold:  #F5A623;
-    --white: #FFFFFF;
-    --bg:    #F4F6F9;
-    --card:  #FFFFFF;
-    --border:#E2EAF0;
-    --muted: #6B7A8D;
-  }
-
-  /* ── CARDS ───────────────────────────────────── */
-  .card {
-    background: #FFFFFF;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,40,85,0.07);
-    border: 1px solid #E2EAF0;
-  }
-
-  /* ── BUTTONS ─────────────────────────────────── */
-  .btn-green {
-    background: #009639;
-    color: #fff;
-    font-weight: 800;
-    border-radius: 12px;
-    padding: 13px 22px;
-    border: none;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-    transition: all 0.2s;
-    font-size: 14px;
-    letter-spacing: 0.5px;
-  }
-  .btn-green:hover { background: #007a2e; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,150,57,0.35); }
-
-  .btn-outline {
-    background: transparent;
-    color: #002855;
-    font-weight: 800;
-    border-radius: 12px;
-    padding: 13px 22px;
-    border: 2px solid #002855;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-    transition: all 0.2s;
-    font-size: 14px;
-  }
-  .btn-outline:hover { background: rgba(0,40,85,0.05); }
-
-  /* ── INPUTS ──────────────────────────────────── */
   .input-field {
     width: 100%;
     background: #F4F6F9;
@@ -78,6 +41,7 @@
     font-size: 15px;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
   }
   .input-field:focus {
     border-color: #009639;
@@ -86,19 +50,15 @@
   }
   .input-field::placeholder { color: #9BABB8; }
 
-  /* ── SCORE INPUTS ────────────────────────────── */
   .score-input {
-    width: 64px;
-    height: 56px;
+    width: 64px; height: 56px;
     background: #F4F6F9;
     border: 2px solid #E2EAF0;
     border-radius: 12px;
     color: #002855;
     font-family: 'Nunito', sans-serif;
-    font-weight: 900;
-    font-size: 28px;
-    text-align: center;
-    outline: none;
+    font-weight: 900; font-size: 28px;
+    text-align: center; outline: none;
     transition: all 0.2s;
     appearance: textfield;
   }
@@ -106,26 +66,24 @@
   .score-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   .score-input:focus { border-color: #009639; background: #fff; box-shadow: 0 0 0 3px rgba(0,150,57,0.12); }
 
-  /* ── BADGES ──────────────────────────────────── */
+  .btn-green {
+    background: #009639; color: #fff;
+    font-weight: 800; border-radius: 12px;
+    padding: 13px 22px; border: none;
+    cursor: pointer; font-family: 'Nunito', sans-serif;
+    transition: all 0.2s; font-size: 14px;
+  }
+  .btn-green:hover { background: #007a2e; }
+
   .badge-exact   { background: rgba(245,166,35,0.12);  color: #D4890A; border: 1px solid rgba(245,166,35,0.3); }
   .badge-result  { background: rgba(0,150,57,0.10);    color: #007a2e; border: 1px solid rgba(0,150,57,0.25); }
   .badge-miss    { background: rgba(220,53,69,0.08);   color: #C0392B; border: 1px solid rgba(220,53,69,0.2); }
   .badge-pending { background: rgba(107,122,141,0.10); color: #6B7A8D; border: 1px solid rgba(107,122,141,0.2); }
-  .badge-open    { background: rgba(0,150,57,0.10);    color: #009639; border: 1px solid rgba(0,150,57,0.25); }
 
-  /* ── ANIMATIONS ──────────────────────────────── */
-  @keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  @keyframes slideUp  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
-  @keyframes pulse-g  { 0%,100%{opacity:1} 50%{opacity:.4} }
-  .float     { animation: float 3s ease-in-out infinite; }
-  .slide-up  { animation: slideUp .35s ease-out forwards; }
-  .pulse-g   { animation: pulse-g 1.5s ease-in-out infinite; }
-
-  /* ── HERO SWOOSHES ───────────────────────────── */
-  .hero-bg {
-    background: linear-gradient(145deg, #ffffff 0%, #f0faf4 60%, #e8f5fe 100%);
-    position: relative;
-    overflow: hidden;
-  }
+  @keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse-g { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .float    { animation: float 3s ease-in-out infinite; }
+  .slide-up { animation: slideUp .35s ease-out forwards; }
+  .pulse-g  { animation: pulse-g 1.5s ease-in-out infinite; }
 }
