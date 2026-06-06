@@ -8,6 +8,7 @@ import Rankings from './pages/Rankings'
 import Champion from './pages/Champion'
 import Prizes from './pages/Prizes'
 import Admin from './pages/Admin'
+import Bracket from './pages/Bracket'
 
 function App() {
   const [participant, setParticipant] = useState(null)
@@ -21,7 +22,13 @@ function App() {
       .eq('user_id', userId)
       .single()
     if (data) {
-      setParticipant({ id: data.id, name: data.name, avatar: data.avatar_emoji, photoUrl: data.avatar_url })
+      setParticipant({
+        id:       data.id,
+        name:     data.name,
+        avatar:   data.avatar_emoji,
+        photoUrl: data.avatar_url,
+        isAdmin:  data.is_admin === true,   // ← campo no banco
+      })
     }
   }
 
@@ -61,9 +68,18 @@ function App() {
       <Route path="/dashboard" element={participant ? <Dashboard   {...props}/> : <Navigate to="/" replace/>} />
       <Route path="/palpites"  element={participant ? <Predictions {...props}/> : <Navigate to="/" replace/>} />
       <Route path="/ranking"   element={participant ? <Rankings    {...props}/> : <Navigate to="/" replace/>} />
-      <Route path="/campeao"   element={participant ? <Champion    {...props}/> : <Navigate to="/" replace/>} />
-      <Route path="/premios"   element={participant ? <Prizes      {...props}/> : <Navigate to="/" replace/>} />
-      <Route path="/admin"     element={<Admin />} />
+      <Route path="/campeao"      element={participant ? <Champion    {...props}/> : <Navigate to="/" replace/>} />
+      <Route path="/premios"      element={participant ? <Prizes      {...props}/> : <Navigate to="/" replace/>} />
+      <Route path="/chaveamento"  element={participant ? <Bracket     {...props}/> : <Navigate to="/" replace/>} />
+      <Route path="/admin"
+        element={
+          !participant
+            ? <Navigate to="/" replace/>
+            : participant.isAdmin
+              ? <Admin />
+              : <Navigate to="/dashboard" replace/>
+        }
+      />
       <Route path="*"          element={<Navigate to="/" replace/>} />
     </Routes>
   )
