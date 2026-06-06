@@ -1,11 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Target, BarChart3, Gift, LogOut } from 'lucide-react'
+import { Home, Target, BarChart3, Gift, LogOut, GitBranch, ShieldCheck } from 'lucide-react'
 
 const NAV = [
-  { to:'/dashboard', label:'Início',   Icon:Home },
-  { to:'/palpites',  label:'Palpites', Icon:Target },
-  { to:'/ranking',   label:'Ranking',  Icon:BarChart3 },
-  { to:'/premios',   label:'Prêmios',  Icon:Gift },
+  { to:'/dashboard',   label:'Início',      Icon:Home },
+  { to:'/palpites',    label:'Palpites',    Icon:Target },
+  { to:'/chaveamento', label:'Chaveamento', Icon:GitBranch },
+  { to:'/ranking',     label:'Ranking',     Icon:BarChart3 },
+  { to:'/premios',     label:'Prêmios',     Icon:Gift },
 ]
 
 export function Avatar({ photoUrl, emoji='⚽', size=36, border=true }) {
@@ -40,8 +41,17 @@ export default function Header({ participant, onLogout }) {
       <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, background:'#fff', borderBottom:'1px solid #E2EAF0', padding:'10px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 1px 8px rgba(0,40,85,0.06)' }}>
         <Logo />
         {participant && (
-          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <Avatar photoUrl={participant.photoUrl} emoji={participant.avatar} size={38} />
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            {participant.isAdmin && (
+              <Link to="/admin" style={{ display:'flex', alignItems:'center', gap:4, background:'rgba(0,40,85,0.07)', border:'1px solid rgba(0,40,85,0.12)', borderRadius:8, padding:'4px 9px', textDecoration:'none' }}>
+                <ShieldCheck size={13} color="#002855" />
+                <span style={{ color:'#002855', fontWeight:800, fontSize:10 }}>Admin</span>
+              </Link>
+            )}
+            <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+              <Avatar photoUrl={participant.photoUrl} emoji={participant.avatar} size={38} />
+              <span style={{ color:'#002855', fontWeight:800, fontSize:12, maxWidth:90, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{participant.name}</span>
+            </div>
             <button onClick={onLogout} style={{ background:'none', border:'none', cursor:'pointer', color:'#9BABB8', padding:4, borderRadius:8, display:'flex', alignItems:'center' }} title="Sair">
               <LogOut size={16} />
             </button>
