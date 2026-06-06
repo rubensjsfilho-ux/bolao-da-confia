@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
 import { GROUP_MATCHES, getFlag, formatDate, isMatchOpen } from '../data/matches'
-import { Users, Trophy, Star, Calendar, Bell, ChevronRight, AlertCircle } from 'lucide-react'
+import { Bell, ChevronRight, AlertCircle, Users, Trophy, Star, Calendar } from 'lucide-react'
 
-// ── Hero com countdown ────────────────────────────────────────────────────────
+// ── HERO ──────────────────────────────────────────────────────────────────────
 function Hero({ onPalpites, onJogos }) {
   const [t, setT] = useState({ d:0, h:0, m:0, s:0 })
   useEffect(() => {
@@ -16,77 +16,87 @@ function Hero({ onPalpites, onJogos }) {
       setT({ d:Math.floor(diff/86400000), h:Math.floor((diff%86400000)/3600000), m:Math.floor((diff%3600000)/60000), s:Math.floor((diff%60000)/1000) })
     }
     tick(); const id = setInterval(tick,1000); return ()=>clearInterval(id)
-  }, [])
+  },[])
   const started = new Date() >= new Date('2026-06-11T22:00:00Z')
 
   return (
-    <div style={{ position:'relative', background:'linear-gradient(145deg,#fff 0%,#f0faf5 55%,#e8f4fe 100%)', overflow:'hidden', padding:'20px 16px 24px', marginBottom:0 }}>
-      {/* Swoosh verde */}
-      <svg style={{ position:'absolute', top:-20, right:-30, width:220, opacity:.18, pointerEvents:'none' }} viewBox="0 0 220 280">
-        <ellipse cx="200" cy="60" rx="160" ry="200" fill="#009639" transform="rotate(-25 200 60)" />
-      </svg>
-      {/* Swoosh azul */}
-      <svg style={{ position:'absolute', bottom:-40, right:60, width:160, opacity:.12, pointerEvents:'none' }} viewBox="0 0 160 160">
-        <ellipse cx="80" cy="80" rx="100" ry="70" fill="#1A73E8" transform="rotate(30 80 80)" />
-      </svg>
-      {/* Swoosh dourado */}
-      <svg style={{ position:'absolute', bottom:0, right:0, width:120, opacity:.15, pointerEvents:'none' }} viewBox="0 0 120 120">
-        <ellipse cx="120" cy="120" rx="90" ry="80" fill="#F5A623" />
-      </svg>
+    <div style={{ position:'relative', overflow:'hidden', background:'#000', minHeight:320 }}>
 
-      {/* Troféu */}
-      <div style={{ position:'absolute', right:8, top:8, fontSize:100, opacity:.22, pointerEvents:'none', filter:'saturate(0.6)' }}>🏆</div>
+      {/* Fundo colorido inspirado no branding FIFA 2026 */}
+      <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg, #009639 0%, #002855 40%, #000 70%)', opacity:.9 }}/>
+
+      {/* Listras coloridas decorativas */}
+      <div style={{ position:'absolute', top:0, right:0, width:'55%', height:'100%', background:'linear-gradient(135deg,#F5A623 0%,#e8143c 30%,#7B2FBE 60%,#009639 100%)', opacity:.15, borderRadius:'0 0 0 60%' }}/>
+
+      {/* Números "26" estilizados */}
+      <div style={{ position:'absolute', right:-10, top:'50%', transform:'translateY(-50%)', lineHeight:1, pointerEvents:'none', userSelect:'none' }}>
+        <div style={{ fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:220, color:'rgba(255,255,255,0.06)', letterSpacing:-20, lineHeight:.85 }}>
+          <div>2</div>
+          <div>6</div>
+        </div>
+      </div>
+
+      {/* Imagem da taça */}
+      <div style={{ position:'absolute', right:16, top:'50%', transform:'translateY(-50%)', zIndex:2 }}>
+        <img
+          src="/images/trophy.webp"
+          alt="Taça Copa 2026"
+          style={{ height:200, width:'auto', objectFit:'contain', filter:'drop-shadow(0 8px 32px rgba(245,166,35,0.5))' }}
+          onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }}
+        />
+        <div style={{ display:'none', fontSize:120, filter:'drop-shadow(0 8px 32px rgba(245,166,35,0.4))' }}>🏆</div>
+      </div>
 
       {/* Conteúdo */}
-      <div style={{ position:'relative', zIndex:1, maxWidth:280 }}>
-        <div style={{ color:'#009639', fontWeight:900, fontSize:15, letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>Copa do Mundo</div>
+      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', maxWidth:220 }}>
 
-        {/* 2026 estilizado */}
-        <div style={{ display:'flex', alignItems:'flex-end', gap:2, marginBottom:8, lineHeight:1 }}>
-          <span style={{ color:'#002855', fontWeight:900, fontSize:68, letterSpacing:-3 }}>20</span>
-          <span style={{ color:'#009639', fontWeight:900, fontSize:68, letterSpacing:-3 }}>2</span>
-          <div style={{ position:'relative', fontSize:68, fontWeight:900, color:'#F5A623', letterSpacing:-3 }}>
-            6
-            <span style={{ position:'absolute', top:2, right:-4, fontSize:18 }}>⭐</span>
+        {/* Logo Copa 2026 texto */}
+        <div style={{ marginBottom:14 }}>
+          <div style={{ color:'#fff', fontWeight:900, fontSize:11, letterSpacing:3, textTransform:'uppercase', opacity:.7, marginBottom:4 }}>Bolão da Confia</div>
+
+          {/* "26" estilizado com tipografia Copa */}
+          <div style={{ display:'flex', alignItems:'center', gap:0, marginBottom:4 }}>
+            <div style={{ position:'relative' }}>
+              <span style={{ color:'#fff', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:72, lineHeight:.9, letterSpacing:-4, display:'block' }}>2</span>
+              <span style={{ color:'#F5A623', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:72, lineHeight:.9, letterSpacing:-4, display:'block' }}>6</span>
+            </div>
+            <div style={{ marginLeft:8, lineHeight:1.1 }}>
+              <div style={{ color:'#fff', fontWeight:900, fontSize:18, letterSpacing:-0.5 }}>COPA</div>
+              <div style={{ color:'#F5A623', fontWeight:900, fontSize:18, letterSpacing:-0.5 }}>DO MUNDO</div>
+            </div>
+          </div>
+
+          <div style={{ display:'flex', gap:6, alignItems:'center', fontSize:11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
+            <span>🇺🇸</span><span>EUA</span><span style={{ opacity:.4 }}>·</span>
+            <span>🇨🇦</span><span>CAN</span><span style={{ opacity:.4 }}>·</span>
+            <span>🇲🇽</span><span>MEX</span>
           </div>
         </div>
 
-        {/* Sedes */}
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10, fontSize:13, color:'#002855', fontWeight:600 }}>
-          <span>🇺🇸 EUA</span><span style={{ color:'#E2EAF0' }}>|</span>
-          <span>🇨🇦 CANADÁ</span><span style={{ color:'#E2EAF0' }}>|</span>
-          <span>🇲🇽 MÉXICO</span>
-        </div>
-
-        <p style={{ color:'#002855', fontSize:13, lineHeight:1.5, marginBottom:14, opacity:.8 }}>
-          Participe do Bolão da Confia e mostre<br/>que você é craque em palpites!
-        </p>
-
         {/* Countdown */}
-        {!started && (
-          <div style={{ display:'flex', gap:6, marginBottom:14 }}>
-            {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v]) => (
-              <div key={l} style={{ textAlign:'center', background:'rgba(0,40,85,0.06)', borderRadius:8, padding:'6px 10px', minWidth:44 }}>
-                <div style={{ color:'#002855', fontWeight:900, fontSize:20, lineHeight:1 }}>{String(v).padStart(2,'0')}</div>
-                <div style={{ color:'#6B7A8D', fontSize:9, letterSpacing:1 }}>{l}</div>
+        {!started ? (
+          <div style={{ display:'flex', gap:5, marginBottom:16 }}>
+            {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
+              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.12)', backdropFilter:'blur(4px)', borderRadius:8, padding:'6px 8px', minWidth:40, border:'1px solid rgba(255,255,255,0.15)' }}>
+                <div style={{ color:'#F5A623', fontWeight:900, fontSize:18, lineHeight:1 }}>{String(v).padStart(2,'0')}</div>
+                <div style={{ color:'rgba(255,255,255,0.5)', fontSize:8, letterSpacing:1 }}>{l}</div>
               </div>
             ))}
           </div>
-        )}
-        {started && (
-          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,150,57,0.1)', borderRadius:20, padding:'5px 12px', marginBottom:14 }}>
-            <div style={{ width:7, height:7, borderRadius:'50%', background:'#009639', animation:'pulse-g 1.5s infinite' }} />
-            <span style={{ color:'#009639', fontWeight:800, fontSize:12 }}>Torneio em andamento!</span>
+        ) : (
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,150,57,0.3)', borderRadius:20, padding:'5px 12px', marginBottom:16, border:'1px solid rgba(0,150,57,0.5)' }}>
+            <div style={{ width:7, height:7, borderRadius:'50%', background:'#4ade80' }}/>
+            <span style={{ color:'#4ade80', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
           </div>
         )}
 
         {/* Botões */}
-        <div style={{ display:'flex', gap:10 }}>
-          <button onClick={onPalpites} className="btn-green" style={{ flex:1, fontSize:13, padding:'11px 12px', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
-            <span>FAZER PALPITES</span> 🎯
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          <button onClick={onPalpites} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:12, padding:'12px 16px', fontWeight:800, fontSize:13, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6 }}>
+            🎯 FAZER PALPITES
           </button>
-          <button onClick={onJogos} className="btn-outline" style={{ flex:1, fontSize:13, padding:'11px 12px', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
-            <span>VER JOGOS</span> 📅
+          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.1)', color:'#fff', border:'1px solid rgba(255,255,255,0.2)', borderRadius:12, padding:'11px 16px', fontWeight:800, fontSize:13, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
+            📅 VER JOGOS
           </button>
         </div>
       </div>
@@ -94,193 +104,170 @@ function Hero({ onPalpites, onJogos }) {
   )
 }
 
-// ── Stats strip ───────────────────────────────────────────────────────────────
-function StatsStrip({ participant, stats, totalParticipants, myRank }) {
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function StatsStrip({ stats, totalParts, myRank }) {
   return (
-    <div style={{ background:'#fff', borderRadius:16, margin:'0 12px', padding:'16px 8px', boxShadow:'0 2px 12px rgba(0,40,85,0.07)', border:'1px solid #E2EAF0', display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:4, position:'relative', zIndex:2, marginTop:-2 }}>
+    <div style={{ background:'#fff', margin:'0 12px', borderRadius:16, padding:'14px 8px', boxShadow:'0 4px 20px rgba(0,40,85,0.10)', border:'1px solid #E2EAF0', display:'grid', gridTemplateColumns:'repeat(4,1fr)', marginTop:-16, position:'relative', zIndex:4 }}>
       {[
-        { icon:<Users size={22} color="#009639" />, label:'PARTICIPANTES', value: totalParticipants, sub:'Ver todos', subColor:'#009639' },
-        { icon:<Trophy size={22} color="#1A73E8" />, label:'SUA POSIÇÃO', value: myRank ? `${myRank}º` : '—', sub: myRank ? `de ${totalParticipants}` : '—', subColor:'#6B7A8D' },
-        { icon:<Star size={22} color="#F5A623" />, label:'SEUS PONTOS', value: stats.points, sub:'Ver pontuação', subColor:'#009639' },
-        { icon:<Calendar size={22} color="#7B2FBE" />, label:'RODADA ATUAL', value:'Grupos', sub:'Em andamento', subColor:'#7B2FBE' },
-      ].map(({ icon, label, value, sub, subColor }) => (
+        { icon:<Users size={20} color="#009639"/>, label:'PARTICIPANTES', val:totalParts, sub:'Ver todos', subc:'#009639' },
+        { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`${myRank}º`:'—', sub:myRank?`de ${totalParts}`:'—', subc:'#6B7A8D' },
+        { icon:<Star size={20} color="#F5A623"/>, label:'SEUS PONTOS', val:stats.points, sub:'Ver pontuação', subc:'#009639' },
+        { icon:<Calendar size={20} color="#7B2FBE"/>, label:'RODADA ATUAL', val:'Grupos', sub:'Em andamento', subc:'#7B2FBE' },
+      ].map(({icon,label,val,sub,subc})=>(
         <div key={label} style={{ textAlign:'center', padding:'4px 2px' }}>
           <div style={{ display:'flex', justifyContent:'center', marginBottom:4 }}>{icon}</div>
-          <div style={{ color:'#9BABB8', fontSize:8, fontWeight:700, letterSpacing:.8, textTransform:'uppercase', marginBottom:2 }}>{label}</div>
-          <div style={{ color:'#002855', fontWeight:900, fontSize:18, lineHeight:1, marginBottom:2 }}>{value}</div>
-          <div style={{ color:subColor, fontSize:9, fontWeight:700 }}>{sub}</div>
+          <div style={{ color:'#9BABB8', fontSize:8, fontWeight:700, letterSpacing:.6, textTransform:'uppercase', marginBottom:2 }}>{label}</div>
+          <div style={{ color:'#002855', fontWeight:900, fontSize:16, lineHeight:1, marginBottom:2 }}>{val}</div>
+          <div style={{ color:subc, fontSize:9, fontWeight:700 }}>{sub}</div>
         </div>
       ))}
     </div>
   )
 }
 
-// ── Próximos Jogos ────────────────────────────────────────────────────────────
+// ── PRÓXIMOS JOGOS ────────────────────────────────────────────────────────────
 function UpcomingMatches({ onVerTodos }) {
   const now = new Date()
-  const next = GROUP_MATCHES.filter(m => new Date(m.date) > now).slice(0, 3)
-  const display = next.length > 0 ? next : GROUP_MATCHES.slice(0, 3)
-
+  const next = GROUP_MATCHES.filter(m=>new Date(m.date)>now).slice(0,3)
+  const show = next.length>0 ? next : GROUP_MATCHES.slice(0,3)
   return (
-    <div style={{ background:'#fff', borderRadius:16, padding:'16px', boxShadow:'0 2px 12px rgba(0,40,85,0.06)', border:'1px solid #E2EAF0' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
-        <span style={{ color:'#002855', fontWeight:900, fontSize:15 }}>Próximos Jogos</span>
-        <button onClick={onVerTodos} style={{ color:'#009639', fontSize:12, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>Ver tabela completa</button>
+    <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
+        <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>Próximos Jogos</span>
+        <button onClick={onVerTodos} style={{ color:'#009639', fontSize:10, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>Ver tabela</button>
       </div>
-      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-        {display.map(m => {
-          const open = isMatchOpen(m)
-          return (
-            <div key={m.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', background:'#F4F6F9', borderRadius:12, border:'1px solid #E2EAF0' }}>
-              <div style={{ display:'flex', alignItems:'center', gap:6, flex:1 }}>
-                <span style={{ fontSize:28 }}>{getFlag(m.team1)}</span>
-                <span style={{ color:'#6B7A8D', fontWeight:900, fontSize:11 }}>X</span>
-                <span style={{ fontSize:28 }}>{getFlag(m.team2)}</span>
-              </div>
-              <div style={{ flex:2, lineHeight:1.3 }}>
-                <div style={{ color:'#002855', fontWeight:800, fontSize:11 }}>{formatDate(m.date)}</div>
-                <div style={{ color:'#6B7A8D', fontSize:10 }}>Grupo {m.group} · {m.city}</div>
-              </div>
-              <div>
-                <Bell size={14} color={open ? '#009639' : '#E2EAF0'} />
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <button onClick={onVerTodos} style={{ width:'100%', marginTop:12, padding:'10px', background:'none', border:'none', cursor:'pointer', color:'#002855', fontWeight:800, fontSize:12, fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
-        VER TODOS OS JOGOS <ChevronRight size={14} />
+      {show.map(m=>(
+        <div key={m.id} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 10px', background:'#F4F6F9', borderRadius:10, marginBottom:8, border:'1px solid #E2EAF0' }}>
+          <span style={{ fontSize:22 }}>{getFlag(m.team1)}</span>
+          <span style={{ color:'#9BABB8', fontWeight:900, fontSize:10 }}>×</span>
+          <span style={{ fontSize:22 }}>{getFlag(m.team2)}</span>
+          <div style={{ flex:1 }}>
+            <div style={{ color:'#002855', fontWeight:800, fontSize:10 }}>{formatDate(m.date)}</div>
+            <div style={{ color:'#9BABB8', fontSize:9 }}>Grupo {m.group} · {m.city}</div>
+          </div>
+          <Bell size={13} color={isMatchOpen(m)?'#009639':'#E2EAF0'}/>
+        </div>
+      ))}
+      <button onClick={onVerTodos} style={{ width:'100%', marginTop:4, padding:'8px', background:'none', border:'none', cursor:'pointer', color:'#002855', fontWeight:800, fontSize:11, fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
+        VER TODOS OS JOGOS <ChevronRight size={13}/>
       </button>
     </div>
   )
 }
 
-// ── Top 5 ─────────────────────────────────────────────────────────────────────
+// ── TOP 5 ─────────────────────────────────────────────────────────────────────
 function Top5({ participant, ranking }) {
   const navigate = useNavigate()
   return (
-    <div style={{ background:'#fff', borderRadius:16, padding:'16px', boxShadow:'0 2px 12px rgba(0,40,85,0.06)', border:'1px solid #E2EAF0' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
-        <span style={{ color:'#002855', fontWeight:900, fontSize:15 }}>Top 5 Participantes</span>
-        <button onClick={()=>navigate('/ranking')} style={{ color:'#009639', fontSize:12, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>Ver ranking completo</button>
+    <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
+        <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>Top 5</span>
+        <button onClick={()=>navigate('/ranking')} style={{ color:'#009639', fontSize:10, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>Ver ranking</button>
       </div>
-      <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-        {ranking.map((p, i) => {
-          const isMe = p.id === participant.id
-          return (
-            <div key={p.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:12, background: isMe ? '#e8f5ee' : 'transparent', border: isMe ? '1px solid rgba(0,150,57,0.2)' : '1px solid transparent' }}>
-              <div style={{ width:28, height:28, borderRadius:'50%', background: i===0?'#FEF3DC':i===1?'#F4F6F9':i===2?'#FFF0E6':'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:900, color: i===0?'#D4890A':i===1?'#6B7A8D':i===2?'#C96A2A':'#6B7A8D', flexShrink:0 }}>
-                {i+1}
-              </div>
-              <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#E2EAF0,#F4F6F9)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>
-                {p.avatar_emoji}
-              </div>
-              <span style={{ flex:1, color: isMe ? '#009639' : '#002855', fontWeight: isMe ? 800 : 700, fontSize:13 }}>
-                {p.name}{isMe && ' (Você)'}
-              </span>
-              <span style={{ color: isMe ? '#009639' : '#6B7A8D', fontWeight:900, fontSize:13 }}>
-                {p.total_points || 0} pts
-              </span>
+      {ranking.map((p,i)=>{
+        const isMe=p.id===participant.id
+        return (
+          <div key={p.id} style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:isMe?'#e8f5ee':'transparent', border:isMe?'1px solid rgba(0,150,57,0.2)':'1px solid transparent', marginBottom:4 }}>
+            <div style={{ width:22, height:22, borderRadius:'50%', background:i===0?'#FEF3DC':i===1?'#F4F6F9':i===2?'#FFF0E6':'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:i<3?14:11, fontWeight:900, color:i===0?'#D4890A':i===1?'#9BABB8':i===2?'#C96A2A':'#9BABB8', flexShrink:0 }}>
+              {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`}
             </div>
-          )
-        })}
-      </div>
+            <div style={{ width:28, height:28, borderRadius:'50%', overflow:'hidden', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0, border:isMe?'2px solid #009639':'none' }}>
+              {p.avatar_url ? <img src={p.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : p.avatar_emoji}
+            </div>
+            <span style={{ flex:1, color:isMe?'#009639':'#002855', fontWeight:800, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}{isMe?' (você)':''}</span>
+            <span style={{ color:isMe?'#009639':'#6B7A8D', fontWeight:900, fontSize:11 }}>{(p.total_points||0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
+          </div>
+        )
+      })}
     </div>
   )
 }
 
-// ── Banners ───────────────────────────────────────────────────────────────────
-function Banners({ prize }) {
-  return (
-    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-      {/* Prêmio */}
-      <div style={{ background:'#fff', borderRadius:16, padding:'16px 14px', boxShadow:'0 2px 12px rgba(0,40,85,0.06)', border:'1px solid #E2EAF0', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', right:4, bottom:-4, fontSize:52, opacity:.2 }}>🥈</div>
-        <div style={{ color:'#6B7A8D', fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>Prêmio para o Campeão</div>
-        <div style={{ color:'#009639', fontWeight:900, fontSize:20, lineHeight:1.1 }}>{prize || 'A definir'}</div>
-        <div style={{ color:'#6B7A8D', fontSize:10, marginTop:3, marginBottom:10 }}>E muito mais prêmios!</div>
-        <button className="btn-green" style={{ fontSize:10, padding:'7px 10px', letterSpacing:.5 }}>VER TODOS OS PRÊMIOS</button>
-      </div>
-
-      {/* Slogan */}
-      <div style={{ borderRadius:16, padding:'16px 14px', background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', right:-8, bottom:-8, fontSize:52, opacity:.2 }}>⚽</div>
-        <div style={{ color:'#fff', fontWeight:900, fontSize:14, lineHeight:1.3, position:'relative', zIndex:1 }}>
-          Confiabilidade<br/>é nosso DNA.<br/>
-          <span style={{ color:'#F5A623' }}>A vitória<br/>pode ser sua!</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Dashboard principal ───────────────────────────────────────────────────────
+// ── DASHBOARD PRINCIPAL ───────────────────────────────────────────────────────
 export default function Dashboard({ participant, onLogout }) {
   const navigate = useNavigate()
-  const [stats, setStats] = useState({ points:0, done:0 })
-  const [ranking, setRanking] = useState([])
+  const [stats,      setStats]      = useState({ points:0, done:0 })
+  const [ranking,    setRanking]    = useState([])
   const [totalParts, setTotalParts] = useState(0)
-  const [myRank, setMyRank] = useState(null)
-  const openCount = GROUP_MATCHES.filter(isMatchOpen).length
+  const [myRank,     setMyRank]     = useState(null)
 
   const fetchData = useCallback(async () => {
-    const [{ data: preds }, { data: parts }] = await Promise.all([
+    const [{ data: preds }, { data: parts }, { count }] = await Promise.all([
       supabase.from('predictions').select('points').eq('participant_id', participant.id),
-      supabase.from('participants').select('id,name,avatar_emoji,total_points').order('total_points',{ascending:false}).limit(5),
+      supabase.from('participants').select('id,name,avatar_emoji,avatar_url,total_points').order('total_points',{ascending:false}).limit(5),
+      supabase.from('participants').select('*',{count:'exact',head:true}),
     ])
     setStats({ points: preds?.reduce((s,p)=>s+(p.points||0),0)||0, done: preds?.length||0 })
     setRanking(parts||[])
-
-    const { count } = await supabase.from('participants').select('*',{count:'exact',head:true})
     setTotalParts(count||0)
-
-    const { data: allParts } = await supabase.from('participants').select('id').order('total_points',{ascending:false})
-    const idx = allParts?.findIndex(p=>p.id===participant.id)
-    setMyRank(idx !== undefined && idx >= 0 ? idx+1 : null)
+    const { data: all } = await supabase.from('participants').select('id').order('total_points',{ascending:false})
+    const idx = all?.findIndex(p=>p.id===participant.id)
+    setMyRank(idx!==undefined&&idx>=0?idx+1:null)
   }, [participant.id])
 
   useEffect(() => {
     fetchData()
     const ch = supabase.channel('dash-rt').on('postgres_changes',{event:'UPDATE',schema:'public',table:'participants'},fetchData).subscribe()
-    return () => supabase.removeChannel(ch)
+    return ()=>supabase.removeChannel(ch)
   }, [fetchData])
 
-  return (
-    <div style={{ minHeight:'100vh', background:'#F4F6F9', paddingBottom:80 }}>
-      <Header participant={participant} onLogout={onLogout} />
+  const openCount = GROUP_MATCHES.filter(m=>isMatchOpen(m)).length
 
-      {/* Aviso palpites abertos */}
-      {openCount > 0 && (
+  return (
+    <div style={{ minHeight:'100vh', background:'#F4F6F9', overflowX:'hidden' }}>
+      <Header participant={participant} onLogout={onLogout}/>
+
+      {/* Aviso palpites */}
+      {openCount>0 && (
         <div style={{ position:'fixed', top:58, left:0, right:0, zIndex:40, background:'#F5A623', padding:'8px 16px', display:'flex', alignItems:'center', gap:8 }}>
-          <AlertCircle size={14} color="#002855" />
-          <span style={{ color:'#002855', fontWeight:800, fontSize:12 }}>⚠️ {openCount} jogo{openCount!==1?'s':''} com palpite em aberto!</span>
-          <button onClick={()=>navigate('/palpites')} style={{ marginLeft:'auto', background:'#002855', color:'#fff', border:'none', borderRadius:8, padding:'4px 10px', fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>FAZER AGORA</button>
+          <AlertCircle size={14} color="#002855"/>
+          <span style={{ color:'#002855', fontWeight:800, fontSize:12 }}>⚠️ {openCount} jogo{openCount!==1?'s':''} em aberto!</span>
+          <button onClick={()=>navigate('/palpites')} style={{ marginLeft:'auto', background:'#002855', color:'#fff', border:'none', borderRadius:8, padding:'4px 10px', fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>PALPAR AGORA</button>
         </div>
       )}
 
-      <div style={{ paddingTop: openCount > 0 ? 96 : 60 }}>
-        <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/palpites')} />
+      <div style={{ paddingTop: openCount>0?96:58 }}>
+        <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/palpites')}/>
 
-        <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14, marginTop:14 }}>
-          <StatsStrip participant={participant} stats={stats} totalParticipants={totalParts} myRank={myRank} />
+        <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14, marginTop:0 }}>
+          <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-            <UpcomingMatches onVerTodos={()=>navigate('/palpites')} />
-            <Top5 participant={participant} ranking={ranking} />
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+            <UpcomingMatches onVerTodos={()=>navigate('/palpites')}/>
+            <Top5 participant={participant} ranking={ranking}/>
           </div>
 
-          <Banners prize="R$ 5.000,00" />
+          {/* Banners */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+            <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', position:'relative', overflow:'hidden' }}>
+              <div style={{ position:'absolute', right:-8, bottom:-8, opacity:.12 }}>
+                <img src="/images/trophy-multi.webp" style={{ width:80, height:80, objectFit:'contain' }} alt=""/>
+              </div>
+              <div style={{ color:'#6B7A8D', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>Prêmio para o Campeão</div>
+              <div style={{ color:'#009639', fontWeight:900, fontSize:14, lineHeight:1.2, marginBottom:2 }}>Cresce a cada<br/>nova entrada!</div>
+              <div style={{ color:'#9BABB8', fontSize:10, margin:'3px 0 10px' }}>50 vagas · R$ 20 cada</div>
+              <button onClick={()=>navigate('/premios')} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:8, padding:'6px 10px', fontWeight:800, fontSize:9, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>VER PRÊMIOS</button>
+            </div>
 
-          {/* Tabela de pontuação */}
-          <div style={{ background:'#fff', borderRadius:16, padding:'16px', boxShadow:'0 2px 12px rgba(0,40,85,0.06)', border:'1px solid #E2EAF0' }}>
-            <div style={{ color:'#002855', fontWeight:900, fontSize:15, marginBottom:12 }}>📋 Regras de Pontuação</div>
-            {[['Placar exato','#D4890A','rgba(245,166,35,0.12)','+3 pts'],['Resultado correto','#007a2e','rgba(0,150,57,0.10)','+1 pt'],['Campeão correto','#D4890A','rgba(245,166,35,0.12)','+10 pts'],['Vice correto','#007a2e','rgba(0,150,57,0.10)','+5 pts'],['3º lugar correto','#007a2e','rgba(0,150,57,0.10)','+3 pts'],['Resultado errado','#C0392B','rgba(220,53,69,0.08)','0 pts']].map(([l,c,bg,pts]) => (
+            <div style={{ borderRadius:14, padding:'14px 12px', background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden' }}>
+              <div style={{ position:'absolute', right:-10, bottom:-10, opacity:.15 }}>
+                <img src="/images/trophy.webp" style={{ width:70, height:70, objectFit:'contain', filter:'grayscale(1)' }} alt=""/>
+              </div>
+              <div style={{ color:'#fff', fontWeight:900, fontSize:13, lineHeight:1.4, position:'relative', zIndex:1 }}>
+                Confiabilidade<br/>é nosso DNA.<br/><span style={{ color:'#F5A623' }}>A vitória<br/>pode ser sua!</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Pontuação */}
+          <div style={{ background:'#fff', borderRadius:16, padding:'16px', border:'1px solid #E2EAF0', marginBottom:4 }}>
+            <div style={{ color:'#002855', fontWeight:900, fontSize:15, marginBottom:12 }}>📋 Pontuação</div>
+            {[['Placar exato','#D4890A','rgba(245,166,35,0.10)','+3 pts'],['Resultado correto','#007a2e','rgba(0,150,57,0.08)','+1 pt'],['Campeão correto','#D4890A','rgba(245,166,35,0.10)','+10 pts'],['Vice correto','#007a2e','rgba(0,150,57,0.08)','+5 pts'],['3º lugar correto','#007a2e','rgba(0,150,57,0.08)','+3 pts'],['Resultado errado','#C0392B','rgba(220,53,69,0.07)','0 pts']].map(([l,c,bg,pts])=>(
               <div key={l} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'7px 0', borderBottom:'1px solid #F4F6F9' }}>
                 <span style={{ color:'#6B7A8D', fontSize:13 }}>{l}</span>
                 <span style={{ background:bg, color:c, borderRadius:20, padding:'3px 12px', fontSize:12, fontWeight:800 }}>{pts}</span>
               </div>
             ))}
-            <div style={{ color:'#9BABB8', fontSize:11, marginTop:10 }}>Palpites de jogos fecham 30 min antes. Palpite Final fecha em 11/06.</div>
           </div>
         </div>
       </div>
