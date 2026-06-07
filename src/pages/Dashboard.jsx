@@ -125,7 +125,261 @@ function StatsStrip({ stats, totalParts, myRank }) {
   )
 }
 
-// ── PRÓXIMOS JOGOS ────────────────────────────────────────────────────────────
+// ── DADOS DOS ESCUDOS E JOGADORES ─────────────────────────────────────────────
+const CDN = "https://cdn.prod.website-files.com/68f550992570ca0322737dc2/"
+const CRESTS = {
+  'Brasil':         CDN+'6a0b3a07dd70012891100817_68f9fc74eac3dc471d42c1f1_brazil-national-team-footballlogos-org.png',
+  'Argentina':      CDN+'6a1048bb2071e9deee459c12_6a104445459be40714bd9774_argentina-national-team-footylogos.png',
+  'França':         CDN+'6a0b39fa921e692c7885a3a5_68fa00af9b52a99bf3ce88b8_france-national-team-footballlogos-org.png',
+  'Alemanha':       CDN+'6a0b3a134ff2b16d2ff2c420_68fa00ee54de0cacbdff9b16_germany-national-team-footballlogos-org.png',
+  'Espanha':        CDN+'6a0b3a1aa6db0dbe288b67f3_68fa08931b5e1697f8930e74_spain-national-team-footballlogos-org.png',
+  'Portugal':       CDN+'6a0b3a0095b66650d7655aba_68fa6b30ffde0dbd282357ab_portugal-national-team-footballlogos-org.png',
+  'Inglaterra':     CDN+'6a0b39f4f81c2d9713bb1958_68fa004f9bad274585f92fd4_england-national-team-footballlogos-org.png',
+  'Holanda':        CDN+'6a0b3a15786b121c0b7b60cc_68f9ff890403a59958f26579_netherlands-dutch-national-team-footballlogos-org.png',
+  'Bélgica':        CDN+'6a0b3a0fe2c051dd81874aac_68f9fc44d95277458c187c4f_belgium-national-team-footballlogos-org.png',
+  'México':         CDN+'6a0b3a067e47ced126acdd02_68fa02ee37f495f860481404_mexico-national-team-footballlogos-org.png',
+  'Estados Unidos': CDN+'6a0b39f54269adc0c7a000c3_68fa0a65e8dbfe6ba33cb5e6_usa-national-team-footballlogos-org.png',
+  'Uruguai':        CDN+'6a0b3a06d17821a2db9019ea_68fa0a1577c6612bb1154a07_uruguay-national-team-footballlogos-org.png',
+  'Canadá':         CDN+'6a0b3a09ff1d0f7cf9fc6892_68f9fcae7c3a768d2112f7cc_canada-national-team-footballlogos-org.png',
+  'Marrocos':       CDN+'6a0b39f3ff709486e36ba903_68fa032284d7ebc8adde9b0e_morocco-national-team-footballlogos-org.png',
+  'Senegal':        CDN+'6a0b3a052fcac044e973b7e1_68fa07554408d744a38f143f_senegal-national-team-footballlogos-org.png',
+  'Escócia':        CDN+'6a0b3a0e29b605309fb7f47b_68fa07134a7663c774887b1a_scotland-national-team-footballlogos-org.png',
+  'Croácia':        CDN+'68f9fe732030ba1891c2c1e7_croatia-national-team-footballlogos-org.svg',
+  'Suíça':          CDN+'6a0b3a0d052b7e092df739cf_68fa0904f28db91037150be9_swiss-national-team-footballlogos-org.png',
+  'Turquia':        CDN+'6a0b3a199844733813bb5b41_68fa09923df7f921ed9a86ef_turkey-national-team-footballlogos-org.png',
+  'Colômbia':       CDN+'68f9fd84ab47946a360b482d_colombia-national-team-footballlogos-org.svg',
+  'Paraguai':       CDN+'6a0b3a15c8ff2f7f7f02602c_68fa042c2750779cccf807b4_paraguay-national-team-footballlogos-org.png',
+  'Equador':        CDN+'6a0b3a03e8cfc8f978c35242_68f9ffb9e5f5a02e2ddd6c89_ecuador-national-team-footballlogos-org.png',
+  'Egito':          CDN+'6a0b39fd094c95a818967d17_68f9ffff9f0a363d783fca07_egypt-national-team-footballlogos-org.png',
+  'Gana':           CDN+'6a176f4197f7299d29c76a61_6a121b9d1a9da04ec878bb21_ghana-national-team-footylogos.png',
+  'Panamá':         CDN+'68fa03e45d0722bd9f321589_panama-national-team-footballlogos-org.svg',
+  'África do Sul':  CDN+'6a0b39f717d2d9b8868d47d7_68fd1ff449702964723a7890_south-africa-national-team-footballlogos-org.png',
+  'Cabo Verde':     CDN+'6a0b3a04f8e4dbd2d7560e3f_68fd1a7a7cceddc21192dd2a_cabo-verde-footballlogos-org.png',
+  'Argélia':        CDN+'6a0b39fec61707555515b17e_68f9faa3abd65d5f6209b2cd_algeria-national-team-footballlogos-org.png',
+  'Tunísia':        CDN+'6a0b39fc9b5ae9ed29ad6646_68fa093b578f3b5329f80833_tunisia-national-team-footballlogos-org.png',
+  'Costa do Marfim':CDN+'6a0b3a0a63e7e11f6ecf95f4_68f9fe0f5e31af81b7ceb973_cote-d-ivoire-national-team-footballlogos-org.png',
+  'Curaçao':        CDN+'6a0b3a0c450ecf35a44ec35a_690b58788ae9e26e532abfdf_curacao-national-team-footballlogos-org.png',
+  'Haiti':          CDN+'6a0f4c6c910c48d9bace182a_692869cd3f30b984d69b7f75_haiti-national-team-footylogos.png',
+  'Uzbequistão':    CDN+'6a0b39fc12418491a747e862_68fd208e9bfd4ed3a9b30b6f_uzbekistan-national-team-footballlogos-org.png',
+  'Nova Zelândia':  CDN+'6a0b39ff967f6d274aeb4e8b_68fa67ce6d8bf137ee675702_new-zealand-national-team-footballlogos-org.png',
+  'RD Congo':       CDN+'68fd1b5eda26ecde0ae4f1eb_dr-congo-footballlogos-org.svg',
+  'Áustria':        CDN+'68f9fc172630205d3271b9f1_austria-national-team-footballlogos-org.svg',
+  'Noruega':        CDN+'68fa03b401a24ac6badeaa5c_norway-national-team-footballlogos-org.svg',
+}
+
+const STARS = {
+  'Brasil':         { name:'Vini Jr.',       wiki:'Vinícius_Júnior' },
+  'Argentina':      { name:'L. Messi',       wiki:'Lionel_Messi' },
+  'França':         { name:'K. Mbappé',      wiki:'Kylian_Mbappé' },
+  'Alemanha':       { name:'J. Kimmich',     wiki:'Joshua_Kimmich' },
+  'Espanha':        { name:'Pedri',          wiki:'Pedri' },
+  'Portugal':       { name:'C. Ronaldo',     wiki:'Cristiano_Ronaldo' },
+  'Inglaterra':     { name:'J. Bellingham',  wiki:'Jude_Bellingham' },
+  'Holanda':        { name:'V. van Dijk',    wiki:'Virgil_van_Dijk' },
+  'Bélgica':        { name:'K. De Bruyne',   wiki:'Kevin_De_Bruyne' },
+  'México':         { name:'H. Lozano',      wiki:'Hirving_Lozano' },
+  'Estados Unidos': { name:'C. Pulisic',     wiki:'Christian_Pulisic' },
+  'Uruguai':        { name:'D. Núñez',       wiki:'Darwin_Núñez' },
+  'Canadá':         { name:'A. Davies',      wiki:'Alphonso_Davies' },
+  'Marrocos':       { name:'A. Hakimi',      wiki:'Achraf_Hakimi' },
+  'Senegal':        { name:'S. Mané',        wiki:'Sadio_Mané' },
+  'Escócia':        { name:'A. Robertson',   wiki:'Andrew_Robertson' },
+  'Croácia':        { name:'L. Modrić',      wiki:'Luka_Modrić' },
+  'Suíça':          { name:'G. Xhaka',       wiki:'Granit_Xhaka' },
+  'Turquia':        { name:'H. Çalhanoğlu',  wiki:'Hakan_Çalhanoğlu' },
+  'Colômbia':       { name:'L. Díaz',        wiki:'Luis_Díaz_(footballer,_born_1997)' },
+  'Paraguai':       { name:'M. Almirón',     wiki:'Miguel_Almirón' },
+  'Egito':          { name:'M. Salah',       wiki:'Mohamed_Salah' },
+  'Gana':           { name:'T. Partey',      wiki:'Thomas_Partey' },
+  'Coreia do Sul':  { name:'Son Heung-min',  wiki:'Son_Heung-min' },
+  'Japão':          { name:'T. Endo',        wiki:'Wataru_Endo' },
+  'Austrália':      { name:'M. Leckie',      wiki:'Mathew_Leckie' },
+  'Irã':            { name:'S. Azmoun',      wiki:'Sardar_Azmoun' },
+  'Arábia Saudita': { name:'S. Al-Dawsari',  wiki:'Salem_Al-Dawsari' },
+  'África do Sul':  { name:'P. Tau',         wiki:'Percy_Tau' },
+  'Noruega':        { name:'E. Haaland',     wiki:'Erling_Haaland' },
+  'Áustria':        { name:'D. Alaba',       wiki:'David_Alaba' },
+}
+
+const TEAM_COLORS = {
+  'Brasil':['#009C3B','#FFDF00'], 'Argentina':['#74ACDF','#fff'],
+  'França':['#002395','#ED2939'], 'Alemanha':['#000','#DD0000'],
+  'Espanha':['#AA151B','#F1BF00'], 'Portugal':['#006600','#FF0000'],
+  'Inglaterra':['#CF091D','#fff'], 'Holanda':['#FF6600','#003DA5'],
+  'Bélgica':['#000','#EF3340'], 'México':['#006847','#CE1126'],
+  'Estados Unidos':['#002868','#BF0A30'], 'Uruguai':['#5EB6E4','#fff'],
+  'Canadá':['#FF0000','#fff'], 'Marrocos':['#C1272D','#006233'],
+  'Senegal':['#00853F','#FDEF42'], 'Escócia':['#003DA5','#fff'],
+  'Croácia':['#FF0000','#fff'], 'Suíça':['#FF0000','#fff'],
+  'Turquia':['#E30A17','#fff'], 'Colômbia':['#FCD116','#003087'],
+  'Paraguai':['#D52B1E','#fff'], 'Egito':['#CE1126','#fff'],
+  'Gana':['#006B3F','#FCD116'], 'Panamá':['#DA121A','#fff'],
+  'Coreia do Sul':['#CD2E3A','#003478'], 'Japão':['#BC002D','#fff'],
+  'Austrália':['#FFD700','#006400'], 'Irã':['#239F40','#DA0000'],
+  'Noruega':['#EF2B2D','#fff'], 'Áustria':['#ED2939','#fff'],
+  'África do Sul':['#007A4D','#FFB612'], 'Argélia':['#006233','#D21034'],
+  'Tunísia':['#E70013','#fff'],
+}
+
+function useWikiPhoto(wiki) {
+  const [url, setUrl] = useState(null)
+  useEffect(() => {
+    if (!wiki) return
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wiki)}`)
+      .then(r => r.json())
+      .then(d => { if (d.thumbnail?.source) setUrl(d.thumbnail.source) })
+      .catch(() => {})
+  }, [wiki])
+  return url
+}
+
+// ── CARROSSEL DE JOGOS DO DIA ─────────────────────────────────────────────────
+function TodayCarousel({ participant }) {
+  const navigate = useNavigate()
+  const [predictions, setPredictions] = useState({})
+
+  const now = new Date()
+  const tomorrowEnd = new Date(now)
+  tomorrowEnd.setDate(tomorrowEnd.getDate()+1)
+  tomorrowEnd.setHours(23,59,59,999)
+
+  const upcoming = GROUP_MATCHES.filter(m => new Date(m.date) > new Date(now.getTime()-3*3600000))
+  const todayMatches = upcoming.filter(m => new Date(m.date) <= tomorrowEnd).slice(0,8)
+  const displayMatches = todayMatches.length > 0 ? todayMatches : upcoming.slice(0,6)
+
+  useEffect(() => {
+    if (!participant?.id) return
+    supabase.from('predictions').select('match_id').eq('participant_id', participant.id)
+      .then(({ data }) => {
+        const map = {}
+        data?.forEach(p => { map[p.match_id] = true })
+        setPredictions(map)
+      })
+  }, [participant?.id])
+
+  if (displayMatches.length === 0) return null
+
+  const isToday = (date) => {
+    const d = new Date(date), t = new Date()
+    return d.getDate()===t.getDate() && d.getMonth()===t.getMonth()
+  }
+
+  const formatTime = (date) => new Date(date).toLocaleTimeString('pt-BR', {
+    hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo'
+  })
+
+  const isLocked = (date) => new Date() >= new Date(date)
+
+  return (
+    <div style={{ marginBottom:14 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <div style={{ width:8, height:8, borderRadius:'50%', background:'#009639', animation:'pulse 1.5s infinite' }}/>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>
+            {todayMatches.length > 0 ? 'Jogos de Hoje e Amanhã' : 'Próximos Jogos'}
+          </span>
+        </div>
+        <button onClick={()=>navigate('/palpites')}
+          style={{ color:'#009639', fontSize:10, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>
+          Ver todos →
+        </button>
+      </div>
+
+      <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:8, scrollSnapType:'x mandatory', WebkitOverflowScrolling:'touch' }}>
+        {displayMatches.map(match => (
+          <MatchCard key={match.id} match={match}
+            hasPred={!!predictions[match.id]}
+            locked={isLocked(match.date)}
+            today={isToday(match.date)}
+            formatTime={formatTime}
+            onTap={()=>{ if(!isLocked(match.date)) navigate(`/palpites?match=${match.id}`) }}
+          />
+        ))}
+      </div>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}} ::-webkit-scrollbar{height:0}`}</style>
+    </div>
+  )
+}
+
+function MatchCard({ match, hasPred, locked, today, formatTime, onTap }) {
+  const star1 = STARS[match.team1]
+  const star2 = STARS[match.team2]
+  const photo1 = useWikiPhoto(star1?.wiki)
+  const photo2 = useWikiPhoto(star2?.wiki)
+  const c1 = TEAM_COLORS[match.team1] || ['#002855','#009639']
+  const c2 = TEAM_COLORS[match.team2] || ['#009639','#002855']
+
+  let borderColor, statusBg, statusColor, statusText
+  if (locked)       { borderColor='#E2EAF0'; statusBg='rgba(155,171,184,0.1)'; statusColor='#9BABB8'; statusText='🔒 Encerrado' }
+  else if (hasPred) { borderColor='rgba(0,150,57,0.3)'; statusBg='rgba(0,150,57,0.1)'; statusColor='#009639'; statusText='✓ Palpitado' }
+  else              { borderColor='rgba(245,166,35,0.5)'; statusBg='rgba(245,166,35,0.12)'; statusColor='#D4890A'; statusText='⚡ Palpitar' }
+
+  return (
+    <div onClick={onTap} style={{
+      flexShrink:0, scrollSnapAlign:'start', width:175,
+      borderRadius:16, overflow:'hidden', border:`1.5px solid ${borderColor}`,
+      boxShadow:'0 4px 16px rgba(0,40,85,0.09)', cursor:locked?'default':'pointer',
+      opacity:locked?.75:1, background:'#fff',
+    }}>
+      {/* Thumbnail */}
+      <div style={{ height:110, display:'flex', position:'relative' }}>
+        {/* Time 1 */}
+        <div style={{ flex:1, background:`linear-gradient(135deg,${c1[0]},${c1[1]})`, position:'relative', overflow:'hidden' }}>
+          {photo1 && <img src={photo1} alt={star1?.name} style={{ position:'absolute', bottom:0, width:'100%', height:'135%', objectFit:'cover', objectPosition:'top center' }}/>}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
+          {/* Escudo */}
+          <div style={{ position:'absolute', top:6, left:6, zIndex:2, width:26, height:26 }}>
+            {CRESTS[match.team1]
+              ? <img src={CRESTS[match.team1]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
+              : <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>}
+          </div>
+          {/* Badge hoje/amanhã */}
+          <div style={{ position:'absolute', top:6, right:6, zIndex:2, background:today?'#009639':'rgba(0,0,0,0.4)', borderRadius:6, padding:'2px 5px' }}>
+            <span style={{ color:'#fff', fontSize:7, fontWeight:800 }}>{today?'HOJE':'AMANHÃ'}</span>
+          </div>
+          <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
+            <span style={{ color:'#fff', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.9)' }}>{star1?.name||match.team1}</span>
+          </div>
+        </div>
+
+        {/* VS central */}
+        <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', zIndex:5, background:'rgba(255,255,255,0.95)', borderRadius:20, padding:'4px 7px', boxShadow:'0 2px 8px rgba(0,0,0,0.2)', display:'flex', flexDirection:'column', alignItems:'center', gap:1 }}>
+          <span style={{ color:'#9BABB8', fontSize:7, fontWeight:900, letterSpacing:1 }}>VS</span>
+          <span style={{ color:'#002855', fontSize:11, fontWeight:900, lineHeight:1 }}>{formatTime(match.date)}</span>
+        </div>
+
+        {/* Time 2 */}
+        <div style={{ flex:1, background:`linear-gradient(135deg,${c2[1]},${c2[0]})`, position:'relative', overflow:'hidden' }}>
+          {photo2 && <img src={photo2} alt={star2?.name} style={{ position:'absolute', bottom:0, width:'100%', height:'135%', objectFit:'cover', objectPosition:'top center' }}/>}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to left,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
+          <div style={{ position:'absolute', top:6, right:6, zIndex:2, width:26, height:26 }}>
+            {CRESTS[match.team2]
+              ? <img src={CRESTS[match.team2]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
+              : <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>}
+          </div>
+          <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
+            <span style={{ color:'#fff', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.9)' }}>{star2?.name||match.team2}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div style={{ padding:'8px 10px 10px' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:10, flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team1}</span>
+          <span style={{ color:'#9BABB8', fontSize:8, fontWeight:700, padding:'0 4px', flexShrink:0 }}>G{match.group}</span>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:10, flex:1, textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team2}</span>
+        </div>
+        <div style={{ color:'#9BABB8', fontSize:8, textAlign:'center', marginBottom:7, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>📍 {match.city}</div>
+        <div style={{ background:statusBg, borderRadius:8, padding:'5px', textAlign:'center' }}>
+          <span style={{ color:statusColor, fontWeight:900, fontSize:10 }}>{statusText}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
 function UpcomingMatches({ onVerTodos }) {
   const now = new Date()
   const next = GROUP_MATCHES.filter(m=>new Date(m.date)>now).slice(0,3)
@@ -229,7 +483,11 @@ export default function Dashboard({ participant, onLogout }) {
       <div style={{ paddingTop: openCount>0?96:58 }}>
         <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/palpites')}/>
 
-        <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14, marginTop:0 }}>
+        <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0 }}>
+          <TodayCarousel participant={participant} />
+        </div>
+
+        <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14 }}>
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
