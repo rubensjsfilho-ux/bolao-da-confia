@@ -136,6 +136,25 @@ export default function Prizes({ participant, onLogout }) {
           ))}
         </div>
 
+        {/* Palpite de Campeão */}
+        <div style={{ background:'linear-gradient(135deg,#002855,#003520)', borderRadius:16, padding:'20px', marginBottom:16, border:'1px solid rgba(245,166,35,0.2)' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
+            <span style={{ fontSize:28 }}>🏆</span>
+            <div>
+              <div style={{ color:'#F5A623', fontWeight:900, fontSize:15 }}>Palpite Final</div>
+              <div style={{ color:'rgba(255,255,255,0.55)', fontSize:11 }}>Campeão · Vice · 3º Lugar</div>
+            </div>
+            <div style={{ marginLeft:'auto', background:'rgba(245,166,35,0.15)', border:'1px solid rgba(245,166,35,0.3)', borderRadius:8, padding:'3px 8px', fontSize:10, fontWeight:800, color:'#F5A623' }}>+18 pts</div>
+          </div>
+          <div style={{ color:'rgba(255,255,255,0.5)', fontSize:11, marginBottom:14, lineHeight:1.5 }}>
+            Acerte o campeão, vice e 3º lugar para ganhar pontos extras. Encerra em <strong style={{ color:'#F5A623' }}>11/06 às 19h</strong>.
+          </div>
+          <button onClick={() => navigate('/campeao')}
+            style={{ width:'100%', background:'#F5A623', color:'#002855', border:'none', borderRadius:10, padding:'12px', fontWeight:900, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}>
+            🏆 Fazer Palpite Final
+          </button>
+        </div>
+
         <button onClick={() => navigate('/palpites')}
           style={{ width:'100%', background:'#009639', color:'#fff', border:'none', borderRadius:14, padding:'15px', fontWeight:800, fontSize:15, cursor:'pointer', fontFamily:'inherit' }}>
           Fazer Meus Palpites 🎯
