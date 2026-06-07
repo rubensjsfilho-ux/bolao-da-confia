@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Home, Target, BarChart3, Gift, LogOut, GitBranch, ShieldCheck } from 'lucide-react'
 
@@ -10,9 +11,13 @@ const NAV = [
 ]
 
 export function Avatar({ photoUrl, emoji='⚽', size=36, border=true }) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const showImg = photoUrl && !imgFailed
   return (
-    <div style={{ width:size, height:size, borderRadius:'50%', overflow:'hidden', flexShrink:0, border: border?'2px solid #E2EAF0':'none', background: photoUrl?'transparent':'linear-gradient(135deg,#e8f5ee,#F4F6F9)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:size*.5 }}>
-      {photoUrl ? <img src={photoUrl} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : <span>{emoji}</span>}
+    <div style={{ width:size, height:size, borderRadius:'50%', overflow:'hidden', flexShrink:0, border: border?'2px solid #E2EAF0':'none', background:'linear-gradient(135deg,#e8f5ee,#ddeedd)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:size*.48 }}>
+      {showImg
+        ? <img src={photoUrl} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} onError={()=>setImgFailed(true)}/>
+        : <span>{emoji||'⚽'}</span>}
     </div>
   )
 }
