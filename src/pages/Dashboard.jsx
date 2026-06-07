@@ -20,82 +20,82 @@ function Hero({ onPalpites, onJogos }) {
   const started = new Date() >= new Date('2026-06-11T22:00:00Z')
 
   return (
-    <div style={{ position:'relative', overflow:'hidden', background:'#000', minHeight:320 }}>
+    <div style={{ position:'relative', overflow:'hidden', background:'#001a0d', minHeight:300 }}>
 
-      {/* Fundo colorido inspirado no branding FIFA 2026 */}
-      <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg, #009639 0%, #002855 40%, #000 70%)', opacity:.9 }}/>
+      {/* Fundo gradiente */}
+      <div style={{ position:'absolute', inset:0, background:'linear-gradient(120deg, #003520 0%, #001a0d 45%, #000 100%)' }}/>
 
-      {/* Listras coloridas decorativas */}
-      <div style={{ position:'absolute', top:0, right:0, width:'55%', height:'100%', background:'linear-gradient(135deg,#F5A623 0%,#e8143c 30%,#7B2FBE 60%,#009639 100%)', opacity:.15, borderRadius:'0 0 0 60%' }}/>
+      {/* Listra decorativa esquerda */}
+      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #009639, #F5A623)' }}/>
 
-      {/* Números "26" estilizados */}
-      <div style={{ position:'absolute', right:-10, top:'50%', transform:'translateY(-50%)', lineHeight:1, pointerEvents:'none', userSelect:'none' }}>
-        <div style={{ fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:220, color:'rgba(255,255,255,0.06)', letterSpacing:-20, lineHeight:.85 }}>
-          <div>2</div>
-          <div>6</div>
-        </div>
-      </div>
-
-      {/* Imagem da taça */}
-      <div style={{ position:'absolute', right:16, top:'50%', transform:'translateY(-50%)', zIndex:2 }}>
+      {/* Taça — direita, grande, preenchendo toda a altura */}
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'48%', zIndex:1 }}>
+        {/* Gradiente sobre a taça para fundir com o fundo */}
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #001a0d 0%, transparent 40%)', zIndex:2 }}/>
         <img
           src="/images/trophy.webp"
           alt="Taça Copa 2026"
-          style={{ height:200, width:'auto', objectFit:'contain', filter:'drop-shadow(0 8px 32px rgba(245,166,35,0.5))' }}
-          onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='block' }}
+          style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center', opacity:.85, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.35))' }}
+          onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }}
         />
-        <div style={{ display:'none', fontSize:120, filter:'drop-shadow(0 8px 32px rgba(245,166,35,0.4))' }}>🏆</div>
+        <div style={{ display:'none', width:'100%', height:'100%', alignItems:'center', justifyContent:'center', fontSize:120 }}>🏆</div>
       </div>
 
-      {/* Conteúdo */}
-      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', maxWidth:220 }}>
+      {/* Conteúdo — esquerda */}
+      <div style={{ position:'relative', zIndex:3, padding:'26px 16px 22px', width:'60%' }}>
 
-        {/* Logo Copa 2026 texto */}
-        <div style={{ marginBottom:14 }}>
-          <div style={{ color:'#fff', fontWeight:900, fontSize:11, letterSpacing:3, textTransform:'uppercase', opacity:.7, marginBottom:4 }}>Bolão da Confia</div>
+        {/* Label topo */}
+        <div style={{ color:'rgba(255,255,255,0.5)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase', marginBottom:12 }}>
+          BOLÃO DA CONFIA
+        </div>
 
-          {/* "26" estilizado com tipografia Copa */}
-          <div style={{ display:'flex', alignItems:'center', gap:0, marginBottom:4 }}>
-            <div style={{ position:'relative' }}>
-              <span style={{ color:'#fff', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:72, lineHeight:.9, letterSpacing:-4, display:'block' }}>2</span>
-              <span style={{ color:'#F5A623', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:72, lineHeight:.9, letterSpacing:-4, display:'block' }}>6</span>
-            </div>
-            <div style={{ marginLeft:8, lineHeight:1.1 }}>
-              <div style={{ color:'#fff', fontWeight:900, fontSize:18, letterSpacing:-0.5 }}>COPA</div>
-              <div style={{ color:'#F5A623', fontWeight:900, fontSize:18, letterSpacing:-0.5 }}>DO MUNDO</div>
-            </div>
+        {/* Tipografia "2 COPA / 6 DO MUNDO" */}
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
+          {/* Números grandes */}
+          <div style={{ lineHeight:.88, flexShrink:0 }}>
+            <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:80, letterSpacing:-3, lineHeight:.9 }}>2</div>
+            <div style={{ color:'#F5A623', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:80, letterSpacing:-3, lineHeight:.9 }}>6</div>
           </div>
-
-          <div style={{ display:'flex', gap:6, alignItems:'center', fontSize:11, color:'rgba(255,255,255,0.6)', fontWeight:700 }}>
-            <span>🇺🇸</span><span>EUA</span><span style={{ opacity:.4 }}>·</span>
-            <span>🇨🇦</span><span>CAN</span><span style={{ opacity:.4 }}>·</span>
-            <span>🇲🇽</span><span>MEX</span>
+          {/* Texto Copa do Mundo */}
+          <div style={{ lineHeight:1.15 }}>
+            <div style={{ color:'#ffffff', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:20, letterSpacing:-.5, textTransform:'uppercase' }}>COPA</div>
+            <div style={{ color:'#F5A623', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:20, letterSpacing:-.5, textTransform:'uppercase' }}>DO MUNDO</div>
           </div>
+        </div>
+
+        {/* Países sede */}
+        <div style={{ display:'flex', gap:5, alignItems:'center', marginBottom:14 }}>
+          {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
+            <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.55)', fontSize:10, fontWeight:700 }}>
+              {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
+              <span>{flag}</span><span>{name}</span>
+            </span>
+          ))}
         </div>
 
         {/* Countdown */}
         {!started ? (
-          <div style={{ display:'flex', gap:5, marginBottom:16 }}>
+          <div style={{ display:'flex', gap:5, marginBottom:18 }}>
             {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
-              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.12)', backdropFilter:'blur(4px)', borderRadius:8, padding:'6px 8px', minWidth:40, border:'1px solid rgba(255,255,255,0.15)' }}>
-                <div style={{ color:'#F5A623', fontWeight:900, fontSize:18, lineHeight:1 }}>{String(v).padStart(2,'0')}</div>
-                <div style={{ color:'rgba(255,255,255,0.5)', fontSize:8, letterSpacing:1 }}>{l}</div>
+              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.1)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.12)' }}>
+                <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
+                <div style={{ color:'rgba(255,255,255,0.4)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
               </div>
             ))}
           </div>
         ) : (
-          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,150,57,0.3)', borderRadius:20, padding:'5px 12px', marginBottom:16, border:'1px solid rgba(0,150,57,0.5)' }}>
-            <div style={{ width:7, height:7, borderRadius:'50%', background:'#4ade80' }}/>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,150,57,0.25)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,150,57,0.4)' }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', background:'#4ade80' }}/>
             <span style={{ color:'#4ade80', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
           </div>
         )}
 
         {/* Botões */}
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-          <button onClick={onPalpites} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:12, padding:'12px 16px', fontWeight:800, fontSize:13, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6 }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
+          <button onClick={onPalpites} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:10, padding:'11px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 16px rgba(0,150,57,0.4)' }}>
             🎯 FAZER PALPITES
           </button>
-          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.1)', color:'#fff', border:'1px solid rgba(255,255,255,0.2)', borderRadius:12, padding:'11px 16px', fontWeight:800, fontSize:13, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
+          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.08)', color:'#fff', border:'1px solid rgba(255,255,255,0.15)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
             📅 VER JOGOS
           </button>
         </div>
