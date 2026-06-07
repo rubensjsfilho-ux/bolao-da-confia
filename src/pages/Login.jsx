@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 import { Logo } from '../components/Header'
 import { Loader2, Eye, EyeOff } from 'lucide-react'
 
-const JOIN_CODE = import.meta.env.VITE_JOIN_CODE || 'copa2026'
+const JOIN_CODE = import.meta.env.VITE_JOIN_CODE || 'confia2026'
 const AVATARS   = ['⚽','🏆','🌟','🦁','🔥','⚡','🎯','👑','🐆','🦅']
 
 export default function Login({ onLogin }) {
