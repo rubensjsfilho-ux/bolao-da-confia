@@ -129,7 +129,7 @@ export default function Login({ onLogin }) {
             <label style={{ color:'#002855', fontWeight:700, fontSize:11, textTransform:'uppercase', letterSpacing:1, display:'block', marginBottom:6 }}>Código do Bolão</label>
             <input style={inp} value={code} onChange={e=>{setCode(e.target.value);setError('')}} placeholder="Digite o código..." autoFocus/>
             {error && <div style={{ color:'#C0392B', background:'rgba(220,53,69,0.07)', borderRadius:10, padding:'8px 12px', fontSize:13, marginTop:10 }}>{error}</div>}
-            <button onClick={()=>{ if(code.trim().toLowerCase()===JOIN_CODE.toLowerCase()){setError('');setStep('auth')}else setError('Código inválido!') }}
+            <button onClick={()=>{ setError('');setStep('auth') }}
               style={{ width:'100%', marginTop:16, background:'#009639', color:'#fff', border:'none', borderRadius:12, padding:'13px', fontWeight:800, fontSize:15, cursor:'pointer', fontFamily:'inherit' }}>
               Continuar →
             </button>
@@ -237,4 +237,3 @@ export default function Login({ onLogin }) {
     </div>
   )
 }
-
