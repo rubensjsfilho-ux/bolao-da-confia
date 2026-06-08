@@ -30,14 +30,14 @@ function Hero({ onPalpites, onJogos }) {
 
       {/* Taça — direita, grande */}
       <div style={{ position:'absolute', right:-10, top:0, bottom:0, width:'52%', zIndex:1 }}>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:1 }}/>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
         <img
           src="/images/trophy.webp"
           alt="Taça Copa 2026"
-          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'contain', objectPosition:'center', opacity:.92, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.45))', zIndex:2 }}
+          style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center', opacity:.92, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.45))' }}
           onError={e => { e.target.style.display='none' }}
         />
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 40%)', zIndex:3 }}/>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 35%)', zIndex:2 }}/>
       </div>
 
       {/* Conteúdo — esquerda */}
@@ -135,7 +135,7 @@ function StatsStrip({ stats, totalParts, myRank }) {
     <div style={{ background:'#fff', margin:'0 12px', borderRadius:16, padding:'14px 8px', boxShadow:'0 4px 20px rgba(0,40,85,0.10)', border:'1px solid #E2EAF0', display:'grid', gridTemplateColumns:'repeat(4,1fr)', marginTop:-16, position:'relative', zIndex:4 }}>
       {[
         { icon:<Users size={20} color="#009639"/>, label:'PARTICIPANTES', val:totalParts, sub:'Ver todos', subc:'#009639' },
-        { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank ? myRank + 'º' : '—', sub:myRank ? 'de ' + totalParts : '—', subc:'#6B7A8D' },
+        { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`${myRank}º`:'—', sub:myRank?`de ${totalParts}`:'—', subc:'#6B7A8D' },
         { icon:<Star size={20} color="#F5A623"/>, label:'SEUS PONTOS', val:stats.points, sub:'Ver pontuação', subc:'#009639' },
         { icon:<Calendar size={20} color="#7B2FBE"/>, label:'RODADA ATUAL', val:'Grupos', sub:'Em andamento', subc:'#7B2FBE' },
       ].map(({icon,label,val,sub,subc})=>(
@@ -149,6 +149,7 @@ function StatsStrip({ stats, totalParts, myRank }) {
     </div>
   )
 }
+
 // ── DADOS DOS ESCUDOS E JOGADORES ─────────────────────────────────────────────
 const CDN = "https://cdn.prod.website-files.com/68f550992570ca0322737dc2/"
 const CRESTS = {
@@ -210,6 +211,7 @@ const STARS = {
   'Escócia':        { name:'A. Robertson',   wiki:'Andrew_Robertson' },
   'Croácia':        { name:'L. Modrić',      wiki:'Luka_Modrić' },
   'Suíça':          { name:'G. Xhaka',       wiki:'Granit_Xhaka' },
+  'Turquia':        { name:'H. Çalhanoğlu',  wiki:'Hakan_Çalhanoğlu' },
   'Colômbia':       { name:'L. Díaz',        wiki:'Luis_Díaz_(footballer,_born_1997)' },
   'Paraguai':       { name:'M. Almirón',     wiki:'Miguel_Almirón' },
   'Egito':          { name:'M. Salah',       wiki:'Mohamed_Salah' },
@@ -225,23 +227,23 @@ const STARS = {
 }
 
 const TEAM_COLORS = {
-  'Brasil':(['#009C3B','#FFDF00']), 'Argentina':(['#74ACDF','#fff']),
-  'França':(['#002395','#ED2939']), 'Alemanha':(['#000','#DD0000']),
-  'Espanha':(['#AA151B','#F1BF00']), 'Portugal':(['#006600','#FF0000']),
-  'Inglaterra':(['#CF091D','#fff']), 'Holanda':(['#FF6600','#003DA5']),
-  'Bélgica':(['#000','#EF3340']), 'México':(['#006847','#CE1126']),
-  'Estados Unidos':(['#002868','#BF0A30']), 'Uruguai':(['#5EB6E4','#fff']),
-  'Canadá':(['#FF0000','#fff']), 'Marrocos':(['#C1272D','#006233']),
-  'Senegal':(['#00853F','#FDEF42']), 'Escócia':(['#003DA5','#fff']),
-  'Croácia':(['#FF0000','#fff']), 'Suíça':(['#FF0000','#fff']),
-  'Turquia':(['#E30A17','#fff']), 'Colômbia':(['#FCD116','#003087']),
-  'Paraguai':(['#D52B1E','#fff']), 'Egito':(['#CE1126','#fff']),
-  'Gana':(['#006B3F','#FCD116']), 'Panamá':(['#DA121A','#fff']),
-  'Coreia do Sul':(['#CD2E3A','#003478']), 'Japão':(['#BC002D','#fff']),
-  'Austrália':(['#FFD700','#006400']), 'Irã':(['#239F40','#DA0000']),
-  'Noruega':(['#EF2B2D','#fff']), 'Áustria':(['#ED2939','#fff']),
-  'África do Sul':(['#007A4D','#FFB612']), 'Argélia':(['#006233','#D21034']),
-  'Tunísia':(['#E70013','#fff']),
+  'Brasil':['#009C3B','#FFDF00'], 'Argentina':['#74ACDF','#fff'],
+  'França':['#002395','#ED2939'], 'Alemanha':['#000','#DD0000'],
+  'Espanha':['#AA151B','#F1BF00'], 'Portugal':['#006600','#FF0000'],
+  'Inglaterra':['#CF091D','#fff'], 'Holanda':['#FF6600','#003DA5'],
+  'Bélgica':['#000','#EF3340'], 'México':['#006847','#CE1126'],
+  'Estados Unidos':['#002868','#BF0A30'], 'Uruguai':['#5EB6E4','#fff'],
+  'Canadá':['#FF0000','#fff'], 'Marrocos':['#C1272D','#006233'],
+  'Senegal':['#00853F','#FDEF42'], 'Escócia':['#003DA5','#fff'],
+  'Croácia':['#FF0000','#fff'], 'Suíça':['#FF0000','#fff'],
+  'Turquia':['#E30A17','#fff'], 'Colômbia':['#FCD116','#003087'],
+  'Paraguai':['#D52B1E','#fff'], 'Egito':['#CE1126','#fff'],
+  'Gana':['#006B3F','#FCD116'], 'Panamá':['#DA121A','#fff'],
+  'Coreia do Sul':['#CD2E3A','#003478'], 'Japão':['#BC002D','#fff'],
+  'Austrália':['#FFD700','#006400'], 'Irã':['#239F40','#DA0000'],
+  'Noruega':['#EF2B2D','#fff'], 'Áustria':['#ED2939','#fff'],
+  'África do Sul':['#007A4D','#FFB612'], 'Argélia':['#006233','#D21034'],
+  'Tunísia':['#E70013','#fff'],
 }
 
 function useWikiPhoto(wiki) {
@@ -255,6 +257,7 @@ function useWikiPhoto(wiki) {
   }, [wiki])
   return url
 }
+
 // ── CARROSSEL DE JOGOS DO DIA ─────────────────────────────────────────────────
 function TodayCarousel({ participant }) {
   const navigate = useNavigate()
@@ -419,34 +422,18 @@ function NewsWidget() {
   const [currentIdx, setCurrentIdx] = useState(0)
 
   useEffect(() => {
-    const toItems = (items, source) => items.map(i => ({
-      title: i.title.replace(/ - [^-]+$/, '').trim(),
-      link: i.link,
-      source: source || (i.author ? i.author : 'Notícias'),
-      pubDate: i.pubDate ? i.pubDate.substring(0, 10) : '',
-      image: i.thumbnail || i.enclosure?.link || '',
-    }))
-
-    const tryFeed = async (url, source) => {
-      try {
-        const r = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url) + '&count=8')
-        const d = await r.json()
-        if (d.status === 'ok' && d.items?.length > 0) return toItems(d.items, source)
-      } catch(_) {}
-      return null
-    }
-
-    const load = async () => {
-      const googleRSS = 'https://news.google.com/rss/search?q=Copa+do+Mundo+2026&hl=pt-BR&gl=BR&ceid=BR:pt-419'
-      let items = await tryFeed(googleRSS, null)
-      if (!items) items = await tryFeed('https://ge.globo.com/rss/futebol/', 'GE.Globo')
-      if (!items) items = await tryFeed('https://www.espn.com.br/espn/rss/futebol/noticias', 'ESPN')
-      if (items) setNews(items)
-      setLoading(false)
-    }
-    load()
+    supabase
+      .from('news')
+      .select('title, link, source, pub_date')
+      .order('pub_date', { ascending: false })
+      .limit(5)
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          setNews(data.map(n => ({ ...n, pubDate: n.pub_date })))
+        }
+        setLoading(false)
+      })
   }, [])
-
   useEffect(() => {
     if (news.length === 0) return
     const id = setInterval(() => setCurrentIdx(i => (i+1) % Math.min(news.length, 5)), 4000)
@@ -463,6 +450,8 @@ function NewsWidget() {
 
   return (
     <div style={{ background:'#fff', borderRadius:14, padding:'16px 14px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)', overflow:'hidden' }}>
+
+      {/* Header */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
         <div style={{ display:'flex', alignItems:'center', gap:7 }}>
           <div style={{ width:28, height:28, borderRadius:8, background:'linear-gradient(135deg,#002855,#009639)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>📰</div>
@@ -483,31 +472,38 @@ function NewsWidget() {
               <div key={i} style={{ height:14, width:`${w}%`, borderRadius:6, background:'linear-gradient(90deg,#F4F6F9 25%,#e8eaed 50%,#F4F6F9 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite' }}/>
             ))}
           </div>
+          <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
         </div>
       ) : (
         <>
+          {/* Notícia destacada — layout horizontal com imagem à esquerda */}
           {visibleNews[currentIdx] && (
             <a href={visibleNews[currentIdx].link} target="_blank" rel="noopener noreferrer"
               style={{ display:'flex', gap:12, borderRadius:12, overflow:'hidden', textDecoration:'none', marginBottom:14, border:'1px solid #E2EAF0', background:'#F8FAFC' }}>
-              <div style={{ flexShrink:0, width:110, minHeight:100, background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                {visibleNews[currentIdx].image
-                  ? <img src={visibleNews[currentIdx].image} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0 }}
-                      onError={e => { e.target.style.display='none' }}/>
-                  : <span style={{ fontSize:36, opacity:.6 }}>⚽</span>
-                }
+              {/* Ícone lateral */}
+              <div style={{ flexShrink:0, width:90, minHeight:100, background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <span style={{ fontSize:36, opacity:.7 }}>⚽</span>
                 <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,transparent 70%,#F8FAFC)' }}/>
               </div>
+              {/* Texto */}
               <div style={{ flex:1, padding:'12px 12px 12px 0', display:'flex', flexDirection:'column', justifyContent:'center' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:6 }}>
                   <span style={{ background:'rgba(0,150,57,0.1)', color:'#009639', fontSize:9, fontWeight:800, borderRadius:5, padding:'2px 7px' }}>⚽ COPA 2026</span>
-                  <span style={{ color:'#9BABB8', fontSize:9 }}>{formatNewsDate(visibleNews[currentIdx].pubDate)}</span>
+                  {visibleNews[currentIdx].pubDate && <span style={{ color:'#9BABB8', fontSize:9 }}>{formatNewsDate(visibleNews[currentIdx].pubDate)}</span>}
                 </div>
-                <div style={{ color:'#002855', fontWeight:800, fontSize:13, lineHeight:1.45 }}>{visibleNews[currentIdx].title}</div>
-                <div style={{ color:'#009639', fontSize:10, fontWeight:700, marginTop:6 }}>Ler mais →</div>
+                <div style={{ color:'#002855', fontWeight:800, fontSize:13, lineHeight:1.45, marginBottom:4 }}>{visibleNews[currentIdx].title}</div>
+                {visibleNews[currentIdx].summary && (
+                  <div style={{ color:'#6B7A8D', fontSize:11, lineHeight:1.4, marginBottom:6 }}>{visibleNews[currentIdx].summary}</div>
+                )}
+                <div style={{ color:'#009639', fontSize:10, fontWeight:700 }}>Ler mais →</div>
               </div>
             </a>
           )}
+
+          {/* Divisor */}
           <div style={{ color:'#9BABB8', fontSize:9, fontWeight:800, letterSpacing:1.2, textTransform:'uppercase', marginBottom:10 }}>Mais notícias</div>
+
+          {/* Lista de outras notícias */}
           {visibleNews.filter((_,i) => i!==currentIdx).slice(0,4).map((item, i) => (
             <a key={i} href={item.link} target="_blank" rel="noopener noreferrer"
               style={{ display:'flex', alignItems:'flex-start', gap:10, padding:'10px 0', borderBottom:'1px solid #F4F6F9', textDecoration:'none' }}>
@@ -524,6 +520,7 @@ function NewsWidget() {
     </div>
   )
 }
+
 
 // ── TOP 5 ─────────────────────────────────────────────────────────────────────
 function Top5({ participant, ranking }) {
@@ -587,6 +584,7 @@ export default function Dashboard({ participant, onLogout }) {
     <div style={{ minHeight:'100vh', background:'#F4F6F9', overflowX:'hidden' }}>
       <Header participant={participant} onLogout={onLogout}/>
 
+      {/* Aviso palpites */}
       {openCount>0 && (
         <div style={{ position:'fixed', top:58, left:0, right:0, zIndex:40, background:'#F5A623', padding:'8px 16px', display:'flex', alignItems:'center', gap:8 }}>
           <AlertCircle size={14} color="#002855"/>
@@ -597,13 +595,18 @@ export default function Dashboard({ participant, onLogout }) {
 
       <div style={{ paddingTop: openCount>0?96:58 }}>
         <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/palpites')}/>
+
         <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0 }}>
           <TodayCarousel participant={participant} />
         </div>
+
         <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14 }}>
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
+
           <NewsWidget/>
           <Top5 participant={participant} ranking={ranking}/>
+
+          {/* Banners */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
             <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', right:-8, bottom:-8, opacity:.12 }}>
@@ -614,6 +617,7 @@ export default function Dashboard({ participant, onLogout }) {
               <div style={{ color:'#9BABB8', fontSize:10, margin:'3px 0 10px' }}>50 vagas · R$ 20 cada</div>
               <button onClick={()=>navigate('/premios')} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:8, padding:'6px 10px', fontWeight:800, fontSize:9, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>VER PRÊMIOS</button>
             </div>
+
             <div style={{ borderRadius:14, padding:'14px 12px', background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', right:-10, bottom:-10, opacity:.15 }}>
                 <img src="/images/trophy.webp" style={{ width:70, height:70, objectFit:'contain', filter:'grayscale(1)' }} alt=""/>
@@ -623,6 +627,8 @@ export default function Dashboard({ participant, onLogout }) {
               </div>
             </div>
           </div>
+
+          {/* Pontuação */}
           <div style={{ background:'#fff', borderRadius:16, padding:'16px', border:'1px solid #E2EAF0', marginBottom:4 }}>
             <div style={{ color:'#002855', fontWeight:900, fontSize:15, marginBottom:12 }}>📋 Pontuação</div>
             {[['Placar exato','#D4890A','rgba(245,166,35,0.10)','+3 pts'],['Resultado correto','#007a2e','rgba(0,150,57,0.08)','+1 pt'],['Campeão correto','#D4890A','rgba(245,166,35,0.10)','+10 pts'],['Vice correto','#007a2e','rgba(0,150,57,0.08)','+5 pts'],['3º lugar correto','#007a2e','rgba(0,150,57,0.08)','+3 pts'],['Resultado errado','#C0392B','rgba(220,53,69,0.07)','0 pts']].map(([l,c,bg,pts])=>(
