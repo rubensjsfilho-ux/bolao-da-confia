@@ -24,10 +24,12 @@ function calcPoints(p1,p2,r1,r2){
 }
 
 // ── Card de resultado ─────────────────────────────────────────────────────────
-function MatchRow({ match, onSave }){
+function MatchRow({ match, onSave, onFinish, onReset }){
   const [s1,setS1]=useState(match.score1??'')
   const [s2,setS2]=useState(match.score2??'')
   const [saving,setSaving]=useState(false)
+  const [finishing,setFinishing]=useState(false)
+  const [resetting,setResetting]=useState(false)
   const [saved,setSaved]=useState(false)
 
   const save = async()=>{
@@ -38,35 +40,71 @@ function MatchRow({ match, onSave }){
     setTimeout(()=>setSaved(false),2500)
   }
 
+  const finish = async()=>{
+    if(s1===''||s2==='')return
+    if(!window.confirm(`Encerrar ${match.team1} ${s1} x ${s2} ${match.team2}? Isso calculará a pontuação dos participantes.`))return
+    setFinishing(true)
+    await onFinish(match.id,parseInt(s1),parseInt(s2))
+    setFinishing(false)
+  }
+
+  const reset = async()=>{
+    if(!window.confirm(`Resetar ${match.team1} x ${match.team2}? O placar e a pontuação serão zerados.`))return
+    setResetting(true)
+    await onReset(match.id)
+    setResetting(false)
+    setS1('');setS2('')
+  }
+
   return(
-    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10, opacity:match.is_finished?.75:1 }}>
+    <div style={{ background:C.card, border:`1px solid ${match.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
         <span style={{ color:C.textMuted, fontSize:10 }}>Grupo {match.group} · {formatDate(match.date)}</span>
-        {match.is_finished&&<span style={{ color:C.green, fontSize:10, fontWeight:800 }}>✓ Encerrado</span>}
+        {match.is_finished
+          ? <span style={{ color:C.green, fontSize:10, fontWeight:800 }}>✓ Encerrado</span>
+          : match.score1!==null&&match.score2!==null
+            ? <span style={{ color:C.gold, fontSize:10, fontWeight:800 }}>⏱ Em andamento</span>
+            : null
+        }
       </div>
       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
         <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>
         <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700 }}>{match.team1}</span>
         <input type="number" min="0" max="20" value={s1} onChange={e=>setS1(e.target.value)}
-          style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+          disabled={match.is_finished}
+          style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:match.is_finished?.5:1 }}/>
         <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
         <input type="number" min="0" max="20" value={s2} onChange={e=>setS2(e.target.value)}
-          style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+          disabled={match.is_finished}
+          style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:match.is_finished?.5:1 }}/>
         <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700, textAlign:'right' }}>{match.team2}</span>
         <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>
       </div>
-      <div style={{ display:'flex', justifyContent:'flex-end', marginTop:10 }}>
-        <button onClick={save} disabled={s1===''||s2===''||saving}
-          style={{ background: saved?'rgba(74,222,128,0.2)':C.gold, color: saved?C.green:'#000', border:'none', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
-          {saving?'Salvando...' : saved?'✓ Salvo!' : match.is_finished?'Atualizar':'Salvar'}
-        </button>
+      <div style={{ display:'flex', justifyContent:'flex-end', gap:6, marginTop:10 }}>
+        {match.is_finished ? (
+          <button onClick={reset} disabled={resetting}
+            style={{ background:'rgba(220,53,69,0.15)', color:'#ff6b6b', border:'1px solid rgba(220,53,69,0.3)', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+            {resetting?'Resetando...':'↩ Resetar'}
+          </button>
+        ) : (
+          <>
+            <button onClick={save} disabled={s1===''||s2===''||saving}
+              style={{ background:'rgba(255,255,255,0.1)', color:saved?C.green:C.text, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
+              {saving?'Salvando...' : saved?'✓ Salvo!':'💾 Salvar placar'}
+            </button>
+            <button onClick={finish} disabled={s1===''||s2===''||finishing}
+              style={{ background:C.gold, color:'#000', border:'none', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
+              {finishing?'Encerrando...':'✓ Encerrar'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
 }
 
 // ── Aba de resultados ─────────────────────────────────────────────────────────
-function ResultsTab({ matches, loading, onSave }){
+function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
   const [group,setGroup]=useState('all')
   const [showDone,setShowDone]=useState(false)
   const groups=['all','A','B','C','D','E','F','G','H','I','J','K','L']
@@ -121,7 +159,7 @@ function ResultsTab({ matches, loading, onSave }){
           <div style={{ fontSize:40, marginBottom:8 }}>✅</div>
           <p>Nenhum jogo pendente neste grupo.</p>
         </div>
-      ) : filtered.map(m=><MatchRow key={m.id} match={m} onSave={onSave}/>)}
+      ) : filtered.map(m=><MatchRow key={m.id} match={m} onSave={onSave} onFinish={onFinish} onReset={onReset}/>)}
     </div>
   )
 }
@@ -384,13 +422,28 @@ export default function Admin(){
     setLoading(false)
   }
 
+  // Só salva o placar parcial, sem encerrar nem pontuar
   const saveResult=async(matchId,score1,score2)=>{
+    await supabase.from('matches').update({score1,score2}).eq('id',matchId)
+    setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1,score2}:m))
+  }
+
+  // Encerra a partida e calcula pontuação
+  const finishMatch=async(matchId,score1,score2)=>{
     await supabase.from('matches').update({score1,score2,is_finished:true}).eq('id',matchId)
     const{data:preds}=await supabase.from('predictions').select('id,score1,score2').eq('match_id',matchId)
     for(const p of preds||[]){
       await supabase.from('predictions').update({points:calcPoints(p.score1,p.score2,score1,score2)}).eq('id',p.id)
     }
     setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1,score2,is_finished:true}:m))
+    await recalcTotals()
+  }
+
+  // Reseta placar, reabre partida e zera pontos dos palpites
+  const resetMatch=async(matchId)=>{
+    await supabase.from('matches').update({score1:null,score2:null,is_finished:false}).eq('id',matchId)
+    await supabase.from('predictions').update({points:null}).eq('match_id',matchId)
+    setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1:null,score2:null,is_finished:false}:m))
     await recalcTotals()
   }
 
@@ -469,7 +522,7 @@ export default function Admin(){
           ))}
         </div>
 
-        {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult}/>}
+        {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult} onFinish={finishMatch} onReset={resetMatch}/>}
         {tab==='knockout'&&<KnockoutTab/>}
         {tab==='participants'&&<ParticipantsTab/>}
       </main>
