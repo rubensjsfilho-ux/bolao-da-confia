@@ -131,19 +131,23 @@ function Hero({ onPalpites, onJogos }) {
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function StatsStrip({ stats, totalParts, myRank }) {
+  const navigate = useNavigate()
+  const items = [
+    { icon:<Users size={20} color="#009639"/>, label:'PARTICIPANTES', val:totalParts, sub:'Ver todos', subc:'#009639', onClick:()=>navigate('/ranking') },
+    { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`${myRank}º`:'—', sub:myRank?`de ${totalParts}`:'—', subc:'#6B7A8D', onClick:null },
+    { icon:<Star size={20} color="#F5A623"/>, label:'SEUS PONTOS', val:stats.points, sub:'Ver pontuação', subc:'#009639', onClick:()=>navigate('/ranking') },
+    { icon:<Calendar size={20} color="#7B2FBE"/>, label:'RODADA ATUAL', val:'Grupos', sub:'Em andamento', subc:'#7B2FBE', onClick:null },
+  ]
   return (
     <div style={{ background:'#fff', margin:'0 12px', borderRadius:16, padding:'14px 8px', boxShadow:'0 4px 20px rgba(0,40,85,0.10)', border:'1px solid #E2EAF0', display:'grid', gridTemplateColumns:'repeat(4,1fr)', marginTop:-16, position:'relative', zIndex:4 }}>
-      {[
-        { icon:<Users size={20} color="#009639"/>, label:'PARTICIPANTES', val:totalParts, sub:'Ver todos', subc:'#009639' },
-        { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`${myRank}º`:'—', sub:myRank?`de ${totalParts}`:'—', subc:'#6B7A8D' },
-        { icon:<Star size={20} color="#F5A623"/>, label:'SEUS PONTOS', val:stats.points, sub:'Ver pontuação', subc:'#009639' },
-        { icon:<Calendar size={20} color="#7B2FBE"/>, label:'RODADA ATUAL', val:'Grupos', sub:'Em andamento', subc:'#7B2FBE' },
-      ].map(({icon,label,val,sub,subc})=>(
-        <div key={label} style={{ textAlign:'center', padding:'4px 2px' }}>
+      {items.map(({icon,label,val,sub,subc,onClick})=>(
+        <div key={label} onClick={onClick||undefined} style={{ textAlign:'center', padding:'4px 2px', cursor:onClick?'pointer':'default', borderRadius:8, transition:'background .15s' }}
+          onMouseEnter={e=>{ if(onClick) e.currentTarget.style.background='#F4F6F9' }}
+          onMouseLeave={e=>{ e.currentTarget.style.background='transparent' }}>
           <div style={{ display:'flex', justifyContent:'center', marginBottom:4 }}>{icon}</div>
           <div style={{ color:'#9BABB8', fontSize:8, fontWeight:700, letterSpacing:.6, textTransform:'uppercase', marginBottom:2 }}>{label}</div>
           <div style={{ color:'#002855', fontWeight:900, fontSize:16, lineHeight:1, marginBottom:2 }}>{val}</div>
-          <div style={{ color:subc, fontSize:9, fontWeight:700 }}>{sub}</div>
+          <div style={{ color:subc, fontSize:9, fontWeight:700, textDecoration:onClick?'underline':'none' }}>{sub}</div>
         </div>
       ))}
     </div>
@@ -531,8 +535,11 @@ function NewsWidget() {
 
 
 // ── TOP 5 ─────────────────────────────────────────────────────────────────────
-function Top5({ participant, ranking }) {
+function Top5({ participant, ranking, myRank }) {
   const navigate = useNavigate()
+  // ranking já vem ordenado por total_points desc (top 5 do Dashboard)
+  // myRank é a posição real do usuário no ranking completo
+  const isInTop5 = ranking.some(p => p.id === participant.id)
   return (
     <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)' }}>
       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
@@ -544,7 +551,7 @@ function Top5({ participant, ranking }) {
         return (
           <div key={p.id} style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:isMe?'#e8f5ee':'transparent', border:isMe?'1px solid rgba(0,150,57,0.2)':'1px solid transparent', marginBottom:4 }}>
             <div style={{ width:22, height:22, borderRadius:'50%', background:i===0?'#FEF3DC':i===1?'#F4F6F9':i===2?'#FFF0E6':'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:i<3?14:11, fontWeight:900, color:i===0?'#D4890A':i===1?'#9BABB8':i===2?'#C96A2A':'#9BABB8', flexShrink:0 }}>
-              {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`}
+              {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}º`}
             </div>
             <div style={{ width:28, height:28, borderRadius:'50%', overflow:'hidden', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0, border:isMe?'2px solid #009639':'none' }}>
               {p.avatar_url ? <img src={p.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : p.avatar_emoji}
@@ -554,6 +561,19 @@ function Top5({ participant, ranking }) {
           </div>
         )
       })}
+      {!isInTop5 && myRank && (
+        <div>
+          <div style={{ textAlign:'center', color:'#9BABB8', fontSize:9, margin:'6px 0 4px' }}>• • •</div>
+          <div style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:'#e8f5ee', border:'1px solid rgba(0,150,57,0.2)' }}>
+            <div style={{ width:22, height:22, borderRadius:'50%', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900, color:'#9BABB8', flexShrink:0 }}>{myRank}º</div>
+            <div style={{ width:28, height:28, borderRadius:'50%', overflow:'hidden', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0, border:'2px solid #009639' }}>
+              {participant.avatar_url ? <img src={participant.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : participant.avatar_emoji}
+            </div>
+            <span style={{ flex:1, color:'#009639', fontWeight:800, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{participant.name} (você)</span>
+            <span style={{ color:'#009639', fontWeight:900, fontSize:11 }}>{(participant.total_points||0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -565,14 +585,16 @@ export default function Dashboard({ participant, onLogout }) {
   const [ranking,    setRanking]    = useState([])
   const [totalParts, setTotalParts] = useState(0)
   const [myRank,     setMyRank]     = useState(null)
+  const [myPredIds,  setMyPredIds]  = useState(new Set())
 
   const fetchData = useCallback(async () => {
     const [{ data: preds }, { data: parts }, { count }] = await Promise.all([
-      supabase.from('predictions').select('points').eq('participant_id', participant.id),
+      supabase.from('predictions').select('points,match_id').eq('participant_id', participant.id),
       supabase.from('participants').select('id,name,avatar_emoji,avatar_url,total_points').order('total_points',{ascending:false}).limit(5),
       supabase.from('participants').select('*',{count:'exact',head:true}),
     ])
     setStats({ points: preds?.reduce((s,p)=>s+(p.points||0),0)||0, done: preds?.length||0 })
+    setMyPredIds(new Set(preds?.map(p=>p.match_id)||[]))
     setRanking(parts||[])
     setTotalParts(count||0)
     const { data: all } = await supabase.from('participants').select('id').order('total_points',{ascending:false})
@@ -586,7 +608,7 @@ export default function Dashboard({ participant, onLogout }) {
     return ()=>supabase.removeChannel(ch)
   }, [fetchData])
 
-  const openCount = GROUP_MATCHES.filter(m=>isMatchOpen(m)).length
+  const openCount = GROUP_MATCHES.filter(m=>isMatchOpen(m)&&!myPredIds.has(m.id)).length
 
   return (
     <div style={{ minHeight:'100vh', background:'#F4F6F9', overflowX:'hidden' }}>
@@ -612,7 +634,7 @@ export default function Dashboard({ participant, onLogout }) {
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
           <NewsWidget/>
-          <Top5 participant={participant} ranking={ranking}/>
+          <Top5 participant={participant} ranking={ranking} myRank={myRank}/>
 
           {/* Banners */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
