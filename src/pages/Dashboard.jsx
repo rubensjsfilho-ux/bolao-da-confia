@@ -29,15 +29,15 @@ function Hero({ onPalpites, onJogos }) {
       <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
       {/* Taça — direita, grande */}
-      <div style={{ position:'absolute', right:-10, top:0, bottom:0, width:'52%', zIndex:1 }}>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
+      <div style={{ position:'absolute', right:-20, top:-20, bottom:-20, width:'62%', zIndex:1 }}>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 40%)', zIndex:2 }}/>
         <img
           src="/images/trophy.webp"
           alt="Taça Copa 2026"
-          style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center', opacity:.92, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.45))' }}
+          style={{ width:'130%', height:'130%', objectFit:'contain', objectPosition:'center right', opacity:.95, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.55))', position:'absolute', top:'-15%', left:'-15%' }}
           onError={e => { e.target.style.display='none' }}
         />
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 35%)', zIndex:2 }}/>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
       </div>
 
       {/* Conteúdo — esquerda */}
