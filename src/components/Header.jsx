@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Target, BarChart3, Gift, LogOut, GitBranch, ShieldCheck, Users } from 'lucide-react'
+import { Home, Target, BarChart3, GitBranch, ShieldCheck, Users, Swords } from 'lucide-react'
 
 const NAV = [
-  { to:'/dashboard',   label:'Início',      Icon:Home },
-  { to:'/palpites',    label:'Palpites',    Icon:Target },
-  { to:'/grupos',      label:'Grupos',      Icon:Users },
-  { to:'/chaveamento', label:'Chaveamento', Icon:GitBranch },
-  { to:'/ranking',     label:'Ranking',     Icon:BarChart3 },
+  { to:'/dashboard',   label:'Início',   Icon:Home },
+  { to:'/palpites',    label:'Palpites', Icon:Target },
+  { to:'/grupos',      label:'Grupos',   Icon:Users },
+  { to:'/mata-mata',   label:'Mata-Mata',Icon:Swords },
+  { to:'/ranking',     label:'Ranking',  Icon:BarChart3 },
 ]
 
 export function Avatar({ photoUrl, emoji='⚽', size=36, border=true }) {
