@@ -590,16 +590,30 @@ export default function Dashboard({ participant, onLogout }) {
   const fetchData = useCallback(async () => {
     const [{ data: preds }, { data: parts }, { count }] = await Promise.all([
       supabase.from('predictions').select('points,match_id').eq('participant_id', participant.id),
-      supabase.from('participants').select('id,name,avatar_emoji,avatar_url,total_points').order('total_points',{ascending:false}).limit(5),
+      supabase.from('participants').select('id,name,avatar_emoji,avatar_url,total_points,exact_hits,result_hits,predictions_count'),
       supabase.from('participants').select('*',{count:'exact',head:true}),
     ])
     setStats({ points: preds?.reduce((s,p)=>s+(p.points||0),0)||0, done: preds?.length||0 })
     setMyPredIds(new Set(preds?.map(p=>p.match_id)||[]))
-    setRanking(parts||[])
     setTotalParts(count||0)
-    const { data: all } = await supabase.from('participants').select('id').order('total_points',{ascending:false})
-    const idx = all?.findIndex(p=>p.id===participant.id)
-    setMyRank(idx!==undefined&&idx>=0?idx+1:null)
+    // Ordenação igual ao ranking: alfabético sem pontos, depois critérios de desempate
+    const sortFn = (a, b) => {
+      const allZero = (p) => (p.total_points||0) === 0 && (p.exact_hits||0) === 0 && (p.result_hits||0) === 0
+      if (allZero(a) && allZero(b)) return a.name.localeCompare(b.name, 'pt-BR')
+      if ((b.total_points||0) !== (a.total_points||0)) return (b.total_points||0) - (a.total_points||0)
+      if ((b.exact_hits||0) !== (a.exact_hits||0)) return (b.exact_hits||0) - (a.exact_hits||0)
+      if ((b.result_hits||0) !== (a.result_hits||0)) return (b.result_hits||0) - (a.result_hits||0)
+      const errA = (a.predictions_count||0)-(a.exact_hits||0)-(a.result_hits||0)
+      const errB = (b.predictions_count||0)-(b.exact_hits||0)-(b.result_hits||0)
+      if (errA !== errB) return errA - errB
+      if ((b.predictions_count||0) !== (a.predictions_count||0)) return (b.predictions_count||0) - (a.predictions_count||0)
+      return a.name.localeCompare(b.name, 'pt-BR')
+    }
+    const sortedParts = (parts||[]).slice().sort(sortFn)
+    setRanking(sortedParts.slice(0,5))
+    const sortedAll = (allRaw||[]).slice().sort(sortFn)
+    const idx = sortedAll.findIndex(p=>p.id===participant.id)
+    setMyRank(idx>=0?idx+1:null)
   }, [participant.id])
 
   useEffect(() => {
