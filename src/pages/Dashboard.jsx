@@ -29,15 +29,15 @@ function Hero({ onPalpites, onJogos }) {
       <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
       {/* Taça — direita, grande */}
-      <div style={{ position:'absolute', right:-20, top:-20, bottom:-20, width:'62%', zIndex:1 }}>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 40%)', zIndex:2 }}/>
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'55%', zIndex:1, overflow:'hidden' }}>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 50%)', zIndex:2 }}/>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 40%)', zIndex:2 }}/>
         <img
-          src="/images/trophy.webp"
+          src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
           alt="Taça Copa 2026"
-          style={{ width:'130%', height:'130%', objectFit:'contain', objectPosition:'center right', opacity:.95, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.55))', position:'absolute', top:'-15%', left:'-15%' }}
+          style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-40%,-50%) scale(1.4)', width:'100%', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
           onError={e => { e.target.style.display='none' }}
         />
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
       </div>
 
       {/* Conteúdo — esquerda */}
