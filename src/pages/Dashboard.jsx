@@ -428,8 +428,8 @@ function NewsWidget() {
   useEffect(() => {
     supabase
       .from('news')
-      .select('title, link, source, pub_date, image_url')
-      .order('pub_date', { ascending: false })
+      .select('title, link, source, pub_date, image_url, created_at')
+      .order('created_at', { ascending: false })
       .limit(5)
       .then(({ data, error }) => {
         if (!error && data && data.length > 0) {
