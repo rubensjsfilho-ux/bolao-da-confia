@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
-import { GROUP_MATCHES, getFlag, formatDate, isMatchOpen } from '../data/matches'
-import { Bell, ChevronRight, AlertCircle, Users, Trophy, Star, Calendar } from 'lucide-react'
+import { GROUP_MATCHES, getFlag, isMatchOpen } from '../data/matches'
+import { AlertCircle, Users, Trophy, Star, Calendar } from 'lucide-react'
 
 // ── HERO ──────────────────────────────────────────────────────────────────────
 function Hero({ onPalpites, onJogos }) {
@@ -20,89 +20,115 @@ function Hero({ onPalpites, onJogos }) {
   const started = new Date() >= new Date('2026-06-11T22:00:00Z')
 
   return (
-    <div style={{ position:'relative', overflow:'hidden', background:'#001a0d', minHeight:300 }}>
+    <div style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
 
-      {/* Fundo gradiente */}
-      <div style={{ position:'absolute', inset:0, background:'linear-gradient(120deg, #003520 0%, #001a0d 45%, #000 100%)' }}/>
+      {/* Fundo com gradiente escuro + efeito radial verde */}
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
 
-      {/* Listra decorativa esquerda */}
-      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #009639, #F5A623)' }}/>
+      {/* Linha vertical decorativa esquerda */}
+      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
-      {/* Taça — direita, grande, preenchendo toda a altura */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'48%', zIndex:1 }}>
-        {/* Gradiente sobre a taça para fundir com o fundo */}
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #001a0d 0%, transparent 40%)', zIndex:2 }}/>
+      {/* Taça — direita, grande */}
+      <div style={{ position:'absolute', right:-10, top:0, bottom:0, width:'52%', zIndex:1 }}>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
         <img
-          src="/images/trophy.webp"
+          src="/images/trophy-color.jpg"
           alt="Taça Copa 2026"
-          style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center', opacity:.85, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.35))' }}
-          onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }}
+          style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.9, filter:'drop-shadow(-16px 0 50px rgba(245,166,35,0.4)) saturate(1.15)' }}
+          onError={e => { e.target.src='/images/trophy.webp'; e.target.style.objectFit='contain' }}
         />
-        <div style={{ display:'none', width:'100%', height:'100%', alignItems:'center', justifyContent:'center', fontSize:120 }}>🏆</div>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 35%)', zIndex:2 }}/>
       </div>
 
       {/* Conteúdo — esquerda */}
-      <div style={{ position:'relative', zIndex:3, padding:'26px 16px 22px', width:'60%' }}>
+      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width:'62%' }}>
 
         {/* Label topo */}
-        <div style={{ color:'rgba(255,255,255,0.5)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase', marginBottom:12 }}>
-          BOLÃO DA CONFIA
+        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
+          <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
+          <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
         </div>
 
-        {/* Tipografia "2 COPA / 6 DO MUNDO" */}
-        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-          {/* Números grandes */}
-          <div style={{ lineHeight:.88, flexShrink:0 }}>
-            <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:80, letterSpacing:-3, lineHeight:.9 }}>2</div>
-            <div style={{ color:'#F5A623', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:80, letterSpacing:-3, lineHeight:.9 }}>6</div>
-          </div>
-          {/* Texto Copa do Mundo */}
-          <div style={{ lineHeight:1.15 }}>
-            <div style={{ color:'#ffffff', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:20, letterSpacing:-.5, textTransform:'uppercase' }}>COPA</div>
-            <div style={{ color:'#F5A623', fontFamily:'Arial Black, sans-serif', fontWeight:900, fontSize:20, letterSpacing:-.5, textTransform:'uppercase' }}>DO MUNDO</div>
-          </div>
+        {/* COPA DO MUNDO FIFA */}
+        <div style={{ marginBottom:4 }}>
+          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:15, letterSpacing:1.5, textTransform:'uppercase', lineHeight:1.2, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
+          <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:15, letterSpacing:1.5, textTransform:'uppercase', lineHeight:1.2 }}>FIFA</div>
+        </div>
+
+        {/* 2026 grande e em destaque */}
+        <div style={{ marginBottom:10 }}>
+          <span style={{
+            fontFamily:'Arial Black, Impact, sans-serif',
+            fontWeight:900,
+            fontSize:88,
+            lineHeight:.85,
+            letterSpacing:-4,
+            background:'linear-gradient(135deg, #F5A623 0%, #FFD700 40%, #F5A623 100%)',
+            WebkitBackgroundClip:'text',
+            WebkitTextFillColor:'transparent',
+            backgroundClip:'text',
+            display:'inline-block',
+            filter:'drop-shadow(0 2px 8px rgba(245,166,35,0.5))',
+          }}>2026</span>
         </div>
 
         {/* Países sede */}
-        <div style={{ display:'flex', gap:5, alignItems:'center', marginBottom:14 }}>
+        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
           {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
-            <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.55)', fontSize:10, fontWeight:700 }}>
+            <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
               {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
               <span>{flag}</span><span>{name}</span>
             </span>
           ))}
         </div>
 
-        {/* Countdown */}
+        {/* Countdown ou badge ao vivo */}
         {!started ? (
           <div style={{ display:'flex', gap:5, marginBottom:18 }}>
             {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
-              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.1)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.12)' }}>
+              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
                 <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
-                <div style={{ color:'rgba(255,255,255,0.4)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
+                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
               </div>
             ))}
           </div>
         ) : (
-          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,150,57,0.25)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,150,57,0.4)' }}>
-            <div style={{ width:6, height:6, borderRadius:'50%', background:'#4ade80' }}/>
-            <span style={{ color:'#4ade80', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
+            <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
           </div>
         )}
 
         {/* Botões */}
-        <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
-          <button onClick={onPalpites} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:10, padding:'11px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 16px rgba(0,150,57,0.4)' }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
             🎯 FAZER PALPITES
           </button>
-          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.08)', color:'#fff', border:'1px solid rgba(255,255,255,0.15)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
+          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
             📅 VER JOGOS
           </button>
         </div>
       </div>
+
+      {/* Features strip */}
+      <div style={{ position:'relative', zIndex:3, display:'grid', gridTemplateColumns:'repeat(4,1fr)', borderTop:'1px solid rgba(255,255,255,0.07)', background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)' }}>
+        {[
+          ['🏆','Prêmios','Exclusivos'],
+          ['📊','Ranking','Tempo real'],
+          ['🎯','Palpites','72 jogos'],
+          ['🔒','100%','Seguro'],
+        ].map(([icon,l1,l2])=>(
+          <div key={l1} style={{ textAlign:'center', padding:'8px 4px', borderRight:'1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ fontSize:14, marginBottom:2 }}>{icon}</div>
+            <div style={{ color:'#ffffff', fontSize:8, fontWeight:800, lineHeight:1.3 }}>{l1}</div>
+            <div style={{ color:'rgba(255,255,255,0.4)', fontSize:7, fontWeight:600 }}>{l2}</div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
+
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function StatsStrip({ stats, totalParts, myRank }) {
@@ -259,9 +285,16 @@ function TodayCarousel({ participant }) {
 
   if (displayMatches.length === 0) return null
 
-  const isToday = (date) => {
-    const d = new Date(date), t = new Date()
-    return d.getDate()===t.getDate() && d.getMonth()===t.getMonth()
+  const getDateLabel = (date) => {
+    const d = new Date(date)
+    const now = new Date()
+    const todayStart = new Date(now); todayStart.setHours(0,0,0,0)
+    const tomorrowStart = new Date(todayStart); tomorrowStart.setDate(tomorrowStart.getDate()+1)
+    const afterTomorrowStart = new Date(tomorrowStart); afterTomorrowStart.setDate(afterTomorrowStart.getDate()+1)
+    if (d >= todayStart && d < tomorrowStart) return { label:'HOJE', isToday:true }
+    if (d >= tomorrowStart && d < afterTomorrowStart) return { label:'AMANHÃ', isToday:false }
+    const weekdays = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB']
+    return { label: weekdays[d.getDay()] + ' ' + String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'), isToday:false }
   }
 
   const formatTime = (date) => new Date(date).toLocaleTimeString('pt-BR', {
@@ -286,22 +319,26 @@ function TodayCarousel({ participant }) {
       </div>
 
       <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:8, scrollSnapType:'x mandatory', WebkitOverflowScrolling:'touch' }}>
-        {displayMatches.map(match => (
-          <MatchCard key={match.id} match={match}
-            hasPred={!!predictions[match.id]}
-            locked={isLocked(match.date)}
-            today={isToday(match.date)}
-            formatTime={formatTime}
-            onTap={()=>{ if(!isLocked(match.date)) navigate(`/palpites?match=${match.id}`) }}
-          />
-        ))}
+        {displayMatches.map(match => {
+          const dl = getDateLabel(match.date)
+          return (
+            <MatchCard key={match.id} match={match}
+              hasPred={!!predictions[match.id]}
+              locked={isLocked(match.date)}
+              today={dl.isToday}
+              dateLabel={dl.label}
+              formatTime={formatTime}
+              onTap={()=>{ if(!isLocked(match.date)) navigate(`/palpites?match=${match.id}`) }}
+            />
+          )
+        })}
       </div>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}} ::-webkit-scrollbar{height:0}`}</style>
     </div>
   )
 }
 
-function MatchCard({ match, hasPred, locked, today, formatTime, onTap }) {
+function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap }) {
   const star1 = STARS[match.team1]
   const star2 = STARS[match.team2]
   const photo1 = useWikiPhoto(star1?.wiki)
@@ -334,9 +371,9 @@ function MatchCard({ match, hasPred, locked, today, formatTime, onTap }) {
               ? <img src={CRESTS[match.team1]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
               : <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>}
           </div>
-          {/* Badge hoje/amanhã */}
-          <div style={{ position:'absolute', top:6, right:6, zIndex:2, background:today?'#009639':'rgba(0,0,0,0.4)', borderRadius:6, padding:'2px 5px' }}>
-            <span style={{ color:'#fff', fontSize:7, fontWeight:800 }}>{today?'HOJE':'AMANHÃ'}</span>
+          {/* Badge data do jogo */}
+          <div style={{ position:'absolute', top:6, right:6, zIndex:2, background:today?'#009639':'rgba(0,0,0,0.55)', borderRadius:6, padding:'2px 5px' }}>
+            <span style={{ color:'#fff', fontSize:7, fontWeight:800 }}>{dateLabel}</span>
           </div>
           <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
             <span style={{ color:'#fff', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.9)' }}>{star1?.name||match.team1}</span>
@@ -380,34 +417,121 @@ function MatchCard({ match, hasPred, locked, today, formatTime, onTap }) {
     </div>
   )
 }
-function UpcomingMatches({ onVerTodos }) {
-  const now = new Date()
-  const next = GROUP_MATCHES.filter(m=>new Date(m.date)>now).slice(0,3)
-  const show = next.length>0 ? next : GROUP_MATCHES.slice(0,3)
+function NewsWidget() {
+  const [news, setNews] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [currentIdx, setCurrentIdx] = useState(0)
+
+  useEffect(() => {
+    // Busca notícias via API pública RSS-to-JSON da Copa do Mundo 2026
+    const RSS_FEEDS = [
+      'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.goal.com%2Ffeeds%2Fnews%3Flanguage%3Dpt',
+      'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fge.globo.com%2Frss%2Ffutebol%2F',
+    ]
+    const fallbackNews = [
+      { title:'Copa 2026: grupos confirmados com 48 seleções', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-08', image:'' },
+      { title:'Brasil estreia na Copa contra Marrocos em Nova York', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-07', image:'' },
+      { title:'FIFA confirma horários e sedes dos jogos da fase de grupos', link:'https://www.fifa.com', source:'FIFA', pubDate:'2026-06-06', image:'' },
+      { title:'Vinicius Jr. será o capitão do Brasil na Copa do Mundo', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-05', image:'' },
+      { title:'Argentina defende título; Messi busca segundo mundial', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-04', image:'' },
+      { title:'Copa 2026: as principais favoritas ao título', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-03', image:'' },
+    ]
+    fetch(RSS_FEEDS[1])
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'ok' && data.items?.length > 0) {
+          const items = data.items.slice(0,8).map(i => ({
+            title: i.title,
+            link: i.link,
+            source: 'GE.Globo',
+            pubDate: i.pubDate ? i.pubDate.substring(0,10) : '',
+            image: i.thumbnail || i.enclosure?.link || '',
+          }))
+          setNews(items)
+        } else {
+          setNews(fallbackNews)
+        }
+        setLoading(false)
+      })
+      .catch(() => { setNews(fallbackNews); setLoading(false) })
+  }, [])
+
+  useEffect(() => {
+    if (news.length === 0) return
+    const id = setInterval(() => setCurrentIdx(i => (i+1) % Math.min(news.length, 5)), 4000)
+    return () => clearInterval(id)
+  }, [news.length])
+
+  const formatNewsDate = (d) => {
+    if (!d) return ''
+    const date = new Date(d)
+    return date.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' })
+  }
+
+  const visibleNews = news.slice(0, 5)
+
   return (
-    <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
-        <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>Próximos Jogos</span>
-        <button onClick={onVerTodos} style={{ color:'#009639', fontSize:10, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>Ver tabela</button>
-      </div>
-      {show.map(m=>(
-        <div key={m.id} style={{ display:'flex', alignItems:'center', gap:8, padding:'8px 10px', background:'#F4F6F9', borderRadius:10, marginBottom:8, border:'1px solid #E2EAF0' }}>
-          <span style={{ fontSize:22 }}>{getFlag(m.team1)}</span>
-          <span style={{ color:'#9BABB8', fontWeight:900, fontSize:10 }}>×</span>
-          <span style={{ fontSize:22 }}>{getFlag(m.team2)}</span>
-          <div style={{ flex:1 }}>
-            <div style={{ color:'#002855', fontWeight:800, fontSize:10 }}>{formatDate(m.date)}</div>
-            <div style={{ color:'#9BABB8', fontSize:9 }}>Grupo {m.group} · {m.city}</div>
-          </div>
-          <Bell size={13} color={isMatchOpen(m)?'#009639':'#E2EAF0'}/>
+    <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)', overflow:'hidden' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <span style={{ fontSize:13 }}>📰</span>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>Notícias</span>
         </div>
-      ))}
-      <button onClick={onVerTodos} style={{ width:'100%', marginTop:4, padding:'8px', background:'none', border:'none', cursor:'pointer', color:'#002855', fontWeight:800, fontSize:11, fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>
-        VER TODOS OS JOGOS <ChevronRight size={13}/>
-      </button>
+        <div style={{ display:'flex', gap:4 }}>
+          {visibleNews.map((_,i) => (
+            <div key={i} onClick={() => setCurrentIdx(i)} style={{ width: i===currentIdx?16:6, height:6, borderRadius:3, background:i===currentIdx?'#009639':'#E2EAF0', cursor:'pointer', transition:'all .3s' }}/>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {[1,2,3].map(i => (
+            <div key={i} style={{ height:48, borderRadius:10, background:'linear-gradient(90deg,#F4F6F9 25%,#e8eaed 50%,#F4F6F9 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite' }}/>
+          ))}
+          <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
+        </div>
+      ) : (
+        <>
+          {/* Notícia destacada */}
+          {visibleNews[currentIdx] && (
+            <a href={visibleNews[currentIdx].link} target="_blank" rel="noopener noreferrer"
+              style={{ display:'block', borderRadius:12, overflow:'hidden', textDecoration:'none', marginBottom:8, border:'1px solid #E2EAF0', background:'#F4F6F9', transition:'transform .15s' }}
+              onClick={e => e.stopPropagation()}>
+              {visibleNews[currentIdx].image && (
+                <div style={{ height:70, overflow:'hidden', position:'relative' }}>
+                  <img src={visibleNews[currentIdx].image} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}
+                    onError={e => { e.target.parentElement.style.display='none' }}/>
+                  <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.5),transparent)' }}/>
+                </div>
+              )}
+              <div style={{ padding:'8px 10px' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:4 }}>
+                  <span style={{ background:'rgba(0,150,57,0.1)', color:'#009639', fontSize:8, fontWeight:800, borderRadius:4, padding:'2px 6px' }}>⚽ COPA 2026</span>
+                  <span style={{ color:'#9BABB8', fontSize:8 }}>{formatNewsDate(visibleNews[currentIdx].pubDate)}</span>
+                </div>
+                <div style={{ color:'#002855', fontWeight:800, fontSize:11, lineHeight:1.4 }}>{visibleNews[currentIdx].title}</div>
+              </div>
+            </a>
+          )}
+
+          {/* Lista de outras notícias */}
+          {visibleNews.filter((_,i) => i!==currentIdx).slice(0,3).map((item, i) => (
+            <a key={i} href={item.link} target="_blank" rel="noopener noreferrer"
+              style={{ display:'flex', alignItems:'flex-start', gap:8, padding:'6px 0', borderBottom:'1px solid #F4F6F9', textDecoration:'none' }}>
+              <span style={{ color:'#009639', fontSize:10, fontWeight:900, flexShrink:0, marginTop:1 }}>›</span>
+              <div style={{ flex:1 }}>
+                <div style={{ color:'#002855', fontSize:10, fontWeight:700, lineHeight:1.35, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>{item.title}</div>
+                <div style={{ color:'#9BABB8', fontSize:8, marginTop:2 }}>{item.source} · {formatNewsDate(item.pubDate)}</div>
+              </div>
+            </a>
+          ))}
+        </>
+      )}
     </div>
   )
 }
+
 
 // ── TOP 5 ─────────────────────────────────────────────────────────────────────
 function Top5({ participant, ranking }) {
@@ -491,7 +615,7 @@ export default function Dashboard({ participant, onLogout }) {
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <UpcomingMatches onVerTodos={()=>navigate('/palpites')}/>
+            <NewsWidget/>
             <Top5 participant={participant} ranking={ranking}/>
           </div>
 
