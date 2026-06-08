@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Target, BarChart3, GitBranch, ShieldCheck, Users, Swords } from 'lucide-react'
+import { Home, Target, BarChart3, GitBranch, ShieldCheck, Users, Zap } from 'lucide-react'
 
 const NAV = [
   { to:'/dashboard',   label:'Início',   Icon:Home },
   { to:'/palpites',    label:'Palpites', Icon:Target },
   { to:'/grupos',      label:'Grupos',   Icon:Users },
-  { to:'/mata-mata',   label:'Mata-Mata',Icon:Swords },
+  { to:'/mata-mata',   label:'Mata-Mata',Icon:Zap },
   { to:'/ranking',     label:'Ranking',  Icon:BarChart3 },
 ]
 
