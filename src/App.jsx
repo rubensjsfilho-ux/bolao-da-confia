@@ -11,6 +11,7 @@ import Admin from './pages/Admin'
 import Bracket from './pages/Bracket'
 import Groups from './pages/Groups'
 import KnockoutPredictions from './pages/KnockoutPredictions'
+import Profile from './pages/Profile'
 
 function App() {
   const [participant, setParticipant] = useState(null)
@@ -29,19 +30,19 @@ function App() {
         name:     data.name,
         avatar:   data.avatar_emoji,
         photoUrl: data.avatar_url,
-        isAdmin:  data.is_admin === true,   // ← campo no banco
+        isAdmin:  data.is_admin === true,   // â campo no banco
       })
     }
   }
 
   useEffect(() => {
-    // Verifica sessão existente ao abrir o app
+    // Verifica sessÃ£o existente ao abrir o app
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) loadParticipant(session.user.id)
       setLoading(false)
     })
 
-    // Escuta mudanças de auth (login/logout)
+    // Escuta mudanÃ§as de auth (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) loadParticipant(session.user.id)
       else { setParticipant(null); setLoading(false) }
@@ -57,13 +58,14 @@ function App() {
 
   if (loading) return (
     <div style={{ minHeight:'100vh', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:12 }}>
-      <div style={{ fontSize:48, animation:'spin 1s linear infinite' }}>⚽</div>
+      <div style={{ fontSize:48, animation:'spin 1s linear infinite' }}>â½</div>
       <div style={{ color:'#009639', fontWeight:800, fontSize:14 }}>Carregando...</div>
       <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
     </div>
   )
 
-  const props = { participant, onLogout: logout }
+  const updateParticipant = (updated) => setParticipant(updated)
+  const props = { participant, onLogout: logout, onUpdate: updateParticipant }
   return (
     <Routes>
       <Route path="/"          element={!participant ? <Login onLogin={setParticipant}/> : <Navigate to="/dashboard" replace/>} />
@@ -84,6 +86,7 @@ function App() {
               : <Navigate to="/dashboard" replace/>
         }
       />
+      <Route path="/perfil" element={participant ? <Profile participant={participant} onUpdate={updateParticipant}/> : <Navigate to="/" replace/>} />
       <Route path="*"          element={<Navigate to="/" replace/>} />
     </Routes>
   )
