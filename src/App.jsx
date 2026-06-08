@@ -10,6 +10,7 @@ import Prizes from './pages/Prizes'
 import Admin from './pages/Admin'
 import Bracket from './pages/Bracket'
 import Groups from './pages/Groups'
+import KnockoutPredictions from './pages/KnockoutPredictions'
 
 function App() {
   const [participant, setParticipant] = useState(null)
@@ -71,8 +72,9 @@ function App() {
       <Route path="/ranking"   element={participant ? <Rankings    {...props}/> : <Navigate to="/" replace/>} />
       <Route path="/campeao"      element={participant ? <Champion    {...props}/> : <Navigate to="/" replace/>} />
       <Route path="/premios"      element={participant ? <Prizes      {...props}/> : <Navigate to="/" replace/>} />
-      <Route path="/chaveamento"  element={participant ? <Bracket     {...props}/> : <Navigate to="/" replace/>} />
-      <Route path="/grupos"       element={participant ? <Groups      {...props}/> : <Navigate to="/" replace/>} />
+      <Route path="/chaveamento"  element={participant ? <Bracket              {...props}/> : <Navigate to="/" replace/>} />
+      <Route path="/grupos"       element={participant ? <Groups               {...props}/> : <Navigate to="/" replace/>} />
+      <Route path="/mata-mata"    element={participant ? <KnockoutPredictions  {...props}/> : <Navigate to="/" replace/>} />
       <Route path="/admin"
         element={
           !participant
