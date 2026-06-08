@@ -4,7 +4,6 @@ import { GROUP_MATCHES, getFlag, formatDate } from '../data/matches'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123'
 
-// Fundo e cores do painel — tudo inline para garantir contraste
 const C = {
   bg:       '#011901',
   card:     'rgba(255,255,255,0.06)',
@@ -31,6 +30,14 @@ function MatchRow({ match, onSave, onFinish, onReset }){
   const [finishing,setFinishing]=useState(false)
   const [resetting,setResetting]=useState(false)
   const [saved,setSaved]=useState(false)
+  const [confirmReset,setConfirmReset]=useState(false)
+  const [confirmFinish,setConfirmFinish]=useState(false)
+
+  // Sincroniza estado local quando o match muda no pai
+  useEffect(()=>{
+    setS1(match.score1??'')
+    setS2(match.score2??'')
+  },[match.score1,match.score2,match.is_finished])
 
   const save = async()=>{
     if(s1===''||s2==='')return
@@ -42,60 +49,102 @@ function MatchRow({ match, onSave, onFinish, onReset }){
 
   const finish = async()=>{
     if(s1===''||s2==='')return
-    if(!window.confirm(`Encerrar ${match.team1} ${s1} x ${s2} ${match.team2}? Isso calculará a pontuação dos participantes.`))return
+    setConfirmFinish(false)
     setFinishing(true)
     await onFinish(match.id,parseInt(s1),parseInt(s2))
     setFinishing(false)
   }
 
   const reset = async()=>{
-    if(!window.confirm(`Resetar ${match.team1} x ${match.team2}? O placar e a pontuação serão zerados.`))return
+    setConfirmReset(false)
     setResetting(true)
     await onReset(match.id)
     setResetting(false)
-    setS1('');setS2('')
   }
 
   return(
     <div style={{ background:C.card, border:`1px solid ${match.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
+      {/* Cabeçalho */}
       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
         <span style={{ color:C.textMuted, fontSize:10 }}>Grupo {match.group} · {formatDate(match.date)}</span>
         {match.is_finished
           ? <span style={{ color:C.green, fontSize:10, fontWeight:800 }}>✓ Encerrado</span>
-          : match.score1!==null&&match.score2!==null
+          : match.score1!==null&&match.score1!==undefined
             ? <span style={{ color:C.gold, fontSize:10, fontWeight:800 }}>⏱ Em andamento</span>
             : null
         }
       </div>
+
+      {/* Times e placar */}
       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
         <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>
         <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700 }}>{match.team1}</span>
-        <input type="number" min="0" max="20" value={s1} onChange={e=>setS1(e.target.value)}
-          disabled={match.is_finished}
-          style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:match.is_finished?.5:1 }}/>
-        <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
-        <input type="number" min="0" max="20" value={s2} onChange={e=>setS2(e.target.value)}
-          disabled={match.is_finished}
-          style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:match.is_finished?.5:1 }}/>
+
+        {match.is_finished ? (
+          <div style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(74,222,128,0.1)', border:'1px solid rgba(74,222,128,0.2)', borderRadius:10, padding:'6px 14px' }}>
+            <span style={{ color:C.green, fontSize:26, fontWeight:900, minWidth:24, textAlign:'center' }}>{match.score1}</span>
+            <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
+            <span style={{ color:C.green, fontSize:26, fontWeight:900, minWidth:24, textAlign:'center' }}>{match.score2}</span>
+          </div>
+        ) : (
+          <>
+            <input type="number" min="0" max="20" value={s1} onChange={e=>setS1(e.target.value)}
+              style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+            <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
+            <input type="number" min="0" max="20" value={s2} onChange={e=>setS2(e.target.value)}
+              style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+          </>
+        )}
+
         <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700, textAlign:'right' }}>{match.team2}</span>
         <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>
       </div>
+
+      {/* Botões */}
       <div style={{ display:'flex', justifyContent:'flex-end', gap:6, marginTop:10 }}>
         {match.is_finished ? (
-          <button onClick={reset} disabled={resetting}
-            style={{ background:'rgba(220,53,69,0.15)', color:'#ff6b6b', border:'1px solid rgba(220,53,69,0.3)', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
-            {resetting?'Resetando...':'↩ Resetar'}
-          </button>
+          confirmReset ? (
+            <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+              <span style={{ color:C.textMuted, fontSize:10 }}>Tem certeza?</span>
+              <button onClick={reset} disabled={resetting}
+                style={{ background:'rgba(248,113,113,0.2)', color:C.red, border:'1px solid rgba(248,113,113,0.4)', borderRadius:8, padding:'7px 12px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                {resetting?'Resetando...':'✓ Confirmar'}
+              </button>
+              <button onClick={()=>setConfirmReset(false)}
+                style={{ background:'rgba(255,255,255,0.08)', color:C.textMuted, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 12px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button onClick={()=>setConfirmReset(true)}
+              style={{ background:'rgba(248,113,113,0.1)', color:C.red, border:'1px solid rgba(248,113,113,0.25)', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+              ↩ Resetar Jogo
+            </button>
+          )
         ) : (
           <>
             <button onClick={save} disabled={s1===''||s2===''||saving}
               style={{ background:'rgba(255,255,255,0.1)', color:saved?C.green:C.text, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
               {saving?'Salvando...' : saved?'✓ Salvo!':'💾 Salvar placar'}
             </button>
-            <button onClick={finish} disabled={s1===''||s2===''||finishing}
-              style={{ background:C.gold, color:'#000', border:'none', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
-              {finishing?'Encerrando...':'✓ Encerrar'}
-            </button>
+            {confirmFinish ? (
+              <>
+                <button onClick={finish} disabled={finishing}
+                  style={{ background:C.gold, color:'#000', border:'none', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                  {finishing?'Encerrando...':'✓ Confirmar'}
+                </button>
+                <button onClick={()=>setConfirmFinish(false)}
+                  style={{ background:'rgba(255,255,255,0.08)', color:C.textMuted, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 10px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                  ✕
+                </button>
+              </>
+            ) : (
+              <button onClick={()=>{ if(s1===''||s2==='')return; setConfirmFinish(true) }}
+                disabled={s1===''||s2===''}
+                style={{ background:C.gold, color:'#000', border:'none', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
+                ✓ Encerrar
+              </button>
+            )}
           </>
         )}
       </div>
@@ -106,7 +155,7 @@ function MatchRow({ match, onSave, onFinish, onReset }){
 // ── Aba de resultados ─────────────────────────────────────────────────────────
 function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
   const [group,setGroup]=useState('all')
-  const [showDone,setShowDone]=useState(false)
+  const [showDone,setShowDone]=useState(true) // ← padrão true para ver encerrados
   const groups=['all','A','B','C','D','E','F','G','H','I','J','K','L']
 
   const enriched = GROUP_MATCHES.map(gm=>{
@@ -123,7 +172,6 @@ function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
 
   return(
     <div>
-      {/* Resumo */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:16 }}>
         <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:12, textAlign:'center' }}>
           <div style={{ color:C.green, fontWeight:900, fontSize:26 }}>{done}</div>
@@ -135,7 +183,6 @@ function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
         </div>
       </div>
 
-      {/* Filtro de grupos */}
       <div style={{ display:'flex', gap:6, overflowX:'auto', paddingBottom:8, marginBottom:8 }}>
         {groups.map(g=>(
           <button key={g} onClick={()=>setGroup(g)} style={{
@@ -146,7 +193,6 @@ function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
         ))}
       </div>
 
-      {/* Toggle encerrados */}
       <label style={{ display:'flex', alignItems:'center', gap:8, color:C.textMuted, fontSize:13, marginBottom:14, cursor:'pointer' }}>
         <input type="checkbox" checked={showDone} onChange={e=>setShowDone(e.target.checked)}/>
         Mostrar encerrados ({done})
@@ -157,7 +203,7 @@ function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
       ) : filtered.length===0 ? (
         <div style={{ textAlign:'center', padding:40, color:C.textMuted }}>
           <div style={{ fontSize:40, marginBottom:8 }}>✅</div>
-          <p>Nenhum jogo pendente neste grupo.</p>
+          <p>Nenhum jogo neste filtro.</p>
         </div>
       ) : filtered.map(m=><MatchRow key={m.id} match={m} onSave={onSave} onFinish={onFinish} onReset={onReset}/>)}
     </div>
@@ -192,7 +238,7 @@ function ParticipantsTab(){
       if(e1||e2||e3){
         const err=e1||e2||e3
         setMsgType('err')
-        setMsg(`❌ Erro: ${err.message} — verifique as policies no Supabase.`)
+        setMsg(`❌ Erro: ${err.message}`)
       } else {
         setMsgType('ok')
         setMsg(`✅ ${p.name} removido!`)
@@ -212,37 +258,26 @@ function ParticipantsTab(){
   return(
     <div>
       {msg&&<div style={{ background: msgType==='ok'?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)', border:`1px solid ${msgType==='ok'?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'}`, borderRadius:10, padding:'10px 14px', marginBottom:12, color: msgType==='ok'?C.green:C.red, fontSize:12 }}>{msg}</div>}
-
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
         <span style={{ color:C.text, fontWeight:800, fontSize:16 }}>{parts.length} participante{parts.length!==1?'s':''}</span>
         <button onClick={load} style={{ background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, padding:'6px 12px', color:C.textMuted, fontSize:11, fontWeight:700, cursor:'pointer' }}>↺ Atualizar</button>
       </div>
-
       {parts.map((p,i)=>(
         <div key={p.id} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'10px 12px', marginBottom:8, display:'flex', alignItems:'center', gap:10 }}>
-          {/* Posição */}
           <span style={{ width:24, textAlign:'center', color:C.gold, fontWeight:900, fontSize:13, flexShrink:0 }}>
             {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}º`}
           </span>
-          {/* Avatar */}
           <div style={{ width:36,height:36,borderRadius:'50%',background:'rgba(255,255,255,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0,overflow:'hidden' }}>
-            {p.avatar_url
-              ?<img src={p.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} onError={e=>{e.target.style.display='none'}}/>
-              :<span>{p.avatar_emoji||'⚽'}</span>}
+            {p.avatar_url?<img src={p.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} onError={e=>{e.target.style.display='none'}}/>:<span>{p.avatar_emoji||'⚽'}</span>}
           </div>
-          {/* Info */}
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ color:C.text, fontWeight:800, fontSize:13, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</div>
-            <div style={{ color:C.textMuted, fontSize:10, marginTop:2 }}>
-              ⚡{p.exact_hits||0} exatos · ✓{p.result_hits||0} result.
-            </div>
+            <div style={{ color:C.textMuted, fontSize:10, marginTop:2 }}>⚡{p.exact_hits||0} exatos · ✓{p.result_hits||0} result.</div>
           </div>
-          {/* Pontos */}
           <div style={{ textAlign:'right', flexShrink:0, marginRight:6 }}>
             <div style={{ color:C.gold, fontWeight:900, fontSize:20 }}>{p.total_points||0}</div>
             <div style={{ color:C.textMuted, fontSize:9 }}>pts</div>
           </div>
-          {/* Botão remover */}
           {confirm?.id===p.id ? (
             <div style={{ display:'flex', flexDirection:'column', gap:4, flexShrink:0 }}>
               <button onClick={()=>del(p)} disabled={deleting}
@@ -256,19 +291,13 @@ function ParticipantsTab(){
             </div>
           ):(
             <button onClick={()=>setConfirm(p)}
-              style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:8, padding:'8px', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+              style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:8, padding:'8px', cursor:'pointer', flexShrink:0 }}>
               🗑️
             </button>
           )}
         </div>
       ))}
-
-      {parts.length===0&&(
-        <div style={{ textAlign:'center', padding:48, color:C.textMuted }}>
-          <div style={{ fontSize:40, marginBottom:8 }}>👥</div>
-          <p>Nenhum participante ainda.</p>
-        </div>
-      )}
+      {parts.length===0&&<div style={{ textAlign:'center', padding:48, color:C.textMuted }}><div style={{ fontSize:40, marginBottom:8 }}>👥</div><p>Nenhum participante ainda.</p></div>}
     </div>
   )
 }
@@ -307,8 +336,6 @@ function KnockoutTab() {
       await supabase.from('bracket_matches').insert([updated])
     }
     setMatches(m => ({ ...m, [id]: updated }))
-
-    // Calcular pontos dos palpites se encerrado
     if (field === 'is_finished' && value === true) {
       const m = updated
       if (m.score1 !== null && m.score2 !== null) {
@@ -319,7 +346,7 @@ function KnockoutTab() {
           const { data: part } = await supabase.from('participants').select('total_points').eq('id', p.participant_id).single()
           if (part) await supabase.from('participants').update({ total_points: (part.total_points||0) + pts }).eq('id', p.participant_id)
         }
-        setMsg('✅ Resultado salvo e pontos calculados!')
+        setMsg('✅ Pontos calculados!')
         setTimeout(() => setMsg(''), 3000)
       }
     }
@@ -334,9 +361,7 @@ function KnockoutTab() {
   return (
     <div>
       {msg && <div style={{ background:'rgba(74,222,128,0.1)', border:'1px solid rgba(74,222,128,0.3)', borderRadius:10, padding:'10px 14px', marginBottom:12, color:C.green, fontSize:12 }}>{msg}</div>}
-      <p style={{ color:C.textMuted, fontSize:11, marginBottom:12 }}>Preencha os times de cada confronto. Quando um jogo terminar, insira o placar e marque como encerrado.</p>
-
-      {/* Abas de rodada */}
+      <p style={{ color:C.textMuted, fontSize:11, marginBottom:12 }}>Preencha os times. Ao encerrar, os pontos são calculados automaticamente.</p>
       <div style={{ display:'flex', gap:5, marginBottom:14, overflowX:'auto' }}>
         {KO_ROUNDS.map(r => (
           <button key={r.id} onClick={() => setActiveRound(r.id)} style={{
@@ -347,51 +372,46 @@ function KnockoutTab() {
           }}>{r.label}</button>
         ))}
       </div>
-
       {roundMatches.map(m => {
         const db = matches[m.id] || {}
         return (
-          <div key={m.id} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
-            <div style={{ color:C.gold, fontWeight:800, fontSize:11, marginBottom:10 }}>{m.label}</div>
-
-            {/* Time 1 */}
+          <div key={m.id} style={{ background:C.card, border:`1px solid ${db.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
+              <span style={{ color:C.gold, fontWeight:800, fontSize:11 }}>{m.label}</span>
+              {db.is_finished && <span style={{ color:C.green, fontSize:10, fontWeight:800 }}>✓ Encerrado</span>}
+            </div>
             <div style={{ marginBottom:8 }}>
               <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Time 1</label>
-              <select value={db.team1||''} onChange={e => save(m.id,'team1',e.target.value)}
-                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none' }}>
+              <select value={db.team1||''} onChange={e => save(m.id,'team1',e.target.value)} disabled={db.is_finished}
+                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none', opacity:db.is_finished?.6:1 }}>
                 <option value="">Selecionar...</option>
                 {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
               </select>
             </div>
-
-            {/* Time 2 */}
             <div style={{ marginBottom:10 }}>
               <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Time 2</label>
-              <select value={db.team2||''} onChange={e => save(m.id,'team2',e.target.value)}
-                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none' }}>
+              <select value={db.team2||''} onChange={e => save(m.id,'team2',e.target.value)} disabled={db.is_finished}
+                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none', opacity:db.is_finished?.6:1 }}>
                 <option value="">Selecionar...</option>
                 {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
               </select>
             </div>
-
-            {/* Placar (só se tiver times) */}
             {db.team1 && db.team2 && (
-              <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
-                <input type="number" min="0" max="20" placeholder="0" value={db.score1??''}
+              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+                <input type="number" min="0" max="20" placeholder="0" value={db.score1??''} disabled={db.is_finished}
                   onChange={e => save(m.id,'score1',parseInt(e.target.value))}
-                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:db.is_finished?.6:1 }}/>
                 <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
-                <input type="number" min="0" max="20" placeholder="0" value={db.score2??''}
+                <input type="number" min="0" max="20" placeholder="0" value={db.score2??''} disabled={db.is_finished}
                   onChange={e => save(m.id,'score2',parseInt(e.target.value))}
-                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:db.is_finished?.6:1 }}/>
                 <label style={{ display:'flex', alignItems:'center', gap:6, color:C.textMuted, fontSize:11, fontWeight:700, cursor:'pointer', marginLeft:8 }}>
                   <input type="checkbox" checked={db.is_finished||false} onChange={e => save(m.id,'is_finished',e.target.checked)}/>
                   Encerrado
                 </label>
               </div>
             )}
-
-            {saving[m.id] && <div style={{ color:C.gold, fontSize:10 }}>Salvando...</div>}
+            {saving[m.id] && <div style={{ color:C.gold, fontSize:10, marginTop:6 }}>Salvando...</div>}
           </div>
         )
       })}
@@ -422,13 +442,11 @@ export default function Admin(){
     setLoading(false)
   }
 
-  // Só salva o placar parcial, sem encerrar nem pontuar
   const saveResult=async(matchId,score1,score2)=>{
     await supabase.from('matches').update({score1,score2}).eq('id',matchId)
     setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1,score2}:m))
   }
 
-  // Encerra a partida e calcula pontuação
   const finishMatch=async(matchId,score1,score2)=>{
     await supabase.from('matches').update({score1,score2,is_finished:true}).eq('id',matchId)
     const{data:preds}=await supabase.from('predictions').select('id,score1,score2').eq('match_id',matchId)
@@ -439,7 +457,6 @@ export default function Admin(){
     await recalcTotals()
   }
 
-  // Reseta placar, reabre partida e zera pontos dos palpites
   const resetMatch=async(matchId)=>{
     await supabase.from('matches').update({score1:null,score2:null,is_finished:false}).eq('id',matchId)
     await supabase.from('predictions').update({points:null}).eq('match_id',matchId)
@@ -450,7 +467,7 @@ export default function Admin(){
   const recalcTotals=async()=>{
     const{data:ps}=await supabase.from('participants').select('id')
     for(const p of ps||[]){
-      const{data:pr}=await supabase.from('predictions').select('points,score1,score2').eq('participant_id',p.id).not('points','is',null)
+      const{data:pr}=await supabase.from('predictions').select('points').eq('participant_id',p.id).not('points','is',null)
       const total=pr?.reduce((s,x)=>s+(x.points||0),0)||0
       const exact=pr?.filter(x=>x.points===3).length||0
       const result=pr?.filter(x=>x.points===1).length||0
@@ -472,7 +489,6 @@ export default function Admin(){
     setTimeout(()=>setRecalcMsg(''),3000)
   }
 
-  // ── LOGIN ──────────────────────────────────────────────────────────────────
   if(!authed) return(
     <div style={{ minHeight:'100vh', background:C.bg, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
       <div style={{ width:'100%', maxWidth:360 }}>
@@ -497,10 +513,8 @@ export default function Admin(){
     </div>
   )
 
-  // ── PAINEL ─────────────────────────────────────────────────────────────────
   return(
     <div style={{ minHeight:'100vh', background:C.bg }}>
-      {/* Header */}
       <div style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, background:C.header, borderBottom:`1px solid ${C.border}`, padding:'12px 16px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <span style={{ color:C.gold, fontWeight:900, fontSize:18 }}>🏆 ADMIN · COPA 2026</span>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -510,7 +524,6 @@ export default function Admin(){
       </div>
 
       <main style={{ paddingTop:64, paddingBottom:32, padding:'72px 16px 32px', maxWidth:520, margin:'0 auto' }}>
-        {/* Abas */}
         <div style={{ display:'flex', background:'rgba(255,255,255,0.05)', borderRadius:12, padding:4, marginBottom:20, gap:3, overflowX:'auto' }}>
           {[{id:'results',label:'🎯 Grupos'},{id:'knockout',label:'⚔️ Mata-Mata'},{id:'participants',label:'👥 Participantes'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{
@@ -521,7 +534,6 @@ export default function Admin(){
             }}>{t.label}</button>
           ))}
         </div>
-
         {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult} onFinish={finishMatch} onReset={resetMatch}/>}
         {tab==='knockout'&&<KnockoutTab/>}
         {tab==='participants'&&<ParticipantsTab/>}
