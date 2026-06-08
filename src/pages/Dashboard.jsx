@@ -32,10 +32,10 @@ function Hero({ onPalpites, onJogos }) {
       <div style={{ position:'absolute', right:-10, top:0, bottom:0, width:'52%', zIndex:1 }}>
         <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
         <img
-          src="/images/trophy-color.jpg"
+          src="/images/trophy.webp"
           alt="Taça Copa 2026"
-          style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.9, filter:'drop-shadow(-16px 0 50px rgba(245,166,35,0.4)) saturate(1.15)' }}
-          onError={e => { e.target.src='/images/trophy.webp'; e.target.style.objectFit='contain' }}
+          style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center', opacity:.92, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.45))' }}
+          onError={e => { e.target.style.display='none' }}
         />
         <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 35%)', zIndex:2 }}/>
       </div>
@@ -49,26 +49,25 @@ function Hero({ onPalpites, onJogos }) {
           <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
         </div>
 
-        {/* COPA DO MUNDO FIFA */}
-        <div style={{ marginBottom:4 }}>
-          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:15, letterSpacing:1.5, textTransform:'uppercase', lineHeight:1.2, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
-          <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:15, letterSpacing:1.5, textTransform:'uppercase', lineHeight:1.2 }}>FIFA</div>
-        </div>
-
-        {/* 2026 grande e em destaque */}
-        <div style={{ marginBottom:10 }}>
+        {/* COPA DO MUNDO FIFA + 2026 — proporcionais */}
+        <div style={{ marginBottom:12 }}>
+          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:22, letterSpacing:1, textTransform:'uppercase', lineHeight:1.15, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
+            <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:22, letterSpacing:1, textTransform:'uppercase', lineHeight:1.15 }}>FIFA</div>
+            <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
+          </div>
           <span style={{
             fontFamily:'Arial Black, Impact, sans-serif',
             fontWeight:900,
-            fontSize:88,
-            lineHeight:.85,
-            letterSpacing:-4,
-            background:'linear-gradient(135deg, #F5A623 0%, #FFD700 40%, #F5A623 100%)',
+            fontSize:62,
+            lineHeight:.9,
+            letterSpacing:-3,
+            background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)',
             WebkitBackgroundClip:'text',
             WebkitTextFillColor:'transparent',
             backgroundClip:'text',
             display:'inline-block',
-            filter:'drop-shadow(0 2px 8px rgba(245,166,35,0.5))',
+            filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))',
           }}>2026</span>
         </div>
 
@@ -471,59 +470,71 @@ function NewsWidget() {
   const visibleNews = news.slice(0, 5)
 
   return (
-    <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)', overflow:'hidden' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-          <span style={{ fontSize:13 }}>📰</span>
-          <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>Notícias</span>
+    <div style={{ background:'#fff', borderRadius:14, padding:'16px 14px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)', overflow:'hidden' }}>
+
+      {/* Header */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+          <div style={{ width:28, height:28, borderRadius:8, background:'linear-gradient(135deg,#002855,#009639)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>📰</div>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:14 }}>Notícias da Copa</span>
         </div>
-        <div style={{ display:'flex', gap:4 }}>
+        <div style={{ display:'flex', gap:5 }}>
           {visibleNews.map((_,i) => (
-            <div key={i} onClick={() => setCurrentIdx(i)} style={{ width: i===currentIdx?16:6, height:6, borderRadius:3, background:i===currentIdx?'#009639':'#E2EAF0', cursor:'pointer', transition:'all .3s' }}/>
+            <div key={i} onClick={() => setCurrentIdx(i)} style={{ width: i===currentIdx?18:7, height:7, borderRadius:4, background:i===currentIdx?'#009639':'#E2EAF0', cursor:'pointer', transition:'all .3s' }}/>
           ))}
         </div>
       </div>
 
       {loading ? (
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-          {[1,2,3].map(i => (
-            <div key={i} style={{ height:48, borderRadius:10, background:'linear-gradient(90deg,#F4F6F9 25%,#e8eaed 50%,#F4F6F9 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite' }}/>
-          ))}
+        <div style={{ display:'flex', gap:12 }}>
+          <div style={{ flex:'0 0 130px', height:110, borderRadius:12, background:'linear-gradient(90deg,#F4F6F9 25%,#e8eaed 50%,#F4F6F9 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite' }}/>
+          <div style={{ flex:1, display:'flex', flexDirection:'column', gap:8 }}>
+            {[80,60,60].map((w,i) => (
+              <div key={i} style={{ height:14, width:`${w}%`, borderRadius:6, background:'linear-gradient(90deg,#F4F6F9 25%,#e8eaed 50%,#F4F6F9 75%)', backgroundSize:'200% 100%', animation:'shimmer 1.4s infinite' }}/>
+            ))}
+          </div>
           <style>{`@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
         </div>
       ) : (
         <>
-          {/* Notícia destacada */}
+          {/* Notícia destacada — layout horizontal com imagem à esquerda */}
           {visibleNews[currentIdx] && (
             <a href={visibleNews[currentIdx].link} target="_blank" rel="noopener noreferrer"
-              style={{ display:'block', borderRadius:12, overflow:'hidden', textDecoration:'none', marginBottom:8, border:'1px solid #E2EAF0', background:'#F4F6F9', transition:'transform .15s' }}
-              onClick={e => e.stopPropagation()}>
-              {visibleNews[currentIdx].image && (
-                <div style={{ height:70, overflow:'hidden', position:'relative' }}>
-                  <img src={visibleNews[currentIdx].image} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}
-                    onError={e => { e.target.parentElement.style.display='none' }}/>
-                  <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.5),transparent)' }}/>
+              style={{ display:'flex',                 gap:12, borderRadius:12, overflow:'hidden', textDecoration:'none', marginBottom:14, border:'1px solid #E2EAF0', background:'#F8FAFC' }}>
+              {/* Imagem ou placeholder */}
+              <div style={{ flexShrink:0, width:110, minHeight:100, background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                {visibleNews[currentIdx].image
+                  ? <img src={visibleNews[currentIdx].image} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', position:'absolute', inset:0 }}
+                      onError={e => { e.target.style.display='none' }}/>
+                  : <span style={{ fontSize:36, opacity:.6 }}>⚽</span>
+                }
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,transparent 70%,#F8FAFC)' }}/>
+              </div>
+              {/* Texto */}
+              <div style={{ flex:1, padding:'12px 12px 12px 0', display:'flex', flexDirection:'column', justifyContent:'center' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:6 }}>
+                  <span style={{ background:'rgba(0,150,57,0.1)', color:'#009639', fontSize:9, fontWeight:800, borderRadius:5, padding:'2px 7px' }}>⚽ COPA 2026</span>
+                  <span style={{ color:'#9BABB8', fontSize:9 }}>{formatNewsDate(visibleNews[currentIdx].pubDate)}</span>
                 </div>
-              )}
-              <div style={{ padding:'8px 10px' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:5, marginBottom:4 }}>
-                  <span style={{ background:'rgba(0,150,57,0.1)', color:'#009639', fontSize:8, fontWeight:800, borderRadius:4, padding:'2px 6px' }}>⚽ COPA 2026</span>
-                  <span style={{ color:'#9BABB8', fontSize:8 }}>{formatNewsDate(visibleNews[currentIdx].pubDate)}</span>
-                </div>
-                <div style={{ color:'#002855', fontWeight:800, fontSize:11, lineHeight:1.4 }}>{visibleNews[currentIdx].title}</div>
+                <div style={{ color:'#002855', fontWeight:800, fontSize:13, lineHeight:1.45 }}>{visibleNews[currentIdx].title}</div>
+                <div style={{ color:'#009639', fontSize:10, fontWeight:700, marginTop:6 }}>Ler mais →</div>
               </div>
             </a>
           )}
 
+          {/* Divisor */}
+          <div style={{ color:'#9BABB8', fontSize:9, fontWeight:800, letterSpacing:1.2, textTransform:'uppercase', marginBottom:10 }}>Mais notícias</div>
+
           {/* Lista de outras notícias */}
-          {visibleNews.filter((_,i) => i!==currentIdx).slice(0,3).map((item, i) => (
+          {visibleNews.filter((_,i) => i!==currentIdx).slice(0,4).map((item, i) => (
             <a key={i} href={item.link} target="_blank" rel="noopener noreferrer"
-              style={{ display:'flex', alignItems:'flex-start', gap:8, padding:'6px 0', borderBottom:'1px solid #F4F6F9', textDecoration:'none' }}>
-              <span style={{ color:'#009639', fontSize:10, fontWeight:900, flexShrink:0, marginTop:1 }}>›</span>
+              style={{ display:'flex', alignItems:'flex-start', gap:10, padding:'10px 0', borderBottom:'1px solid #F4F6F9', textDecoration:'none' }}>
+              <div style={{ width:34, height:34, borderRadius:8, background:'linear-gradient(135deg,#F4F6F9,#E2EAF0)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:16 }}>⚽</div>
               <div style={{ flex:1 }}>
-                <div style={{ color:'#002855', fontSize:10, fontWeight:700, lineHeight:1.35, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>{item.title}</div>
-                <div style={{ color:'#9BABB8', fontSize:8, marginTop:2 }}>{item.source} · {formatNewsDate(item.pubDate)}</div>
+                <div style={{ color:'#002855', fontSize:12, fontWeight:700, lineHeight:1.4, marginBottom:3 }}>{item.title}</div>
+                <div style={{ color:'#9BABB8', fontSize:10 }}>{item.source} · {formatNewsDate(item.pubDate)}</div>
               </div>
+              <span style={{ color:'#C8D5E0', fontSize:14, flexShrink:0, marginTop:8 }}>›</span>
             </a>
           ))}
         </>
@@ -614,10 +625,8 @@ export default function Dashboard({ participant, onLogout }) {
         <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14 }}>
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <NewsWidget/>
-            <Top5 participant={participant} ranking={ranking}/>
-          </div>
+          <NewsWidget/>
+          <Top5 participant={participant} ranking={ranking}/>
 
           {/* Banners */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
@@ -656,3 +665,4 @@ export default function Dashboard({ participant, onLogout }) {
     </div>
   )
 }
+
