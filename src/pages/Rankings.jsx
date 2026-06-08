@@ -36,7 +36,21 @@ export default function Rankings({ participant, onLogout }) {
   const [live,setLive] = useState(false)
 
   const fetch = async () => {
-    const { data } = await supabase.from('participants').select('id,name,avatar_emoji,total_points,exact_hits,result_hits,predictions_count').order('total_points',{ascending:false}).order('exact_hits',{ascending:false})
+    const { data: raw } = await supabase.from('participants').select('id,name,avatar_emoji,avatar_url,total_points,exact_hits,result_hits,predictions_count')
+    // Ordenação: pontos → exatos → resultados → menos erros → mais palpites → alfabético
+    const data = (raw || []).slice().sort((a, b) => {
+      const allZero = (p) => (p.total_points||0) === 0 && (p.exact_hits||0) === 0 && (p.result_hits||0) === 0
+      // Se todos têm zero, ordem alfabética
+      if (allZero(a) && allZero(b)) return a.name.localeCompare(b.name, 'pt-BR')
+      if ((b.total_points||0) !== (a.total_points||0)) return (b.total_points||0) - (a.total_points||0)
+      if ((b.exact_hits||0) !== (a.exact_hits||0)) return (b.exact_hits||0) - (a.exact_hits||0)
+      if ((b.result_hits||0) !== (a.result_hits||0)) return (b.result_hits||0) - (a.result_hits||0)
+      const errorsA = (a.predictions_count||0) - (a.exact_hits||0) - (a.result_hits||0)
+      const errorsB = (b.predictions_count||0) - (b.exact_hits||0) - (b.result_hits||0)
+      if (errorsA !== errorsB) return errorsA - errorsB
+      if ((b.predictions_count||0) !== (a.predictions_count||0)) return (b.predictions_count||0) - (a.predictions_count||0)
+      return a.name.localeCompare(b.name, 'pt-BR')
+    })
     setRanking(data||[]); setLoading(false)
   }
 
