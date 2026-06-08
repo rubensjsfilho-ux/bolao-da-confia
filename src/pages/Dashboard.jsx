@@ -135,7 +135,7 @@ function StatsStrip({ stats, totalParts, myRank }) {
     <div style={{ background:'#fff', margin:'0 12px', borderRadius:16, padding:'14px 8px', boxShadow:'0 4px 20px rgba(0,40,85,0.10)', border:'1px solid #E2EAF0', display:'grid', gridTemplateColumns:'repeat(4,1fr)', marginTop:-16, position:'relative', zIndex:4 }}>
       {[
         { icon:<Users size={20} color="#009639"/>, label:'PARTICIPANTES', val:totalParts, sub:'Ver todos', subc:'#009639' },
-        { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`<LaTex>${myRank}º`:'—', sub:myRank?`de $</LaTex>{totalParts}`:'—', subc:'#6B7A8D' },
+        { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`${myRank}º`:'—', sub:myRank?`de ${totalParts}`:'—', subc:'#6B7A8D' },
         { icon:<Star size={20} color="#F5A623"/>, label:'SEUS PONTOS', val:stats.points, sub:'Ver pontuação', subc:'#009639' },
         { icon:<Calendar size={20} color="#7B2FBE"/>, label:'RODADA ATUAL', val:'Grupos', sub:'Em andamento', subc:'#7B2FBE' },
       ].map(({icon,label,val,sub,subc})=>(
@@ -211,137 +211,271 @@ const STARS = {
   'Escócia':        { name:'A. Robertson',   wiki:'Andrew_Robertson' },
   'Croácia':        { name:'L. Modrić',      wiki:'Luka_Modrić' },
   'Suíça':          { name:'G. Xhaka',       wiki:'Granit_Xhaka' },
-  'Turquia':        { name:'Arda Güler',     wiki:'Arda_Güler' },
+  'Turquia':        { name:'H. Çalhanoğlu',  wiki:'Hakan_Çalhanoğlu' },
   'Colômbia':       { name:'L. Díaz',        wiki:'Luis_Díaz_(footballer,_born_1997)' },
   'Paraguai':       { name:'M. Almirón',     wiki:'Miguel_Almirón' },
-  'Equador':        { name:'M. Caicedo',     wiki:'Moisés_Caicedo' },
   'Egito':          { name:'M. Salah',       wiki:'Mohamed_Salah' },
-  'Gana':           { name:'M. Kudus',       wiki:'Mohammed_Kudus' },
-  'Panamá':         { name:'A. Carrasquilla',wiki:'Adalberto_Carrasquilla' },
+  'Gana':           { name:'T. Partey',      wiki:'Thomas_Partey' },
+  'Coreia do Sul':  { name:'Son Heung-min',  wiki:'Son_Heung-min' },
+  'Japão':          { name:'T. Endo',        wiki:'Wataru_Endo' },
+  'Austrália':      { name:'M. Leckie',      wiki:'Mathew_Leckie' },
+  'Irã':            { name:'S. Azmoun',      wiki:'Sardar_Azmoun' },
+  'Arábia Saudita': { name:'S. Al-Dawsari',  wiki:'Salem_Al-Dawsari' },
   'África do Sul':  { name:'P. Tau',         wiki:'Percy_Tau' },
-  'Cabo Verde':     { name:'Ryan Mendes',    wiki:'Ryan_Mendes' },
-  'Argélia':        { name:'R. Mahrez',      wiki:'Riyad_Mahrez' },
-  'Tunísia':        { name:'E. Skhiri',      wiki:'Ellyes_Skhiri' },
-  'Costa do Marfim':{ name:'S. Haller',      wiki:'Sébastien_Haller' },
-  'Curaçao':        { name:'J. Bacuna',      wiki:'Juninho_Bacuna' },
-  'Haiti':          { name:'D. Nazon',       wiki:'Duckens_Nazon' },
-  'Uzbequistão':    { name:'E. Shomurodov',  wiki:'Eldor_Shomurodov' },
-  'Nova Zelândia':  { name:'C. Wood',        wiki:'Chris_Wood_(footballer)' },
-  'RD Congo':       { name:'C. Bakambu',     wiki:'Cédric_Bakambu' },
-  'Áustria':        { name:'D. Alaba',       wiki:'David_Alaba' },
   'Noruega':        { name:'E. Haaland',     wiki:'Erling_Haaland' },
+  'Áustria':        { name:'D. Alaba',       wiki:'David_Alaba' },
 }
 
-// ── CAROUSEL "HOJE NA COPA" ───────────────────────────────────────────────────
+const TEAM_COLORS = {
+  'Brasil':['#009C3B','#FFDF00'], 'Argentina':['#74ACDF','#fff'],
+  'França':['#002395','#ED2939'], 'Alemanha':['#000','#DD0000'],
+  'Espanha':['#AA151B','#F1BF00'], 'Portugal':['#006600','#FF0000'],
+  'Inglaterra':['#CF091D','#fff'], 'Holanda':['#FF6600','#003DA5'],
+  'Bélgica':['#000','#EF3340'], 'México':['#006847','#CE1126'],
+  'Estados Unidos':['#002868','#BF0A30'], 'Uruguai':['#5EB6E4','#fff'],
+  'Canadá':['#FF0000','#fff'], 'Marrocos':['#C1272D','#006233'],
+  'Senegal':['#00853F','#FDEF42'], 'Escócia':['#003DA5','#fff'],
+  'Croácia':['#FF0000','#fff'], 'Suíça':['#FF0000','#fff'],
+  'Turquia':['#E30A17','#fff'], 'Colômbia':['#FCD116','#003087'],
+  'Paraguai':['#D52B1E','#fff'], 'Egito':['#CE1126','#fff'],
+  'Gana':['#006B3F','#FCD116'], 'Panamá':['#DA121A','#fff'],
+  'Coreia do Sul':['#CD2E3A','#003478'], 'Japão':['#BC002D','#fff'],
+  'Austrália':['#FFD700','#006400'], 'Irã':['#239F40','#DA0000'],
+  'Noruega':['#EF2B2D','#fff'], 'Áustria':['#ED2939','#fff'],
+  'África do Sul':['#007A4D','#FFB612'], 'Argélia':['#006233','#D21034'],
+  'Tunísia':['#E70013','#fff'],
+}
+
+function useWikiPhoto(wiki) {
+  const [url, setUrl] = useState(null)
+  useEffect(() => {
+    if (!wiki) return
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wiki)}`)
+      .then(r => r.json())
+      .then(d => { if (d.thumbnail?.source) setUrl(d.thumbnail.source) })
+      .catch(() => {})
+  }, [wiki])
+  return url
+}
+
+// ── CARROSSEL DE JOGOS DO DIA ─────────────────────────────────────────────────
 function TodayCarousel({ participant }) {
-  const [matches, setMatches] = useState([])
-  const [preds, setPreds] = useState({})
-  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+  const [predictions, setPredictions] = useState({})
+
+  const now = new Date()
+  const tomorrowEnd = new Date(now)
+  tomorrowEnd.setDate(tomorrowEnd.getDate()+1)
+  tomorrowEnd.setHours(23,59,59,999)
+
+  const upcoming = GROUP_MATCHES.filter(m => new Date(m.date) > new Date(now.getTime()-3*3600000))
+  const todayMatches = upcoming.filter(m => new Date(m.date) <= tomorrowEnd).slice(0,8)
+  const displayMatches = todayMatches.length > 0 ? todayMatches : upcoming.slice(0,6)
 
   useEffect(() => {
-    async function load() {
-      // Filtra jogos de hoje (simulado: pegamos os primeiros 4 para exemplo)
-      const today = GROUP_MATCHES.slice(0, 4)
-      setMatches(today)
+    if (!participant?.id) return
+    supabase.from('predictions').select('match_id').eq('participant_id', participant.id)
+      .then(({ data }) => {
+        const map = {}
+        data?.forEach(p => { map[p.match_id] = true })
+        setPredictions(map)
+      })
+  }, [participant?.id])
 
-      const { data } = await supabase.from('predictions').select('*').eq('participant_id', participant.id)
-      const map = {}
-      data?.forEach(p => { map[p.match_id] = p })
-      setPreds(map)
-      setLoading(false)
-    }
-    load()
-  }, [participant.id])
+  if (displayMatches.length === 0) return null
 
-  if (loading) return null
+  const getDateLabel = (date) => {
+    const d = new Date(date)
+    const now = new Date()
+    const todayStart = new Date(now); todayStart.setHours(0,0,0,0)
+    const tomorrowStart = new Date(todayStart); tomorrowStart.setDate(tomorrowStart.getDate()+1)
+    const afterTomorrowStart = new Date(tomorrowStart); afterTomorrowStart.setDate(afterTomorrowStart.getDate()+1)
+    if (d >= todayStart && d < tomorrowStart) return { label:'HOJE', isToday:true }
+    if (d >= tomorrowStart && d < afterTomorrowStart) return { label:'AMANHÃ', isToday:false }
+    const weekdays = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB']
+    return { label: weekdays[d.getDay()] + ' ' + String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'), isToday:false }
+  }
+
+  const formatTime = (date) => new Date(date).toLocaleTimeString('pt-BR', {
+    hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo'
+  })
+
+  const isLocked = (date) => new Date() >= new Date(date)
 
   return (
-    <div style={{ marginBottom:20 }}>
-      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-        <div style={{ width:4, height:16, background:'#009639', borderRadius:2 }}/>
-        <span style={{ color:'#002855', fontWeight:900, fontSize:14 }}>Hoje na Copa</span>
-        <span style={{ marginLeft:'auto', background:'rgba(0,150,57,0.1)', color:'#009639', fontSize:10, fontWeight:800, padding:'2px 8px', borderRadius:6 }}>{matches.length} JOGOS</span>
+    <div style={{ marginBottom:14 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <div style={{ width:8, height:8, borderRadius:'50%', background:'#009639', animation:'pulse 1.5s infinite' }}/>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>
+            {todayMatches.length > 0 ? 'Jogos de Hoje e Amanhã' : 'Próximos Jogos'}
+          </span>
+        </div>
+        <button onClick={()=>navigate('/palpites')}
+          style={{ color:'#009639', fontSize:10, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>
+          Ver todos →
+        </button>
       </div>
 
-      <div style={{ display:'flex', gap:12, overflowX:'auto', paddingBottom:8, scrollSnapType:'x mandatory', msOverflowStyle:'none', scrollbarWidth:'none' }}>
-        {matches.map(m => {
-          const p = preds[m.id]
-          const open = isMatchOpen(m)
+      <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:8, scrollSnapType:'x mandatory', WebkitOverflowScrolling:'touch' }}>
+        {displayMatches.map(match => {
+          const dl = getDateLabel(match.date)
           return (
-            <div key={m.id} style={{ flex:'0 0 240px', scrollSnapAlign:'start', background:'#fff', borderRadius:16, padding:14, border:'1px solid #E2EAF0', boxShadow:'0 2px 10px rgba(0,40,85,0.04)' }}>
-              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
-                <span style={{ color:'#9BABB8', fontSize:9, fontWeight:800 }}>{m.group} • {m.date}</span>
-                <span style={{ color:open?'#009639':'#6B7A8D', fontSize:9, fontWeight:800 }}>{open ? '🟢 ABERTO' : '🔴 ENCERRADO'}</span>
-              </div>
-
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, marginBottom:12 }}>
-                <div style={{ textAlign:'center', flex:1 }}>
-                  <img src={CRESTS[m.home]} style={{ width:32, height:32, objectFit:'contain', marginBottom:4 }} alt=""/>
-                  <div style={{ color:'#002855', fontWeight:800, fontSize:11, whiteSpace:'nowrap' }}>{m.home}</div>
-                </div>
-                <div style={{ display:'flex', alignItems:'center', gap:4 }}>
-                  <div style={{ width:28, height:32, background:'#F4F6F9', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', color:'#002855', fontWeight:900, fontSize:16 }}>{p?.home_score ?? '-'}</div>
-                  <span style={{ color:'#C8D5E0', fontWeight:900 }}>:</span>
-                  <div style={{ width:28, height:32, background:'#F4F6F9', borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', color:'#002855', fontWeight:900, fontSize:16 }}>{p?.away_score ?? '-'}</div>
-                </div>
-                <div style={{ textAlign:'center', flex:1 }}>
-                  <img src={CRESTS[m.away]} style={{ width:32, height:32, objectFit:'contain', marginBottom:4 }} alt=""/>
-                  <div style={{ color:'#002855', fontWeight:800, fontSize:11, whiteSpace:'nowrap' }}>{m.away}</div>
-                </div>
-              </div>
-
-              <div style={{ background:p?'#e8f5ee':'#FFF9F0', borderRadius:10, padding:'8px 10px', display:'flex', alignItems:'center', gap:6 }}>
-                <span style={{ fontSize:12 }}>{p ? '✅' : '⚠️'}</span>
-                <span style={{ color:p?'#009639':'#D4890A', fontWeight:800, fontSize:10 }}>{p ? 'Palpite registrado!' : 'Você ainda não palpitou'}</span>
-              </div>
-            </div>
+            <MatchCard key={match.id} match={match}
+              hasPred={!!predictions[match.id]}
+              locked={isLocked(match.date)}
+              today={dl.isToday}
+              dateLabel={dl.label}
+              formatTime={formatTime}
+              onTap={()=>{ if(!isLocked(match.date)) navigate(`/palpites?match=${match.id}`) }}
+            />
           )
         })}
       </div>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}} ::-webkit-scrollbar{height:0}`}</style>
     </div>
   )
 }
 
-// ── NEWS WIDGET ───────────────────────────────────────────────────────────────
+function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap }) {
+  const star1 = STARS[match.team1]
+  const star2 = STARS[match.team2]
+  const photo1 = useWikiPhoto(star1?.wiki)
+  const photo2 = useWikiPhoto(star2?.wiki)
+  const c1 = TEAM_COLORS[match.team1] || ['#002855','#009639']
+  const c2 = TEAM_COLORS[match.team2] || ['#009639','#002855']
+
+  let borderColor, statusBg, statusColor, statusText
+  if (locked)       { borderColor='#E2EAF0'; statusBg='rgba(155,171,184,0.1)'; statusColor='#9BABB8'; statusText='🔒 Encerrado' }
+  else if (hasPred) { borderColor='rgba(0,150,57,0.3)'; statusBg='rgba(0,150,57,0.1)'; statusColor='#009639'; statusText='✓ Palpitado' }
+  else              { borderColor='rgba(245,166,35,0.5)'; statusBg='rgba(245,166,35,0.12)'; statusColor='#D4890A'; statusText='⚡ Palpitar' }
+
+  return (
+    <div onClick={onTap} style={{
+      flexShrink:0, scrollSnapAlign:'start', width:175,
+      borderRadius:16, overflow:'hidden', border:`1.5px solid ${borderColor}`,
+      boxShadow:'0 4px 16px rgba(0,40,85,0.09)', cursor:locked?'default':'pointer',
+      opacity:locked?.75:1, background:'#fff',
+    }}>
+      {/* Thumbnail */}
+      <div style={{ height:110, display:'flex', position:'relative' }}>
+        {/* Time 1 */}
+        <div style={{ flex:1, background:`linear-gradient(135deg,${c1[0]},${c1[1]})`, position:'relative', overflow:'hidden' }}>
+          {photo1 && <img src={photo1} alt={star1?.name} style={{ position:'absolute', bottom:0, width:'100%', height:'135%', objectFit:'cover', objectPosition:'top center' }}/>}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
+          {/* Escudo */}
+          <div style={{ position:'absolute', top:6, left:6, zIndex:2, width:26, height:26 }}>
+            {CRESTS[match.team1]
+              ? <img src={CRESTS[match.team1]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
+              : <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>}
+          </div>
+          {/* Badge data do jogo */}
+          <div style={{ position:'absolute', top:6, right:6, zIndex:2, background:today?'#009639':'rgba(0,0,0,0.55)', borderRadius:6, padding:'2px 5px' }}>
+            <span style={{ color:'#fff', fontSize:7, fontWeight:800 }}>{dateLabel}</span>
+          </div>
+          <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
+            <span style={{ color:'#fff', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.9)' }}>{star1?.name||match.team1}</span>
+          </div>
+        </div>
+
+        {/* VS central */}
+        <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', zIndex:5, background:'rgba(255,255,255,0.95)', borderRadius:20, padding:'4px 7px', boxShadow:'0 2px 8px rgba(0,0,0,0.2)', display:'flex', flexDirection:'column', alignItems:'center', gap:1 }}>
+          <span style={{ color:'#9BABB8', fontSize:7, fontWeight:900, letterSpacing:1 }}>VS</span>
+          <span style={{ color:'#002855', fontSize:11, fontWeight:900, lineHeight:1 }}>{formatTime(match.date)}</span>
+        </div>
+
+        {/* Time 2 */}
+        <div style={{ flex:1, background:`linear-gradient(135deg,${c2[1]},${c2[0]})`, position:'relative', overflow:'hidden' }}>
+          {photo2 && <img src={photo2} alt={star2?.name} style={{ position:'absolute', bottom:0, width:'100%', height:'135%', objectFit:'cover', objectPosition:'top center' }}/>}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to left,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
+          <div style={{ position:'absolute', top:6, right:6, zIndex:2, width:26, height:26 }}>
+            {CRESTS[match.team2]
+              ? <img src={CRESTS[match.team2]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
+              : <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>}
+          </div>
+          <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
+            <span style={{ color:'#fff', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.9)' }}>{star2?.name||match.team2}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div style={{ padding:'8px 10px 10px' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:10, flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team1}</span>
+          <span style={{ color:'#9BABB8', fontSize:8, fontWeight:700, padding:'0 4px', flexShrink:0 }}>G{match.group}</span>
+          <span style={{ color:'#002855', fontWeight:900, fontSize:10, flex:1, textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team2}</span>
+        </div>
+        <div style={{ color:'#9BABB8', fontSize:8, textAlign:'center', marginBottom:7, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>📍 {match.city}</div>
+        <div style={{ background:statusBg, borderRadius:8, padding:'5px', textAlign:'center' }}>
+          <span style={{ color:statusColor, fontWeight:900, fontSize:10 }}>{statusText}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
 function NewsWidget() {
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentIdx, setCurrentIdx] = useState(0)
 
   useEffect(() => {
-    async function fetchNews() {
-      try {
-        const res = await fetch('https://news.google.com/rss/search?q=Copa+do+Mundo+2026&hl=pt-BR&gl=BR&ceid=BR:pt-419')
-        const text = await res.text()
-        const parser = new DOMParser()
-        const xml = parser.parseFromString(text, "text/xml")
-        const items = Array.from(xml.querySelectorAll('item')).map(item => ({
-          title: item.querySelector('title')?.textContent,
-          link: item.querySelector('link')?.textContent,
-          pubDate: item.querySelector('pubDate')?.textContent,
-          source: item.querySelector('source')?.textContent,
-          image: null // RSS do Google News não traz imagem direta fácil
-        }))
-        setNews(items)
-      } catch (e) { console.error(e) }
-      setLoading(false)
-    }
-    fetchNews()
+    // Busca notícias via API pública RSS-to-JSON da Copa do Mundo 2026
+    const RSS_FEEDS = [
+      'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.goal.com%2Ffeeds%2Fnews%3Flanguage%3Dpt',
+      'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fge.globo.com%2Frss%2Ffutebol%2F',
+    ]
+    const fallbackNews = [
+      { title:'Copa 2026: grupos confirmados com 48 seleções', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-08', image:'' },
+      { title:'Brasil estreia na Copa contra Marrocos em Nova York', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-07', image:'' },
+      { title:'FIFA confirma horários e sedes dos jogos da fase de grupos', link:'https://www.fifa.com', source:'FIFA', pubDate:'2026-06-06', image:'' },
+      { title:'Vinicius Jr. será o capitão do Brasil na Copa do Mundo', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-05', image:'' },
+      { title:'Argentina defende título; Messi busca segundo mundial', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-04', image:'' },
+      { title:'Copa 2026: as principais favoritas ao título', link:'https://ge.globo.com', source:'GE.Globo', pubDate:'2026-06-03', image:'' },
+    ]
+    fetch(RSS_FEEDS[1])
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'ok' && data.items?.length > 0) {
+          const items = data.items.slice(0,8).map(i => ({
+            title: i.title,
+            link: i.link,
+            source: 'GE.Globo',
+            pubDate: i.pubDate ? i.pubDate.substring(0,10) : '',
+            image: i.thumbnail || i.enclosure?.link || '',
+          }))
+          setNews(items)
+        } else {
+          setNews(fallbackNews)
+        }
+        setLoading(false)
+      })
+      .catch(() => { setNews(fallbackNews); setLoading(false) })
   }, [])
 
+  useEffect(() => {
+    if (news.length === 0) return
+    const id = setInterval(() => setCurrentIdx(i => (i+1) % Math.min(news.length, 5)), 4000)
+    return () => clearInterval(id)
+  }, [news.length])
+
   const formatNewsDate = (d) => {
-    if(!d) return ''
+    if (!d) return ''
     const date = new Date(d)
     return date.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' })
   }
 
-  const visibleNews = news.slice(0, 6)
+  const visibleNews = news.slice(0, 5)
 
   return (
-    <div style={{ background:'#fff', borderRadius:16, padding:'16px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)' }}>
+    <div style={{ background:'#fff', borderRadius:14, padding:'16px 14px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)', overflow:'hidden' }}>
+
+      {/* Header */}
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <div style={{ width:4, height:16, background:'#009639', borderRadius:2 }}/>
+        <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+          <div style={{ width:28, height:28, borderRadius:8, background:'linear-gradient(135deg,#002855,#009639)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14 }}>📰</div>
           <span style={{ color:'#002855', fontWeight:900, fontSize:14 }}>Notícias da Copa</span>
         </div>
         <div style={{ display:'flex', gap:5 }}>
