@@ -235,6 +235,132 @@ function ParticipantsTab(){
   )
 }
 
+// ── ABA MATA-MATA NO ADMIN ────────────────────────────────────────────────────
+const KO_ROUNDS = [
+  { id:'r2', label:'2ª Fase', count:16 },
+  { id:'r16',label:'Oitavas', count:8  },
+  { id:'qf', label:'Quartas', count:4  },
+  { id:'sf', label:'Semis',   count:2  },
+  { id:'f',  label:'Final',   count:2  },
+]
+const ALL_TEAMS = ['Brasil','Argentina','França','Alemanha','Espanha','Portugal','Inglaterra','Holanda','Bélgica','Itália','México','Estados Unidos','Uruguai','Japão','Canadá','Austrália','Coreia do Sul','Marrocos','Senegal','Egito','Escócia','Croácia','Suíça','Áustria','Noruega','Turquia','Irã','Colômbia','Paraguai','Gana','Panamá','Argélia','Uzbequistão','Catar','Tunísia','Haiti','África do Sul','Cabo Verde','Equador','Costa do Marfim','Curaçao','RD Congo']
+
+function KnockoutTab() {
+  const [activeRound, setActiveRound] = useState('r2')
+  const [matches, setMatches] = useState({})
+  const [saving, setSaving] = useState({})
+  const [msg, setMsg] = useState('')
+
+  useEffect(() => {
+    supabase.from('bracket_matches').select('*').then(({ data }) => {
+      const map = {}
+      data?.forEach(m => { map[m.id] = m })
+      setMatches(map)
+    })
+  }, [])
+
+  const save = async (id, field, value) => {
+    setSaving(s => ({...s, [id]:true}))
+    const current = matches[id] || { id, round: id.split('_')[0], position: parseInt(id.split('_')[1]) }
+    const updated = { ...current, [field]: value }
+    if (matches[id]) {
+      await supabase.from('bracket_matches').update({ [field]: value, updated_at: new Date().toISOString() }).eq('id', id)
+    } else {
+      await supabase.from('bracket_matches').insert([updated])
+    }
+    setMatches(m => ({ ...m, [id]: updated }))
+
+    // Calcular pontos dos palpites se encerrado
+    if (field === 'is_finished' && value === true) {
+      const m = updated
+      if (m.score1 !== null && m.score2 !== null) {
+        const { data: preds } = await supabase.from('knockout_predictions').select('id,participant_id,score1,score2').eq('match_id', id)
+        for (const p of preds || []) {
+          const pts = p.score1===m.score1&&p.score2===m.score2 ? 3 : Math.sign(p.score1-p.score2)===Math.sign(m.score1-m.score2) ? 1 : 0
+          await supabase.from('knockout_predictions').update({ points: pts }).eq('id', p.id)
+          const { data: part } = await supabase.from('participants').select('total_points').eq('id', p.participant_id).single()
+          if (part) await supabase.from('participants').update({ total_points: (part.total_points||0) + pts }).eq('id', p.participant_id)
+        }
+        setMsg('✅ Resultado salvo e pontos calculados!')
+        setTimeout(() => setMsg(''), 3000)
+      }
+    }
+    setSaving(s => ({...s, [id]:false}))
+  }
+
+  const roundMatches = Array.from({ length: KO_ROUNDS.find(r=>r.id===activeRound)?.count || 0 }, (_,i) => {
+    const id = `${activeRound}_${i+1}`
+    return { id, label: `${KO_ROUNDS.find(r=>r.id===activeRound)?.label} ${i+1}` }
+  })
+
+  return (
+    <div>
+      {msg && <div style={{ background:'rgba(74,222,128,0.1)', border:'1px solid rgba(74,222,128,0.3)', borderRadius:10, padding:'10px 14px', marginBottom:12, color:C.green, fontSize:12 }}>{msg}</div>}
+      <p style={{ color:C.textMuted, fontSize:11, marginBottom:12 }}>Preencha os times de cada confronto. Quando um jogo terminar, insira o placar e marque como encerrado.</p>
+
+      {/* Abas de rodada */}
+      <div style={{ display:'flex', gap:5, marginBottom:14, overflowX:'auto' }}>
+        {KO_ROUNDS.map(r => (
+          <button key={r.id} onClick={() => setActiveRound(r.id)} style={{
+            flexShrink:0, padding:'6px 12px', border:'none', borderRadius:8,
+            fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif',
+            background: activeRound===r.id ? C.gold : 'rgba(255,255,255,0.08)',
+            color: activeRound===r.id ? '#000' : C.textMuted,
+          }}>{r.label}</button>
+        ))}
+      </div>
+
+      {roundMatches.map(m => {
+        const db = matches[m.id] || {}
+        return (
+          <div key={m.id} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
+            <div style={{ color:C.gold, fontWeight:800, fontSize:11, marginBottom:10 }}>{m.label}</div>
+
+            {/* Time 1 */}
+            <div style={{ marginBottom:8 }}>
+              <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Time 1</label>
+              <select value={db.team1||''} onChange={e => save(m.id,'team1',e.target.value)}
+                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none' }}>
+                <option value="">Selecionar...</option>
+                {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
+              </select>
+            </div>
+
+            {/* Time 2 */}
+            <div style={{ marginBottom:10 }}>
+              <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Time 2</label>
+              <select value={db.team2||''} onChange={e => save(m.id,'team2',e.target.value)}
+                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none' }}>
+                <option value="">Selecionar...</option>
+                {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
+              </select>
+            </div>
+
+            {/* Placar (só se tiver times) */}
+            {db.team1 && db.team2 && (
+              <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+                <input type="number" min="0" max="20" placeholder="0" value={db.score1??''}
+                  onChange={e => save(m.id,'score1',parseInt(e.target.value))}
+                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+                <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
+                <input type="number" min="0" max="20" placeholder="0" value={db.score2??''}
+                  onChange={e => save(m.id,'score2',parseInt(e.target.value))}
+                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+                <label style={{ display:'flex', alignItems:'center', gap:6, color:C.textMuted, fontSize:11, fontWeight:700, cursor:'pointer', marginLeft:8 }}>
+                  <input type="checkbox" checked={db.is_finished||false} onChange={e => save(m.id,'is_finished',e.target.checked)}/>
+                  Encerrado
+                </label>
+              </div>
+            )}
+
+            {saving[m.id] && <div style={{ color:C.gold, fontSize:10 }}>Salvando...</div>}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── ADMIN PRINCIPAL ───────────────────────────────────────────────────────────
 export default function Admin(){
   const [authed,setAuthed]=useState(false)
@@ -332,18 +458,19 @@ export default function Admin(){
 
       <main style={{ paddingTop:64, paddingBottom:32, padding:'72px 16px 32px', maxWidth:520, margin:'0 auto' }}>
         {/* Abas */}
-        <div style={{ display:'flex', background:'rgba(255,255,255,0.05)', borderRadius:12, padding:4, marginBottom:20, gap:4 }}>
-          {[{id:'results',label:'🎯 Resultados'},{id:'participants',label:'👥 Participantes'}].map(t=>(
+        <div style={{ display:'flex', background:'rgba(255,255,255,0.05)', borderRadius:12, padding:4, marginBottom:20, gap:3, overflowX:'auto' }}>
+          {[{id:'results',label:'🎯 Grupos'},{id:'knockout',label:'⚔️ Mata-Mata'},{id:'participants',label:'👥 Participantes'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{
-              flex:1, padding:'9px 8px', border: tab===t.id?`1px solid rgba(245,166,35,0.3)`:'1px solid transparent',
-              borderRadius:10, fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif',
+              flex:1, padding:'9px 6px', border: tab===t.id?`1px solid rgba(245,166,35,0.3)`:'1px solid transparent',
+              borderRadius:10, fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif',
               background: tab===t.id?'rgba(245,166,35,0.15)':'transparent',
-              color: tab===t.id?C.gold:C.textMuted,
+              color: tab===t.id?C.gold:C.textMuted, flexShrink:0,
             }}>{t.label}</button>
           ))}
         </div>
 
         {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult}/>}
+        {tab==='knockout'&&<KnockoutTab/>}
         {tab==='participants'&&<ParticipantsTab/>}
       </main>
     </div>
