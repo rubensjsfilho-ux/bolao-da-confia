@@ -453,15 +453,15 @@ export default function Admin(){
     for(const p of preds||[]){
       await supabase.from('predictions').update({points:calcPoints(p.score1,p.score2,score1,score2)}).eq('id',p.id)
     }
-    setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1,score2,is_finished:true}:m))
     await recalcTotals()
+    await loadMatches() // ← sincroniza UI com Supabase após encerrar
   }
 
   const resetMatch=async(matchId)=>{
     await supabase.from('matches').update({score1:null,score2:null,is_finished:false}).eq('id',matchId)
     await supabase.from('predictions').update({points:null}).eq('match_id',matchId)
-    setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1:null,score2:null,is_finished:false}:m))
     await recalcTotals()
+    await loadMatches() // ← sincroniza UI com Supabase após resetar
   }
 
   const recalcTotals=async()=>{
