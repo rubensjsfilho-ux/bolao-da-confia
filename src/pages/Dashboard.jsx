@@ -424,7 +424,7 @@ function NewsWidget() {
   useEffect(() => {
     supabase
       .from('news')
-      .select('title, link, source, pub_date')
+      .select('title, link, source, pub_date, image_url')
       .order('pub_date', { ascending: false })
       .limit(5)
       .then(({ data, error }) => {
@@ -482,7 +482,10 @@ function NewsWidget() {
               style={{ display:'flex', gap:12, borderRadius:12, overflow:'hidden', textDecoration:'none', marginBottom:14, border:'1px solid #E2EAF0', background:'#F8FAFC' }}>
               {/* Ícone lateral */}
               <div style={{ flexShrink:0, width:90, minHeight:100, background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <span style={{ fontSize:36, opacity:.7 }}>⚽</span>
+                {visibleNews[currentIdx].image_url
+                  ? <img src={visibleNews[currentIdx].image_url} alt="" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}/>
+                  : <span style={{ fontSize:36, opacity:.7 }}>⚽</span>
+                }
                 <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,transparent 70%,#F8FAFC)' }}/>
               </div>
               {/* Texto */}
@@ -507,7 +510,12 @@ function NewsWidget() {
           {visibleNews.filter((_,i) => i!==currentIdx).slice(0,4).map((item, i) => (
             <a key={i} href={item.link} target="_blank" rel="noopener noreferrer"
               style={{ display:'flex', alignItems:'flex-start', gap:10, padding:'10px 0', borderBottom:'1px solid #F4F6F9', textDecoration:'none' }}>
-              <div style={{ width:34, height:34, borderRadius:8, background:'linear-gradient(135deg,#F4F6F9,#E2EAF0)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:16 }}>⚽</div>
+              <div style={{ width:34, height:34, borderRadius:8, background:'linear-gradient(135deg,#F4F6F9,#E2EAF0)', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:16 }}>
+                {item.image_url
+                  ? <img src={item.image_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
+                  : '⚽'
+                }
+              </div>
               <div style={{ flex:1 }}>
                 <div style={{ color:'#002855', fontSize:12, fontWeight:700, lineHeight:1.4, marginBottom:3 }}>{item.title}</div>
                 <div style={{ color:'#9BABB8', fontSize:10 }}>{item.source} · {formatNewsDate(item.pubDate)}</div>
