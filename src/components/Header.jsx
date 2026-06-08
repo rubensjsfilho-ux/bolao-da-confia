@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Home, Target, BarChart3, GitBranch, ShieldCheck, Users, Zap, LogOut } from 'lucide-react'
 
 const NAV = [
@@ -41,6 +41,7 @@ export function Logo({ size='md' }) {
 
 export default function Header({ participant, onLogout }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   return (
     <>
       <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, background:'#fff', borderBottom:'1px solid #E2EAF0', padding:'10px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 1px 8px rgba(0,40,85,0.06)' }}>
@@ -53,7 +54,9 @@ export default function Header({ participant, onLogout }) {
                 <span style={{ color:'#002855', fontWeight:800, fontSize:10 }}>Admin</span>
               </Link>
             )}
-            <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+            <div onClick={()=>navigate('/perfil')} style={{ display:'flex', alignItems:'center', gap:7, cursor:'pointer', padding:'4px 6px', borderRadius:10, transition:'background .15s' }}
+              onMouseEnter={e=>e.currentTarget.style.background='#F4F6F9'}
+              onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
               <Avatar photoUrl={participant.photoUrl} emoji={participant.avatar} size={38} />
               <span style={{ color:'#002855', fontWeight:800, fontSize:12, maxWidth:90, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{participant.name}</span>
             </div>
