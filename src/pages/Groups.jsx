@@ -9,11 +9,11 @@ const GROUPS = ['A','B','C','D','E','F','G','H','I','J','K','L']
 // Times de cada grupo
 const GROUP_TEAMS = {
   A: ['México','África do Sul','Coreia do Sul','República Tcheca'],
-  B: ['Canadá','Catar','Suíça','Itália'],
+  B: ['Canadá','Catar','Suíça','Bósnia e Herz.'],
   C: ['Brasil','Marrocos','Haiti','Escócia'],
   D: ['Estados Unidos','Paraguai','Austrália','Turquia'],
   E: ['Alemanha','Curaçao','Costa do Marfim','Equador'],
-  F: ['Holanda','Japão','Tunísia','Ucrânia'],
+  F: ['Holanda','Japão','Tunísia','Suécia'],
   G: ['Bélgica','Egito','Irã','Nova Zelândia'],
   H: ['Espanha','Cabo Verde','Arábia Saudita','Uruguai'],
   I: ['França','Senegal','Noruega','Iraque'],
