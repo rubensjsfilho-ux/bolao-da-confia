@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Target, BarChart3, GitBranch, ShieldCheck, Users, Zap } from 'lucide-react'
+import { Home, Target, BarChart3, GitBranch, ShieldCheck, Users, Zap, LogOut } from 'lucide-react'
 
 const NAV = [
   { to:'/dashboard',   label:'Início',   Icon:Home },
