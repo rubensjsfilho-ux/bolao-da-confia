@@ -33,11 +33,14 @@ function MatchRow({ match, onSave, onFinish, onReset }){
   const [confirmReset,setConfirmReset]=useState(false)
   const [confirmFinish,setConfirmFinish]=useState(false)
 
-  // Sincroniza estado local quando o match muda no pai
+  // Só sincroniza quando a partida for resetada (score volta a null)
+  // Não sincroniza ao salvar parcial, para não zerar o que o admin está digitando
   useEffect(()=>{
-    setS1(match.score1??'')
-    setS2(match.score2??'')
-  },[match.score1,match.score2,match.is_finished])
+    if(match.score1===null||match.score1===undefined){
+      setS1('')
+      setS2('')
+    }
+  },[match.score1])
 
   const save = async()=>{
     if(s1===''||s2==='')return
