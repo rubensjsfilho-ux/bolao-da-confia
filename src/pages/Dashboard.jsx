@@ -579,102 +579,6 @@ function Top5({ participant, ranking, myRank }) {
 }
 
 
-// ── GOAL POPUP ────────────────────────────────────────────────────────────────
-function GoalPopup() {
-  const [popup, setPopup] = useState(null)
-  const prevScores = useState({})[0]
-
-  useEffect(() => {
-    // Busca placar atual para ter referência
-    const scoreRef = {}
-    supabase.from('matches').select('id,team1,team2,score1,score2').not('score1','is',null).then(({data}) => {
-      (data||[]).forEach(m => { scoreRef[m.id] = { s1: m.score1, s2: m.score2 } })
-    })
-
-    // Escuta mudanças em tempo real
-    const ch = supabase.channel('goal-rt')
-      .on('postgres_changes', { event:'UPDATE', schema:'public', table:'matches' }, (payload) => {
-        const m = payload.new
-        const prev = scoreRef[m.id] || { s1: null, s2: null }
-        const newS1 = m.score1, newS2 = m.score2
-
-        // Detecta gol
-        if (newS1 !== null && newS2 !== null) {
-          const scored = (prev.s1 !== null && newS1 > prev.s1) ? m.team1
-                       : (prev.s2 !== null && newS2 > prev.s2) ? m.team2
-                       : null
-
-          if (scored) {
-            const isTeam1 = scored === m.team1
-            setPopup({
-              team1: m.team1, team2: m.team2,
-              score1: newS1, score2: newS2,
-              scorer: scored,
-              flag1: getFlag(m.team1), flag2: getFlag(m.team2),
-              scorerFlag: isTeam1 ? getFlag(m.team1) : getFlag(m.team2),
-            })
-            setTimeout(() => setPopup(null), 6000)
-          }
-          scoreRef[m.id] = { s1: newS1, s2: newS2 }
-        }
-      })
-      .subscribe()
-
-    return () => supabase.removeChannel(ch)
-  }, [])
-
-  if (!popup) return null
-
-  return (
-    <div style={{
-      position:'fixed', inset:0, zIndex:9999,
-      display:'flex', alignItems:'center', justifyContent:'center',
-      background:'rgba(0,0,0,0.6)', backdropFilter:'blur(4px)',
-      animation:'fadeIn .3s ease'
-    }} onClick={() => setPopup(null)}>
-      <div style={{
-        background:'linear-gradient(135deg,#002855 0%,#003d7a 100%)',
-        borderRadius:24, padding:'28px 32px', textAlign:'center',
-        boxShadow:'0 20px 60px rgba(0,0,0,0.5), 0 0 0 2px rgba(245,166,35,0.4)',
-        maxWidth:320, width:'90%',
-        animation:'popIn .4s cubic-bezier(0.175,0.885,0.32,1.275)'
-      }}>
-        {/* GOL badge */}
-        <div style={{ display:'inline-block', background:'#F5A623', color:'#000', fontWeight:900, fontSize:11, letterSpacing:3, padding:'4px 14px', borderRadius:20, marginBottom:16, textTransform:'uppercase' }}>
-          ⚽ GOL!
-        </div>
-
-        {/* Placar */}
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:12, marginBottom:16 }}>
-          <div style={{ textAlign:'center' }}>
-            <div style={{ fontSize:32 }}>{popup.flag1}</div>
-            <div style={{ color:'#fff', fontSize:11, fontWeight:700, marginTop:4, maxWidth:70, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{popup.team1}</div>
-          </div>
-          <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:12, padding:'8px 16px', textAlign:'center' }}>
-            <div style={{ color:'#F5A623', fontWeight:900, fontSize:36, lineHeight:1, letterSpacing:2 }}>{popup.score1} <span style={{ color:'rgba(255,255,255,0.4)' }}>×</span> {popup.score2}</div>
-          </div>
-          <div style={{ textAlign:'center' }}>
-            <div style={{ fontSize:32 }}>{popup.flag2}</div>
-            <div style={{ color:'#fff', fontSize:11, fontWeight:700, marginTop:4, maxWidth:70, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{popup.team2}</div>
-          </div>
-        </div>
-
-        {/* Quem marcou */}
-        <div style={{ color:'rgba(255,255,255,0.7)', fontSize:13, fontWeight:600 }}>
-          {popup.scorerFlag} <span style={{ color:'#fff', fontWeight:800 }}>{popup.scorer}</span> marcou!
-        </div>
-
-        <div style={{ color:'rgba(255,255,255,0.3)', fontSize:10, marginTop:16 }}>Toque para fechar</div>
-      </div>
-
-      <style>{`
-        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-        @keyframes popIn  { from { transform:scale(0.5); opacity:0 } to { transform:scale(1); opacity:1 } }
-      `}</style>
-    </div>
-  )
-}
-
 // ── DASHBOARD PRINCIPAL ───────────────────────────────────────────────────────
 export default function Dashboard({ participant, onLogout }) {
   const navigate = useNavigate()
@@ -708,8 +612,8 @@ export default function Dashboard({ participant, onLogout }) {
     }
     const sortedParts = (parts||[]).slice().sort(sortFn)
     setRanking(sortedParts.slice(0,5))
-    const sortedAll = (allRaw||[]).slice().sort(sortFn)
-    const idx = sortedAll.findIndex(p=>p.id===participant.id)
+    // usa a mesma lista 'parts' para calcular posição do usuário
+    const idx = sortedParts.findIndex(p=>p.id===participant.id)
     setMyRank(idx>=0?idx+1:null)
   }, [participant.id])
 
@@ -723,7 +627,6 @@ export default function Dashboard({ participant, onLogout }) {
 
   return (
     <div style={{ minHeight:'100vh', background:'#F4F6F9', overflowX:'hidden' }}>
-      <GoalPopup />
       <Header participant={participant} onLogout={onLogout}/>
 
       {/* Aviso palpites */}
