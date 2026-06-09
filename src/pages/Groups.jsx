@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
-import { GROUP_MATCHES, getFlag } from '../data/matches'
+import { GROUP_MATCHES, getFlag, formatDate } from '../data/matches'
 import { Loader2 } from 'lucide-react'
 
 const GROUPS = ['A','B','C','D','E','F','G','H','I','J','K','L']
@@ -57,9 +57,59 @@ function calcStandings(groupLetter, results) {
   })
 }
 
+// ── Mini-card de partida ───────────────────────────────────────────────────────
+function MatchCard({ match, result }) {
+  const hasScore = result && result.score1 !== null && result.score1 !== undefined
+  const isFinished = result?.is_finished
+
+  return (
+    <div style={{
+      display:'flex', alignItems:'center', gap:8, padding:'8px 12px',
+      background: isFinished ? 'rgba(0,150,57,0.06)' : hasScore ? 'rgba(245,166,35,0.06)' : 'rgba(0,40,85,0.03)',
+      borderRadius:10, border:`1px solid ${isFinished?'rgba(0,150,57,0.15)':hasScore?'rgba(245,166,35,0.15)':'#E2EAF0'}`,
+    }}>
+      {/* Time 1 */}
+      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end' }}>
+        <span style={{ fontSize:11, fontWeight:700, color:'#002855', textAlign:'right', maxWidth:80, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team1}</span>
+        <span style={{ fontSize:18 }}>{getFlag(match.team1)}</span>
+      </div>
+
+      {/* Placar / separador */}
+      <div style={{
+        minWidth:52, textAlign:'center',
+        background: isFinished ? 'rgba(0,150,57,0.12)' : hasScore ? 'rgba(245,166,35,0.12)' : 'rgba(0,40,85,0.06)',
+        borderRadius:8, padding:'3px 8px',
+        border:`1px solid ${isFinished?'rgba(0,150,57,0.2)':hasScore?'rgba(245,166,35,0.2)':'rgba(0,40,85,0.08)'}`,
+      }}>
+        {hasScore ? (
+          <span style={{ fontSize:14, fontWeight:900, color: isFinished?'#009639':hasScore?'#D4890A':'#9BABB8', letterSpacing:1 }}>
+            {result.score1} × {result.score2}
+          </span>
+        ) : (
+          <span style={{ fontSize:11, fontWeight:700, color:'#9BABB8' }}>vs</span>
+        )}
+      </div>
+
+      {/* Time 2 */}
+      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5 }}>
+        <span style={{ fontSize:18 }}>{getFlag(match.team2)}</span>
+        <span style={{ fontSize:11, fontWeight:700, color:'#002855', maxWidth:80, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team2}</span>
+      </div>
+
+      {/* Badge de status */}
+      {isFinished && (
+        <span style={{ fontSize:9, fontWeight:800, color:'#009639', background:'rgba(0,150,57,0.1)', borderRadius:6, padding:'2px 6px', flexShrink:0 }}>✓ FIM</span>
+      )}
+      {!isFinished && hasScore && (
+        <span style={{ fontSize:9, fontWeight:800, color:'#D4890A', background:'rgba(245,166,35,0.1)', borderRadius:6, padding:'2px 6px', flexShrink:0 }}>⏱</span>
+      )}
+    </div>
+  )
+}
+
 function GroupTable({ letter, results }) {
   const standings = calcStandings(letter, results)
-  const hasResults = Object.keys(results).length > 0
+  const groupMatches = GROUP_MATCHES.filter(m => m.group === letter)
 
   return (
     <div style={{ background:'#fff', borderRadius:14, overflow:'hidden', border:'1px solid #E2EAF0', boxShadow:'0 2px 12px rgba(0,40,85,0.06)', marginBottom:12 }}>
@@ -69,8 +119,8 @@ function GroupTable({ letter, results }) {
           <span style={{ color:'#F5A623', fontWeight:900, fontSize:12, letterSpacing:1 }}>GRUPO {letter}</span>
         </div>
         <span style={{ color:'rgba(255,255,255,0.5)', fontSize:10 }}>
-          {GROUP_MATCHES.filter(m => m.group === letter && results[m.id]?.is_finished).length}/
-          {GROUP_MATCHES.filter(m => m.group === letter).length} jogos
+          {groupMatches.filter(m => results[m.id]?.is_finished).length}/
+          {groupMatches.length} jogos
         </span>
       </div>
 
@@ -85,14 +135,13 @@ function GroupTable({ letter, results }) {
       {/* Linhas */}
       {standings.map((s, i) => {
         const qualified = i < 2
-        const bubble = i === 2 // possível terceiro
+        const bubble = i === 2
         return (
           <div key={s.team} style={{
             display:'grid', gridTemplateColumns:'1fr 28px 28px 28px 28px 28px 28px 32px',
             padding:'9px 14px', borderBottom: i < 3 ? '1px solid #F4F6F9' : 'none',
             background: qualified ? 'rgba(0,150,57,0.04)' : bubble ? 'rgba(245,166,35,0.04)' : '#fff',
           }}>
-            {/* Time */}
             <div style={{ display:'flex', alignItems:'center', gap:6 }}>
               <div style={{ width:14, textAlign:'center', fontSize:9, fontWeight:900, color: qualified?'#009639':bubble?'#D4890A':'#9BABB8' }}>
                 {qualified ? (i===0?'①':'②') : bubble ? '③' : `${i+1}`}
@@ -113,7 +162,7 @@ function GroupTable({ letter, results }) {
       })}
 
       {/* Legenda */}
-      <div style={{ padding:'6px 14px', background:'#F4F6F9', display:'flex', gap:12 }}>
+      <div style={{ padding:'6px 14px', background:'#F4F6F9', display:'flex', gap:12, borderBottom:'1px solid #E2EAF0' }}>
         <div style={{ display:'flex', alignItems:'center', gap:4 }}>
           <div style={{ width:8, height:8, borderRadius:2, background:'rgba(0,150,57,0.2)', border:'1px solid #009639' }}/>
           <span style={{ fontSize:8, color:'#9BABB8', fontWeight:700 }}>Classificado</span>
@@ -121,6 +170,18 @@ function GroupTable({ letter, results }) {
         <div style={{ display:'flex', alignItems:'center', gap:4 }}>
           <div style={{ width:8, height:8, borderRadius:2, background:'rgba(245,166,35,0.2)', border:'1px solid #F5A623' }}/>
           <span style={{ fontSize:8, color:'#9BABB8', fontWeight:700 }}>Possível 3º</span>
+        </div>
+      </div>
+
+      {/* Partidas do grupo */}
+      <div style={{ padding:'10px 12px' }}>
+        <div style={{ fontSize:9, fontWeight:800, color:'#9BABB8', textTransform:'uppercase', letterSpacing:.5, marginBottom:8 }}>
+          Partidas
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
+          {groupMatches.map(m => (
+            <MatchCard key={m.id} match={m} result={results[m.id]} />
+          ))}
         </div>
       </div>
     </div>
@@ -142,6 +203,18 @@ export default function Groups({ participant, onLogout }) {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+  }, [])
+
+  // Realtime: atualiza placares em tempo real
+  useEffect(() => {
+    const channel = supabase
+      .channel('groups-matches')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'matches' }, (payload) => {
+        const m = payload.new
+        setResults(prev => ({ ...prev, [m.id]: m }))
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
   }, [])
 
   const totalFinished = GROUP_MATCHES.filter(m => results[m.id]?.is_finished).length
