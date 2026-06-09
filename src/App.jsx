@@ -15,79 +15,46 @@ import KnockoutPredictions from './pages/KnockoutPredictions'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
 
-// ── Popup de gol (único, no topo da árvore) ───────────────────────────────────
+// ── Popup de gol ──────────────────────────────────────────────────────────────
 function GoalPopup({ event, onClose }) {
   useEffect(() => {
     if (!event) return
-    const t = setTimeout(onClose, 5000)
+    const t = setTimeout(onClose, 4500)
     return () => clearTimeout(t)
-  }, [event, onClose])
+  }, [event])
 
   if (!event) return null
-
   const { team1, team2, score1, score2, scoringTeam } = event
   const isTeam1 = scoringTeam === 1
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-        animation: 'fadeIn .3s ease', cursor: 'pointer',
-      }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: 'linear-gradient(135deg,#002855 0%,#003d7a 100%)',
-          borderRadius: 24, padding: '28px 32px', textAlign: 'center',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 2px rgba(245,166,35,0.4)',
-          maxWidth: 320, width: '90%',
-          animation: 'popIn .4s cubic-bezier(0.175,0.885,0.32,1.275)',
-        }}
-      >
-        {/* Badge GOL */}
-        <div style={{
-          display: 'inline-block', background: '#F5A623', color: '#000',
-          fontWeight: 900, fontSize: 11, letterSpacing: 3,
-          padding: '4px 14px', borderRadius: 20, marginBottom: 16, textTransform: 'uppercase',
-        }}>
-          ⚽ GOL!
-        </div>
-
-        {/* Placar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
-          {/* Time 1 */}
-          <div style={{ textAlign: 'center', opacity: isTeam1 ? 1 : 0.5, transition: 'opacity .2s' }}>
-            <div style={{ fontSize: 32 }}>{getFlag(team1)}</div>
-            <div style={{ color: '#fff', fontSize: 11, fontWeight: 700, marginTop: 4, maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{team1}</div>
-          </div>
-
-          {/* Número */}
-          <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: 12, padding: '8px 16px', textAlign: 'center' }}>
-            <div style={{ color: '#F5A623', fontWeight: 900, fontSize: 36, lineHeight: 1, letterSpacing: 2 }}>
-              <span style={{ color: isTeam1 ? '#F5A623' : 'rgba(255,255,255,0.5)' }}>{score1}</span>
-              <span style={{ color: 'rgba(255,255,255,0.3)', margin: '0 4px' }}>×</span>
-              <span style={{ color: !isTeam1 ? '#F5A623' : 'rgba(255,255,255,0.5)' }}>{score2}</span>
-            </div>
-          </div>
-
-          {/* Time 2 */}
-          <div style={{ textAlign: 'center', opacity: !isTeam1 ? 1 : 0.5, transition: 'opacity .2s' }}>
-            <div style={{ fontSize: 32 }}>{getFlag(team2)}</div>
-            <div style={{ color: '#fff', fontSize: 11, fontWeight: 700, marginTop: 4, maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{team2}</div>
-          </div>
-        </div>
-
-        <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>Toque para fechar</div>
-      </div>
-
+    <div style={{ position:'fixed', top:24, left:'50%', transform:'translateX(-50%)', zIndex:9999, pointerEvents:'none' }}>
       <style>{`
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-        @keyframes popIn  { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+        @keyframes goalSlideIn { from{opacity:0;transform:translateX(-50%) translateY(-20px) scale(0.9)} to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)} }
+        @keyframes goalPulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.5)} 50%{box-shadow:0 0 0 12px rgba(245,166,35,0)} }
       `}</style>
+      <div style={{ background:'linear-gradient(135deg,#011901,#0a2e0a)', border:'2px solid #F5A623', borderRadius:16, padding:'14px 24px', display:'flex', flexDirection:'column', alignItems:'center', gap:8, minWidth:260, animation:'goalSlideIn 0.4s ease, goalPulse 0.8s ease 0.4s 2', boxShadow:'0 8px 32px rgba(0,0,0,0.6)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ fontSize:22 }}>⚽</span>
+          <span style={{ color:'#F5A623', fontWeight:900, fontSize:20, letterSpacing:4 }}>G O L !</span>
+          <span style={{ fontSize:22 }}>⚽</span>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2, opacity:isTeam1?1:0.5 }}>
+            <span style={{ fontSize:28 }}>{getFlag(team1)}</span>
+            <span style={{ color:'#fff', fontSize:10, fontWeight:700, maxWidth:72, textAlign:'center', lineHeight:1.2 }}>{team1}</span>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(245,166,35,0.15)', border:'1px solid rgba(245,166,35,0.3)', borderRadius:10, padding:'6px 14px' }}>
+            <span style={{ color:isTeam1?'#F5A623':'rgba(255,255,255,0.6)', fontSize:28, fontWeight:900, minWidth:24, textAlign:'center' }}>{score1}</span>
+            <span style={{ color:'rgba(255,255,255,0.4)', fontWeight:900 }}>×</span>
+            <span style={{ color:!isTeam1?'#F5A623':'rgba(255,255,255,0.6)', fontSize:28, fontWeight:900, minWidth:24, textAlign:'center' }}>{score2}</span>
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2, opacity:!isTeam1?1:0.5 }}>
+            <span style={{ fontSize:28 }}>{getFlag(team2)}</span>
+            <span style={{ color:'#fff', fontSize:10, fontWeight:700, maxWidth:72, textAlign:'center', lineHeight:1.2 }}>{team2}</span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -95,14 +62,10 @@ function GoalPopup({ event, onClose }) {
 // ── App principal ─────────────────────────────────────────────────────────────
 function App() {
   const [participant, setParticipant] = useState(null)
-  const [loading, setLoading]                   = useState(true)
-  const [goalEvent, setGoalEvent] = useState(null)
-  const [isRecoveringPassword, setIsRecoveringPassword] = useState(false)
-
-  // Referência para os placar anteriores (detectar gol)
+  const [loading, setLoading]         = useState(true)
+  const [goalEvent, setGoalEvent]     = useState(null)
   const prevScores = useRef({})
 
-  // ── Carrega participante ──────────────────────────────────────────────────
   const loadParticipant = async (userId) => {
     const { data } = await supabase
       .from('participants')
@@ -118,81 +81,42 @@ function App() {
         isAdmin:  data.is_admin === true,
       })
     }
-    setLoading(false)
   }
 
-  // ── Auth state ────────────────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) loadParticipant(session.user.id)
-      else setLoading(false)
+      setLoading(false)
     })
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (_event === 'PASSWORD_RECOVERY') {
-        // Não loga — redireciona para tela de redefinição
-        setIsRecoveringPassword(true)
-        setLoading(false)
-        return
-      }
       if (session) loadParticipant(session.user.id)
       else { setParticipant(null); setLoading(false) }
     })
-
     return () => subscription.unsubscribe()
   }, [])
 
   // ── Realtime: detecta gol ─────────────────────────────────────────────────
   useEffect(() => {
-    // Carrega placar inicial como referência
-    supabase
-      .from('matches')
-      .select('id,score1,score2')
-      .not('score1', 'is', null)
-      .then(({ data }) => {
-        ;(data || []).forEach(m => {
-          prevScores.current[m.id] = { score1: m.score1, score2: m.score2 }
-        })
-      })
-
     const channel = supabase
-      .channel('goal-alerts-app')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'matches' },
-        (payload) => {
-          const match = payload.new
-          if (match.is_finished) return
-
-          const prev   = prevScores.current[match.id]
-          const newS1  = match.score1 ?? null
-          const newS2  = match.score2 ?? null
-
-          if (newS1 !== null && newS2 !== null) {
-            if (prev) {
-              const scoringTeam =
-                newS1 > (prev.score1 ?? -1) ? 1 :
-                newS2 > (prev.score2 ?? -1) ? 2 :
-                null
-
-              if (scoringTeam) {
-                setGoalEvent({
-                  team1: match.team1,
-                  team2: match.team2,
-                  score1: newS1,
-                  score2: newS2,
-                  scoringTeam,
-                })
-              }
-            }
-            // Sempre atualiza referência
-            prevScores.current[match.id] = { score1: newS1, score2: newS2 }
+      .channel('goal-alerts')
+      .on('postgres_changes', { event:'UPDATE', schema:'public', table:'matches' }, (payload) => {
+        const match = payload.new
+        if (match.is_finished) return
+        const prev = prevScores.current[match.id]
+        const newS1 = match.score1 ?? null
+        const newS2 = match.score2 ?? null
+        if (prev && newS1 !== null && newS2 !== null) {
+          const scoringTeam =
+            newS1 > prev.score1 ? 1 :
+            newS2 > prev.score2 ? 2 : null
+          if (scoringTeam) {
+            setGoalEvent({ team1:match.team1, team2:match.team2, score1:newS1, score2:newS2, scoringTeam })
           }
         }
-      )
+        prevScores.current[match.id] = { score1:newS1, score2:newS2 }
+      })
       .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
+    return () => supabase.removeChannel(channel)
   }, [])
 
   const logout = async () => {
@@ -200,62 +124,36 @@ function App() {
     setParticipant(null)
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#F4F6F9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
-      <div style={{ fontSize: 48, animation: 'spin 1s linear infinite' }}>⚽</div>
-      <div style={{ color: '#009639', fontWeight: 800, fontSize: 14 }}>Carregando...</div>
-      <style>{`@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }`}</style>
+    <div style={{ minHeight:'100vh', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:12 }}>
+      <div style={{ fontSize:48, animation:'spin 1s linear infinite' }}>⚽</div>
+      <div style={{ color:'#009639', fontWeight:800, fontSize:14 }}>Carregando...</div>
+      <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
     </div>
   )
-
-  // ── Recuperação de senha ──────────────────────────────────────────────────
-  if (isRecoveringPassword) {
-    return (
-      <ResetPassword onDone={() => {
-        setIsRecoveringPassword(false)
-        setParticipant(null)
-      }} />
-    )
-  }
 
   const updateParticipant = (updated) => setParticipant(updated)
   const props = { participant, onLogout: logout, onUpdate: updateParticipant }
 
   return (
     <>
-      {/* GoalPopup vive aqui — único ponto, funciona em qualquer rota */}
       <GoalPopup event={goalEvent} onClose={() => setGoalEvent(null)} />
-
       <Routes>
-        <Route path="/"         element={!participant ? <Login onLogin={setParticipant} /> : <Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={participant ? <Dashboard   {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/palpites"  element={participant ? <Predictions {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/ranking"   element={participant ? <Rankings    {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/campeao"      element={participant ? <Champion   {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/premios"      element={participant ? <Prizes     {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/chaveamento"  element={participant ? <Bracket    {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/grupos"       element={participant ? <Groups     {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/mata-mata"    element={participant ? <KnockoutPredictions {...props} /> : <Navigate to="/" replace />} />
-        <Route
-          path="/admin"
-          element={
-            !participant
-              ? <Navigate to="/" replace />
-              : participant.isAdmin
-                ? <Admin />
-                : <Navigate to="/dashboard" replace />
-          }
+        <Route path="/"               element={!participant ? <Login onLogin={setParticipant}/> : <Navigate to="/dashboard" replace/>} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/dashboard"  element={participant ? <Dashboard   {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/palpites"   element={participant ? <Predictions {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/ranking"    element={participant ? <Rankings    {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/campeao"    element={participant ? <Champion    {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/premios"    element={participant ? <Prizes      {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/chaveamento"element={participant ? <Bracket     {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/grupos"     element={participant ? <Groups      {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/mata-mata"  element={participant ? <KnockoutPredictions {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/perfil"     element={participant ? <Profile participant={participant} onUpdate={updateParticipant}/> : <Navigate to="/" replace/>} />
+        <Route path="/admin"
+          element={!participant ? <Navigate to="/" replace/> : participant.isAdmin ? <Admin /> : <Navigate to="/dashboard" replace/>}
         />
-        <Route
-          path="/perfil"
-          element={participant
-            ? <Profile participant={participant} onUpdate={updateParticipant} />
-            : <Navigate to="/" replace />
-          }
-        />
-        <Route path="/redefinir-senha" element={<ResetPassword onDone={() => { setIsRecoveringPassword(false); setParticipant(null) }} />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace/>} />
       </Routes>
     </>
   )
