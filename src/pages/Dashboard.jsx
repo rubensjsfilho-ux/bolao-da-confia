@@ -29,15 +29,15 @@ function Hero({ onPalpites, onJogos }) {
       <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
       {/* Taça — direita, grande */}
-      <div style={{ position:'absolute', right:-10, top:0, bottom:0, width:'52%', zIndex:1 }}>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'55%', zIndex:1, overflow:'hidden' }}>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 50%)', zIndex:2 }}/>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 40%)', zIndex:2 }}/>
         <img
-          src="/images/trophy.webp"
+          src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
           alt="Taça Copa 2026"
-          style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center', opacity:.92, filter:'drop-shadow(-12px 0 40px rgba(245,166,35,0.45))' }}
+          style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-40%,-50%) scale(1.1)', width:'100%', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
           onError={e => { e.target.style.display='none' }}
         />
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 35%)', zIndex:2 }}/>
       </div>
 
       {/* Conteúdo — esquerda */}
@@ -131,19 +131,23 @@ function Hero({ onPalpites, onJogos }) {
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function StatsStrip({ stats, totalParts, myRank }) {
+  const navigate = useNavigate()
+  const items = [
+    { icon:<Users size={20} color="#009639"/>, label:'PARTICIPANTES', val:totalParts, sub:'Ver todos', subc:'#009639', onClick:()=>navigate('/ranking') },
+    { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`${myRank}º`:'—', sub:myRank?`de ${totalParts}`:'—', subc:'#6B7A8D', onClick:null },
+    { icon:<Star size={20} color="#F5A623"/>, label:'SEUS PONTOS', val:stats.points, sub:'Ver pontuação', subc:'#009639', onClick:()=>navigate('/ranking') },
+    { icon:<Calendar size={20} color="#7B2FBE"/>, label:'RODADA ATUAL', val:'Grupos', sub:'Em andamento', subc:'#7B2FBE', onClick:null },
+  ]
   return (
     <div style={{ background:'#fff', margin:'0 12px', borderRadius:16, padding:'14px 8px', boxShadow:'0 4px 20px rgba(0,40,85,0.10)', border:'1px solid #E2EAF0', display:'grid', gridTemplateColumns:'repeat(4,1fr)', marginTop:-16, position:'relative', zIndex:4 }}>
-      {[
-        { icon:<Users size={20} color="#009639"/>, label:'PARTICIPANTES', val:totalParts, sub:'Ver todos', subc:'#009639' },
-        { icon:<Trophy size={20} color="#1A73E8"/>, label:'SUA POSIÇÃO', val:myRank?`${myRank}º`:'—', sub:myRank?`de ${totalParts}`:'—', subc:'#6B7A8D' },
-        { icon:<Star size={20} color="#F5A623"/>, label:'SEUS PONTOS', val:stats.points, sub:'Ver pontuação', subc:'#009639' },
-        { icon:<Calendar size={20} color="#7B2FBE"/>, label:'RODADA ATUAL', val:'Grupos', sub:'Em andamento', subc:'#7B2FBE' },
-      ].map(({icon,label,val,sub,subc})=>(
-        <div key={label} style={{ textAlign:'center', padding:'4px 2px' }}>
+      {items.map(({icon,label,val,sub,subc,onClick})=>(
+        <div key={label} onClick={onClick||undefined} style={{ textAlign:'center', padding:'4px 2px', cursor:onClick?'pointer':'default', borderRadius:8, transition:'background .15s' }}
+          onMouseEnter={e=>{ if(onClick) e.currentTarget.style.background='#F4F6F9' }}
+          onMouseLeave={e=>{ e.currentTarget.style.background='transparent' }}>
           <div style={{ display:'flex', justifyContent:'center', marginBottom:4 }}>{icon}</div>
           <div style={{ color:'#9BABB8', fontSize:8, fontWeight:700, letterSpacing:.6, textTransform:'uppercase', marginBottom:2 }}>{label}</div>
           <div style={{ color:'#002855', fontWeight:900, fontSize:16, lineHeight:1, marginBottom:2 }}>{val}</div>
-          <div style={{ color:subc, fontSize:9, fontWeight:700 }}>{sub}</div>
+          <div style={{ color:subc, fontSize:9, fontWeight:700, textDecoration:onClick?'underline':'none' }}>{sub}</div>
         </div>
       ))}
     </div>
@@ -424,8 +428,8 @@ function NewsWidget() {
   useEffect(() => {
     supabase
       .from('news')
-      .select('title, link, source, pub_date')
-      .order('pub_date', { ascending: false })
+      .select('title, link, source, pub_date, image_url, created_at')
+      .order('created_at', { ascending: false })
       .limit(5)
       .then(({ data, error }) => {
         if (!error && data && data.length > 0) {
@@ -482,7 +486,10 @@ function NewsWidget() {
               style={{ display:'flex', gap:12, borderRadius:12, overflow:'hidden', textDecoration:'none', marginBottom:14, border:'1px solid #E2EAF0', background:'#F8FAFC' }}>
               {/* Ícone lateral */}
               <div style={{ flexShrink:0, width:90, minHeight:100, background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <span style={{ fontSize:36, opacity:.7 }}>⚽</span>
+                {visibleNews[currentIdx].image_url
+                  ? <img src={visibleNews[currentIdx].image_url} alt="" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}/>
+                  : <span style={{ fontSize:36, opacity:.7 }}>⚽</span>
+                }
                 <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,transparent 70%,#F8FAFC)' }}/>
               </div>
               {/* Texto */}
@@ -507,7 +514,12 @@ function NewsWidget() {
           {visibleNews.filter((_,i) => i!==currentIdx).slice(0,4).map((item, i) => (
             <a key={i} href={item.link} target="_blank" rel="noopener noreferrer"
               style={{ display:'flex', alignItems:'flex-start', gap:10, padding:'10px 0', borderBottom:'1px solid #F4F6F9', textDecoration:'none' }}>
-              <div style={{ width:34, height:34, borderRadius:8, background:'linear-gradient(135deg,#F4F6F9,#E2EAF0)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:16 }}>⚽</div>
+              <div style={{ width:34, height:34, borderRadius:8, background:'linear-gradient(135deg,#F4F6F9,#E2EAF0)', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:16 }}>
+                {item.image_url
+                  ? <img src={item.image_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
+                  : '⚽'
+                }
+              </div>
               <div style={{ flex:1 }}>
                 <div style={{ color:'#002855', fontSize:12, fontWeight:700, lineHeight:1.4, marginBottom:3 }}>{item.title}</div>
                 <div style={{ color:'#9BABB8', fontSize:10 }}>{item.source} · {formatNewsDate(item.pubDate)}</div>
@@ -525,6 +537,8 @@ function NewsWidget() {
 // ── TOP 5 ─────────────────────────────────────────────────────────────────────
 function Top5({ participant, ranking, myRank }) {
   const navigate = useNavigate()
+  // ranking já vem ordenado por total_points desc (top 5 do Dashboard)
+  // myRank é a posição real do usuário no ranking completo
   const isInTop5 = ranking.some(p => p.id === participant.id)
   return (
     <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)' }}>
@@ -537,7 +551,7 @@ function Top5({ participant, ranking, myRank }) {
         return (
           <div key={p.id} style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:isMe?'#e8f5ee':'transparent', border:isMe?'1px solid rgba(0,150,57,0.2)':'1px solid transparent', marginBottom:4 }}>
             <div style={{ width:22, height:22, borderRadius:'50%', background:i===0?'#FEF3DC':i===1?'#F4F6F9':i===2?'#FFF0E6':'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:i<3?14:11, fontWeight:900, color:i===0?'#D4890A':i===1?'#9BABB8':i===2?'#C96A2A':'#9BABB8', flexShrink:0 }}>
-              {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`}
+              {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}º`}
             </div>
             <div style={{ width:28, height:28, borderRadius:'50%', overflow:'hidden', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0, border:isMe?'2px solid #009639':'none' }}>
               {p.avatar_url ? <img src={p.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : p.avatar_emoji}
@@ -547,9 +561,23 @@ function Top5({ participant, ranking, myRank }) {
           </div>
         )
       })}
+      {!isInTop5 && myRank && (
+        <div>
+          <div style={{ textAlign:'center', color:'#9BABB8', fontSize:9, margin:'6px 0 4px' }}>• • •</div>
+          <div style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:'#e8f5ee', border:'1px solid rgba(0,150,57,0.2)' }}>
+            <div style={{ width:22, height:22, borderRadius:'50%', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900, color:'#9BABB8', flexShrink:0 }}>{myRank}º</div>
+            <div style={{ width:28, height:28, borderRadius:'50%', overflow:'hidden', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0, border:'2px solid #009639' }}>
+              {participant.avatar_url ? <img src={participant.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : participant.avatar_emoji}
+            </div>
+            <span style={{ flex:1, color:'#009639', fontWeight:800, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{participant.name} (você)</span>
+            <span style={{ color:'#009639', fontWeight:900, fontSize:11 }}>{(participant.total_points||0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
 
 // ── DASHBOARD PRINCIPAL ───────────────────────────────────────────────────────
 export default function Dashboard({ participant, onLogout }) {
@@ -558,19 +586,35 @@ export default function Dashboard({ participant, onLogout }) {
   const [ranking,    setRanking]    = useState([])
   const [totalParts, setTotalParts] = useState(0)
   const [myRank,     setMyRank]     = useState(null)
+  const [myPredIds,  setMyPredIds]  = useState(new Set())
 
   const fetchData = useCallback(async () => {
     const [{ data: preds }, { data: parts }, { count }] = await Promise.all([
-      supabase.from('predictions').select('points').eq('participant_id', participant.id),
-      supabase.from('participants').select('id,name,avatar_emoji,avatar_url,total_points').order('total_points',{ascending:false}).limit(5),
+      supabase.from('predictions').select('points,match_id').eq('participant_id', participant.id),
+      supabase.from('participants').select('id,name,avatar_emoji,avatar_url,total_points,exact_hits,result_hits,predictions_count'),
       supabase.from('participants').select('*',{count:'exact',head:true}),
     ])
     setStats({ points: preds?.reduce((s,p)=>s+(p.points||0),0)||0, done: preds?.length||0 })
-    setRanking(parts||[])
+    setMyPredIds(new Set(preds?.map(p=>p.match_id)||[]))
     setTotalParts(count||0)
-    const { data: all } = await supabase.from('participants').select('id').order('total_points',{ascending:false})
-    const idx = all?.findIndex(p=>p.id===participant.id)
-    setMyRank(idx!==undefined&&idx>=0?idx+1:null)
+    // Ordenação igual ao ranking: alfabético sem pontos, depois critérios de desempate
+    const sortFn = (a, b) => {
+      const allZero = (p) => (p.total_points||0) === 0 && (p.exact_hits||0) === 0 && (p.result_hits||0) === 0
+      if (allZero(a) && allZero(b)) return a.name.localeCompare(b.name, 'pt-BR')
+      if ((b.total_points||0) !== (a.total_points||0)) return (b.total_points||0) - (a.total_points||0)
+      if ((b.exact_hits||0) !== (a.exact_hits||0)) return (b.exact_hits||0) - (a.exact_hits||0)
+      if ((b.result_hits||0) !== (a.result_hits||0)) return (b.result_hits||0) - (a.result_hits||0)
+      const errA = (a.predictions_count||0)-(a.exact_hits||0)-(a.result_hits||0)
+      const errB = (b.predictions_count||0)-(b.exact_hits||0)-(b.result_hits||0)
+      if (errA !== errB) return errA - errB
+      if ((b.predictions_count||0) !== (a.predictions_count||0)) return (b.predictions_count||0) - (a.predictions_count||0)
+      return a.name.localeCompare(b.name, 'pt-BR')
+    }
+    const sortedParts = (parts||[]).slice().sort(sortFn)
+    setRanking(sortedParts.slice(0,5))
+    // usa a mesma lista 'parts' para calcular posição do usuário
+    const idx = sortedParts.findIndex(p=>p.id===participant.id)
+    setMyRank(idx>=0?idx+1:null)
   }, [participant.id])
 
   useEffect(() => {
@@ -579,7 +623,7 @@ export default function Dashboard({ participant, onLogout }) {
     return ()=>supabase.removeChannel(ch)
   }, [fetchData])
 
-  const openCount = GROUP_MATCHES.filter(m=>isMatchOpen(m)).length
+  const openCount = GROUP_MATCHES.filter(m=>isMatchOpen(m)&&!myPredIds.has(m.id)).length
 
   return (
     <div style={{ minHeight:'100vh', background:'#F4F6F9', overflowX:'hidden' }}>
@@ -630,7 +674,7 @@ export default function Dashboard({ participant, onLogout }) {
           </div>
 
           {/* Pontuação */}
-          <div style={{ background:'#fff', borderRadius:16, padding:'16px', border:'1px solid #E2EAF0', marginBottom:4 }}>
+          <div style={{ background:'#fff', borderRadius:16, padding:'16px', border:'1px solid #E2EAF0', marginBottom:80 }}>
             <div style={{ color:'#002855', fontWeight:900, fontSize:15, marginBottom:12 }}>📋 Pontuação</div>
             {[['Placar exato','#D4890A','rgba(245,166,35,0.10)','+3 pts'],['Resultado correto','#007a2e','rgba(0,150,57,0.08)','+1 pt'],['Campeão correto','#D4890A','rgba(245,166,35,0.10)','+10 pts'],['Vice correto','#007a2e','rgba(0,150,57,0.08)','+5 pts'],['3º lugar correto','#007a2e','rgba(0,150,57,0.08)','+3 pts'],['Resultado errado','#C0392B','rgba(220,53,69,0.07)','0 pts']].map(([l,c,bg,pts])=>(
               <div key={l} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'7px 0', borderBottom:'1px solid #F4F6F9' }}>
