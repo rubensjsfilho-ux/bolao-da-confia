@@ -4,7 +4,7 @@ import Header from '../components/Header'
 import { Zap, Target, Loader2 } from 'lucide-react'
 
 // ── Linha do ranking ──────────────────────────────────────────────────────────
-function RankRow({ p, rank, isMe }: { p: any; rank: number; isMe: boolean }) {
+function RankRow({ p, rank, isMe }) {
   const medals = ['🥇','🥈','🥉']
 
   return (
@@ -57,8 +57,8 @@ function RankRow({ p, rank, isMe }: { p: any; rank: number; isMe: boolean }) {
 }
 
 // ── Rankings ──────────────────────────────────────────────────────────────────
-export default function Rankings({ participant, onLogout }: { participant: any; onLogout: () => void }) {
-  const [ranking, setRanking] = useState<any[]>([])
+export default function Rankings({ participant, onLogout }) {
+  const [ranking, setRanking] = useState([])
   const [loading, setLoading] = useState(true)
   const [live,    setLive]    = useState(false)
 
@@ -67,9 +67,8 @@ export default function Rankings({ participant, onLogout }: { participant: any; 
       .from('participants')
       .select('id,name,avatar_emoji,avatar_url,total_points,exact_hits,result_hits,predictions_count')
 
-    // Ordenação: pontos → exatos → resultados → menos erros → mais palpites → alfabético
     const data = (raw || []).slice().sort((a, b) => {
-      const allZero = (p: any) =>
+      const allZero = (p) =>
         (p.total_points||0) === 0 && (p.exact_hits||0) === 0 && (p.result_hits||0) === 0
 
       if (allZero(a) && allZero(b)) return a.name.localeCompare(b.name, 'pt-BR')
@@ -108,7 +107,6 @@ export default function Rankings({ participant, onLogout }: { participant: any; 
       <Header participant={participant} onLogout={onLogout} />
       <main style={{ padding:'70px 12px 80px' }}>
 
-        {/* Título + indicador ao vivo */}
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:16 }}>
           <div>
             <h1 style={{ color:'#002855', fontWeight:900, fontSize:24, margin:0 }}>Ranking</h1>
@@ -172,3 +170,56 @@ export default function Rankings({ participant, onLogout }: { participant: any; 
                 return (
                   <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
                     {i === 0 && <div style={{ fontSize:22, animation:'float 3s ease-in-out infinite' }}>👑</div>}
+
+                    <div style={{
+                      width:36, height:36, borderRadius:'50%', overflow:'hidden',
+                      border:`2px solid ${border}`, background:'#F4F6F9',
+                      display:'flex', alignItems:'center', justifyContent:'center', fontSize:22,
+                    }}>
+                      {p?.avatar_url
+                        ? <img src={p.avatar_url} alt={p.name} style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
+                        : p?.avatar_emoji
+                      }
+                    </div>
+
+                    <div style={{ color:nameColor, fontSize:10, fontWeight:800, textAlign:'center', maxWidth:60, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                      {p?.name}
+                    </div>
+
+                    <div style={{
+                      width:'100%', height:h, borderRadius:'10px 10px 0 0',
+                      background:bg, border:`1px solid ${border}`,
+                      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'flex-end', paddingBottom:6,
+                    }}>
+                      <div style={{ fontWeight:900, fontSize:16, color: i === 0 ? '#D4890A' : '#002855' }}>
+                        {p?.total_points||0}
+                      </div>
+                      <div style={{ color:'#9BABB8', fontSize:10 }}>pts</div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Lista completa */}
+        {loading ? (
+          <div style={{ textAlign:'center', padding:'32px', color:'#9BABB8' }}>
+            <Loader2 size={28} style={{ animation:'spin 1s linear infinite' }}/>
+          </div>
+        ) : (
+          ranking.map((p, i) => (
+            <RankRow key={p.id} p={p} rank={i + 1} isMe={p.id === participant.id} />
+          ))
+        )}
+      </main>
+
+      <style>{`
+        @keyframes pulse-g { 0%,100%{opacity:1} 50%{opacity:.3} }
+        @keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+        @keyframes spin    { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      `}</style>
+    </div>
+  )
+}
