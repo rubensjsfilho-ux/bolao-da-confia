@@ -16,7 +16,7 @@ import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
 
 // ── Popup de gol (único, no topo da árvore) ───────────────────────────────────
-function GoalPopup({ event, onClose }: { event: any; onClose: () => void }) {
+function GoalPopup({ event, onClose }) {
   useEffect(() => {
     if (!event) return
     const t = setTimeout(onClose, 5000)
@@ -94,16 +94,16 @@ function GoalPopup({ event, onClose }: { event: any; onClose: () => void }) {
 
 // ── App principal ─────────────────────────────────────────────────────────────
 function App() {
-  const [participant, setParticipant]           = useState<any>(null)
+  const [participant, setParticipant] = useState(null)
   const [loading, setLoading]                   = useState(true)
-  const [goalEvent, setGoalEvent]               = useState<any>(null)
+  const [goalEvent, setGoalEvent] = useState(null)
   const [isRecoveringPassword, setIsRecoveringPassword] = useState(false)
 
   // Referência para os placar anteriores (detectar gol)
-  const prevScores = useRef<Record<string, { score1: number | null; score2: number | null }>>({})
+  const prevScores = useRef({})
 
   // ── Carrega participante ──────────────────────────────────────────────────
-  const loadParticipant = async (userId: string) => {
+  const loadParticipant = async (userId) => {
     const { data } = await supabase
       .from('participants')
       .select('*')
@@ -130,6 +130,7 @@ function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (_event === 'PASSWORD_RECOVERY') {
+        // Não loga — redireciona para tela de redefinição
         setIsRecoveringPassword(true)
         setLoading(false)
         return
@@ -143,6 +144,7 @@ function App() {
 
   // ── Realtime: detecta gol ─────────────────────────────────────────────────
   useEffect(() => {
+    // Carrega placar inicial como referência
     supabase
       .from('matches')
       .select('id,score1,score2')
@@ -159,7 +161,7 @@ function App() {
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'matches' },
         (payload) => {
-          const match = payload.new as any
+          const match = payload.new
           if (match.is_finished) return
 
           const prev   = prevScores.current[match.id]
@@ -183,7 +185,7 @@ function App() {
                 })
               }
             }
-
+            // Sempre atualiza referência
             prevScores.current[match.id] = { score1: newS1, score2: newS2 }
           }
         }
@@ -198,6 +200,7 @@ function App() {
     setParticipant(null)
   }
 
+  // ── Loading ───────────────────────────────────────────────────────────────
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#F4F6F9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
       <div style={{ fontSize: 48, animation: 'spin 1s linear infinite' }}>⚽</div>
@@ -206,6 +209,7 @@ function App() {
     </div>
   )
 
+  // ── Recuperação de senha ──────────────────────────────────────────────────
   if (isRecoveringPassword) {
     return (
       <ResetPassword onDone={() => {
@@ -215,23 +219,24 @@ function App() {
     )
   }
 
-  const updateParticipant = (updated: any) => setParticipant(updated)
+  const updateParticipant = (updated) => setParticipant(updated)
   const props = { participant, onLogout: logout, onUpdate: updateParticipant }
 
   return (
     <>
+      {/* GoalPopup vive aqui — único ponto, funciona em qualquer rota */}
       <GoalPopup event={goalEvent} onClose={() => setGoalEvent(null)} />
 
       <Routes>
-        <Route path="/" element={!participant ? <Login onLogin={setParticipant} /> : <Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={participant ? <Dashboard {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/palpites" element={participant ? <Predictions {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/ranking" element={participant ? <Rankings {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/campeao" element={participant ? <Champion {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/premios" element={participant ? <Prizes {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/chaveamento" element={participant ? <Bracket {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/grupos" element={participant ? <Groups {...props} /> : <Navigate to="/" replace />} />
-        <Route path="/mata-mata" element={participant ? <KnockoutPredictions {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/"         element={!participant ? <Login onLogin={setParticipant} /> : <Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={participant ? <Dashboard   {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/palpites"  element={participant ? <Predictions {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/ranking"   element={participant ? <Rankings    {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/campeao"      element={participant ? <Champion   {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/premios"      element={participant ? <Prizes     {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/chaveamento"  element={participant ? <Bracket    {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/grupos"       element={participant ? <Groups     {...props} /> : <Navigate to="/" replace />} />
+        <Route path="/mata-mata"    element={participant ? <KnockoutPredictions {...props} /> : <Navigate to="/" replace />} />
         <Route
           path="/admin"
           element={
