@@ -313,12 +313,153 @@ const KO_ROUNDS = [
   { id:'sf', label:'Semis',   count:2  },
   { id:'f',  label:'Final',   count:2  },
 ]
-const ALL_TEAMS = ['Brasil','Argentina','França','Alemanha','Espanha','Portugal','Inglaterra','Holanda','Bélgica','Itália','México','Estados Unidos','Uruguai','Japão','Canadá','Austrália','Coreia do Sul','Marrocos','Senegal','Egito','Escócia','Croácia','Suíça','Áustria','Noruega','Turquia','Irã','Colômbia','Paraguai','Gana','Panamá','Argélia','Uzbequistão','Catar','Tunísia','Haiti','África do Sul','Cabo Verde','Equador','Costa do Marfim','Curaçao','RD Congo']
+const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Argélia','Austrália','Áustria','Bélgica','Bósnia e Herz.','Brasil','Cabo Verde','Canadá','Catar','Colômbia','Coreia do Sul','Costa do Marfim','Croácia','Curaçao','Egito','Equador','Escócia','Espanha','Estados Unidos','França','Gana','Haiti','Holanda','Inglaterra','Iraque','Irã','Japão','Jordânia','Marrocos','México','Nova Zelândia','Noruega','Panamá','Paraguai','Portugal','RD Congo','República Tcheca','Senegal','Suécia','Suíça','Tunísia','Turquia','Uruguai','Uzbequistão']
+
+function KOMatchRow({ matchId, label, db, onSave, onFinish, onReset }) {
+  const [s1, setS1] = useState(db.score1 ?? '')
+  const [s2, setS2] = useState(db.score2 ?? '')
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [finishing, setFinishing] = useState(false)
+  const [resetting, setResetting] = useState(false)
+  const [confirmFinish, setConfirmFinish] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
+
+  useEffect(() => {
+    if (db.score1 === null || db.score1 === undefined) { setS1(''); setS2('') }
+  }, [db.score1])
+
+  const hasTeams = db.team1 && db.team2
+
+  const save = async () => {
+    if (s1 === '' || s2 === '') return
+    setSaving(true)
+    await onSave(matchId, db.team1, db.team2, parseInt(s1), parseInt(s2))
+    setSaving(false); setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  const finish = async () => {
+    if (s1 === '' || s2 === '') return
+    setConfirmFinish(false); setFinishing(true)
+    await onFinish(matchId, db.team1, db.team2, parseInt(s1), parseInt(s2))
+    setFinishing(false)
+  }
+
+  const reset = async () => {
+    setConfirmReset(false); setResetting(true)
+    await onReset(matchId)
+    setResetting(false)
+  }
+
+  return (
+    <div style={{ background:C.card, border:`1px solid ${db.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
+        <span style={{ color:C.gold, fontWeight:800, fontSize:11 }}>{label}</span>
+        {db.is_finished
+          ? <span style={{ color:C.green, fontSize:10, fontWeight:800 }}>✓ Encerrado</span>
+          : db.score1!==null&&db.score1!==undefined
+            ? <span style={{ color:C.gold, fontSize:10, fontWeight:800 }}>⏱ Em andamento</span>
+            : null
+        }
+      </div>
+
+      {/* Seleção de times */}
+      <div style={{ display:'flex', gap:8, marginBottom:10 }}>
+        <select value={db.team1||''} disabled={db.is_finished}
+          onChange={e => onSave(matchId, e.target.value, db.team2||'', db.score1??null, db.score2??null)}
+          style={{ flex:1, padding:'8px 8px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:db.team1?C.text:C.textMuted, fontSize:11, outline:'none', opacity:db.is_finished?.6:1 }}>
+          <option value="">Time 1...</option>
+          {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
+        </select>
+        <select value={db.team2||''} disabled={db.is_finished}
+          onChange={e => onSave(matchId, db.team1||'', e.target.value, db.score1??null, db.score2??null)}
+          style={{ flex:1, padding:'8px 8px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:db.team2?C.text:C.textMuted, fontSize:11, outline:'none', opacity:db.is_finished?.6:1 }}>
+          <option value="">Time 2...</option>
+          {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
+        </select>
+      </div>
+
+      {/* Placar */}
+      {hasTeams && (
+        <>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+            <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700 }}>{db.team1}</span>
+            {db.is_finished ? (
+              <div style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(74,222,128,0.1)', border:'1px solid rgba(74,222,128,0.2)', borderRadius:10, padding:'6px 14px' }}>
+                <span style={{ color:C.green, fontSize:24, fontWeight:900, minWidth:24, textAlign:'center' }}>{db.score1}</span>
+                <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
+                <span style={{ color:C.green, fontSize:24, fontWeight:900, minWidth:24, textAlign:'center' }}>{db.score2}</span>
+              </div>
+            ) : (
+              <>
+                <input type="number" min="0" max="20" value={s1} onChange={e=>setS1(e.target.value)}
+                  style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+                <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
+                <input type="number" min="0" max="20" value={s2} onChange={e=>setS2(e.target.value)}
+                  style={{ width:48, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none' }}/>
+              </>
+            )}
+            <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700, textAlign:'right' }}>{db.team2}</span>
+          </div>
+
+          {/* Botões */}
+          <div style={{ display:'flex', justifyContent:'flex-end', gap:6 }}>
+            {db.is_finished ? (
+              confirmReset ? (
+                <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                  <span style={{ color:C.textMuted, fontSize:10 }}>Tem certeza?</span>
+                  <button onClick={reset} disabled={resetting}
+                    style={{ background:'rgba(248,113,113,0.2)', color:C.red, border:'1px solid rgba(248,113,113,0.4)', borderRadius:8, padding:'7px 12px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                    {resetting?'Resetando...':'✓ Confirmar'}
+                  </button>
+                  <button onClick={()=>setConfirmReset(false)}
+                    style={{ background:'rgba(255,255,255,0.08)', color:C.textMuted, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 12px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <button onClick={()=>setConfirmReset(true)}
+                  style={{ background:'rgba(248,113,113,0.1)', color:C.red, border:'1px solid rgba(248,113,113,0.25)', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                  ↩ Resetar Jogo
+                </button>
+              )
+            ) : (
+              <>
+                <button onClick={save} disabled={s1===''||s2===''||saving}
+                  style={{ background:'rgba(255,255,255,0.1)', color:saved?C.green:C.text, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
+                  {saving?'Salvando...':saved?'✓ Salvo!':'💾 Salvar placar'}
+                </button>
+                {confirmFinish ? (
+                  <>
+                    <button onClick={finish} disabled={finishing}
+                      style={{ background:C.gold, color:'#000', border:'none', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                      {finishing?'Encerrando...':'✓ Confirmar'}
+                    </button>
+                    <button onClick={()=>setConfirmFinish(false)}
+                      style={{ background:'rgba(255,255,255,0.08)', color:C.textMuted, border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 10px', fontWeight:900, fontSize:11, cursor:'pointer' }}>
+                      ✕
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={()=>{ if(s1===''||s2==='')return; setConfirmFinish(true) }}
+                    disabled={s1===''||s2===''}
+                    style={{ background:C.gold, color:'#000', border:'none', borderRadius:8, padding:'7px 14px', fontWeight:900, fontSize:11, cursor:'pointer', opacity:(s1===''||s2==='')?0.4:1 }}>
+                    ✓ Encerrar
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
 function KnockoutTab() {
   const [activeRound, setActiveRound] = useState('r2')
   const [matches, setMatches] = useState({})
-  const [saving, setSaving] = useState({})
   const [msg, setMsg] = useState('')
 
   useEffect(() => {
@@ -329,100 +470,78 @@ function KnockoutTab() {
     })
   }, [])
 
-  const save = async (id, field, value) => {
-    setSaving(s => ({...s, [id]:true}))
-    const current = matches[id] || { id, round: id.split('_')[0], position: parseInt(id.split('_')[1]) }
-    const updated = { ...current, [field]: value }
-    if (matches[id]) {
-      await supabase.from('bracket_matches').update({ [field]: value, updated_at: new Date().toISOString() }).eq('id', id)
-    } else {
-      await supabase.from('bracket_matches').insert([updated])
+  const recalcTotals = async () => {
+    const { data: ps } = await supabase.from('participants').select('id')
+    for (const p of ps || []) {
+      const { data: g } = await supabase.from('predictions').select('points').eq('participant_id',p.id).not('points','is',null)
+      const { data: k } = await supabase.from('knockout_predictions').select('points').eq('participant_id',p.id).not('points','is',null)
+      const total = [...(g||[]),...(k||[])].reduce((s,x)=>s+(x.points||0),0)
+      const exact = [...(g||[]),...(k||[])].filter(x=>x.points===3).length
+      const result = [...(g||[]),...(k||[])].filter(x=>x.points===1).length
+      await supabase.from('participants').update({ total_points:total, exact_hits:exact, result_hits:result }).eq('id',p.id)
     }
-    setMatches(m => ({ ...m, [id]: updated }))
-    if (field === 'is_finished' && value === true) {
-      const m = updated
-      if (m.score1 !== null && m.score2 !== null) {
-        const { data: preds } = await supabase.from('knockout_predictions').select('id,participant_id,score1,score2').eq('match_id', id)
-        for (const p of preds || []) {
-          const pts = p.score1===m.score1&&p.score2===m.score2 ? 3 : Math.sign(p.score1-p.score2)===Math.sign(m.score1-m.score2) ? 1 : 0
-          await supabase.from('knockout_predictions').update({ points: pts }).eq('id', p.id)
-          const { data: part } = await supabase.from('participants').select('total_points').eq('id', p.participant_id).single()
-          if (part) await supabase.from('participants').update({ total_points: (part.total_points||0) + pts }).eq('id', p.participant_id)
-        }
-        setMsg('✅ Pontos calculados!')
-        setTimeout(() => setMsg(''), 3000)
-      }
-    }
-    setSaving(s => ({...s, [id]:false}))
   }
 
-  const roundMatches = Array.from({ length: KO_ROUNDS.find(r=>r.id===activeRound)?.count || 0 }, (_,i) => {
-    const id = `${activeRound}_${i+1}`
-    return { id, label: `${KO_ROUNDS.find(r=>r.id===activeRound)?.label} ${i+1}` }
-  })
+  const saveMatch = async (id, team1, team2, score1, score2) => {
+    const payload = { team1, team2, score1:score1??null, score2:score2??null, updated_at:new Date().toISOString() }
+    if (matches[id]) {
+      await supabase.from('bracket_matches').update(payload).eq('id',id)
+    } else {
+      await supabase.from('bracket_matches').insert([{ id, round:id.split('_')[0], position:parseInt(id.split('_')[1]), ...payload, is_finished:false }])
+    }
+    setMatches(m => ({ ...m, [id]: { ...(m[id]||{}), id, ...payload, is_finished:m[id]?.is_finished||false } }))
+  }
+
+  const finishMatch = async (id, team1, team2, score1, score2) => {
+    await supabase.from('bracket_matches').update({ team1, team2, score1, score2, is_finished:true, updated_at:new Date().toISOString() }).eq('id',id)
+    setMatches(m => ({ ...m, [id]: { ...(m[id]||{}), team1, team2, score1, score2, is_finished:true } }))
+    const { data: preds } = await supabase.from('knockout_predictions').select('id,score1,score2,participant_id').eq('match_id',id)
+    for (const p of preds||[]) {
+      const pts = calcPoints(p.score1,p.score2,score1,score2)
+      await supabase.from('knockout_predictions').update({ points:pts }).eq('id',p.id)
+    }
+    await recalcTotals()
+    setMsg('✅ Encerrado e pontos calculados!')
+    setTimeout(()=>setMsg(''),3000)
+  }
+
+  const resetMatch = async (id) => {
+    await supabase.from('bracket_matches').update({ score1:null, score2:null, is_finished:false, updated_at:new Date().toISOString() }).eq('id',id)
+    setMatches(m => ({ ...m, [id]: { ...(m[id]||{}), score1:null, score2:null, is_finished:false } }))
+    await supabase.from('knockout_predictions').update({ points:null }).eq('match_id',id)
+    await recalcTotals()
+  }
+
+  const roundMatches = Array.from({ length: KO_ROUNDS.find(r=>r.id===activeRound)?.count||0 }, (_,i) => ({
+    id: `${activeRound}_${i+1}`,
+    label: `${KO_ROUNDS.find(r=>r.id===activeRound)?.label} · Jogo ${i+1}`,
+  }))
 
   return (
     <div>
       {msg && <div style={{ background:'rgba(74,222,128,0.1)', border:'1px solid rgba(74,222,128,0.3)', borderRadius:10, padding:'10px 14px', marginBottom:12, color:C.green, fontSize:12 }}>{msg}</div>}
-      <p style={{ color:C.textMuted, fontSize:11, marginBottom:12 }}>Preencha os times. Ao encerrar, os pontos são calculados automaticamente.</p>
+      <p style={{ color:C.textMuted, fontSize:11, marginBottom:12 }}>Selecione os times, salve o placar parcial e encerre quando terminar.</p>
       <div style={{ display:'flex', gap:5, marginBottom:14, overflowX:'auto' }}>
         {KO_ROUNDS.map(r => (
-          <button key={r.id} onClick={() => setActiveRound(r.id)} style={{
+          <button key={r.id} onClick={()=>setActiveRound(r.id)} style={{
             flexShrink:0, padding:'6px 12px', border:'none', borderRadius:8,
             fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif',
-            background: activeRound===r.id ? C.gold : 'rgba(255,255,255,0.08)',
-            color: activeRound===r.id ? '#000' : C.textMuted,
+            background: activeRound===r.id?C.gold:'rgba(255,255,255,0.08)',
+            color: activeRound===r.id?'#000':C.textMuted,
           }}>{r.label}</button>
         ))}
       </div>
-      {roundMatches.map(m => {
-        const db = matches[m.id] || {}
-        return (
-          <div key={m.id} style={{ background:C.card, border:`1px solid ${db.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', marginBottom:10 }}>
-              <span style={{ color:C.gold, fontWeight:800, fontSize:11 }}>{m.label}</span>
-              {db.is_finished && <span style={{ color:C.green, fontSize:10, fontWeight:800 }}>✓ Encerrado</span>}
-            </div>
-            <div style={{ marginBottom:8 }}>
-              <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Time 1</label>
-              <select value={db.team1||''} onChange={e => save(m.id,'team1',e.target.value)} disabled={db.is_finished}
-                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none', opacity:db.is_finished?.6:1 }}>
-                <option value="">Selecionar...</option>
-                {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
-              </select>
-            </div>
-            <div style={{ marginBottom:10 }}>
-              <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Time 2</label>
-              <select value={db.team2||''} onChange={e => save(m.id,'team2',e.target.value)} disabled={db.is_finished}
-                style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:13, outline:'none', opacity:db.is_finished?.6:1 }}>
-                <option value="">Selecionar...</option>
-                {ALL_TEAMS.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
-              </select>
-            </div>
-            {db.team1 && db.team2 && (
-              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                <input type="number" min="0" max="20" placeholder="0" value={db.score1??''} disabled={db.is_finished}
-                  onChange={e => save(m.id,'score1',parseInt(e.target.value))}
-                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:db.is_finished?.6:1 }}/>
-                <span style={{ color:C.textMuted, fontWeight:900 }}>×</span>
-                <input type="number" min="0" max="20" placeholder="0" value={db.score2??''} disabled={db.is_finished}
-                  onChange={e => save(m.id,'score2',parseInt(e.target.value))}
-                  style={{ width:52, height:40, background:'rgba(255,255,255,0.1)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:20, fontWeight:900, textAlign:'center', outline:'none', opacity:db.is_finished?.6:1 }}/>
-                <label style={{ display:'flex', alignItems:'center', gap:6, color:C.textMuted, fontSize:11, fontWeight:700, cursor:'pointer', marginLeft:8 }}>
-                  <input type="checkbox" checked={db.is_finished||false} onChange={e => save(m.id,'is_finished',e.target.checked)}/>
-                  Encerrado
-                </label>
-              </div>
-            )}
-            {saving[m.id] && <div style={{ color:C.gold, fontSize:10, marginTop:6 }}>Salvando...</div>}
-          </div>
-        )
-      })}
+      {roundMatches.map(m => (
+        <KOMatchRow key={m.id} matchId={m.id} label={m.label}
+          db={matches[m.id]||{}}
+          onSave={saveMatch} onFinish={finishMatch} onReset={resetMatch}
+        />
+      ))}
     </div>
   )
 }
 
-// ── ADMIN PRINCIPAL ───────────────────────────────────────────────────────────
+// ── ADMIN PRINCIPAL ────────────────────────────────────────────────────��──────
 export default function Admin(){
   const [authed,setAuthed]=useState(false)
   const [pwd,setPwd]=useState('')
@@ -431,6 +550,20 @@ export default function Admin(){
   const [loading,setLoading]=useState(false)
   const [tab,setTab]=useState('results')
   const [recalcMsg,setRecalcMsg]=useState('')
+  const [confirmZero,setConfirmZero]=useState(false)
+  const [zeroing,setZeroing]=useState(false)
+
+  const zeroAll=async()=>{
+    setZeroing(true); setConfirmZero(false)
+    await supabase.from('predictions').update({points:null}).neq('id',0)
+    await supabase.from('knockout_predictions').update({points:null}).neq('id','')
+    await supabase.from('participants').update({total_points:0,exact_hits:0,result_hits:0,predictions_count:0}).neq('id',0)
+    await supabase.from('matches').update({score1:null,score2:null,is_finished:false}).neq('id',0)
+    setMatches(prev=>prev.map(m=>({...m,score1:null,score2:null,is_finished:false})))
+    setZeroing(false)
+    setRecalcMsg('✅ Tudo zerado!')
+    setTimeout(()=>setRecalcMsg(''),3000)
+  }
 
   const auth=(e)=>{
     e.preventDefault()
@@ -525,6 +658,24 @@ export default function Admin(){
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           {recalcMsg&&<span style={{ color:C.green, fontSize:11 }}>{recalcMsg}</span>}
           <button onClick={fullRecalc} style={{ background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, color:C.textMuted, borderRadius:8, padding:'6px 12px', fontSize:11, fontWeight:700, cursor:'pointer' }}>↺ Recalcular</button>
+          {confirmZero ? (
+            <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+              <span style={{ color:C.red, fontSize:10, fontWeight:700 }}>Zerar tudo?</span>
+              <button onClick={zeroAll} disabled={zeroing}
+                style={{ background:'rgba(248,113,113,0.2)', border:'1px solid rgba(248,113,113,0.4)', color:C.red, borderRadius:8, padding:'6px 10px', fontSize:11, fontWeight:900, cursor:'pointer' }}>
+                {zeroing?'Zerando...':'✓ Sim'}
+              </button>
+              <button onClick={()=>setConfirmZero(false)}
+                style={{ background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, color:C.textMuted, borderRadius:8, padding:'6px 10px', fontSize:11, fontWeight:900, cursor:'pointer' }}>
+                Não
+              </button>
+            </div>
+          ) : (
+            <button onClick={()=>setConfirmZero(true)}
+              style={{ background:'rgba(248,113,113,0.08)', border:'1px solid rgba(248,113,113,0.2)', color:C.red, borderRadius:8, padding:'6px 12px', fontSize:11, fontWeight:700, cursor:'pointer' }}>
+              🗑 Zerar tudo
+            </button>
+          )}
         </div>
       </div>
 
