@@ -35,7 +35,7 @@ function Hero({ onPalpites, onJogos }) {
         <img
           src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
           alt="Taça Copa 2026"
-          style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-30%,-50%)', height:'100%', width:'auto', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
+          style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-40%,-50%) scale(1.1)', width:'100%', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
           onError={e => { e.target.style.display='none' }}
         />
       </div>
