@@ -553,17 +553,22 @@ export default function Admin(){
   const [confirmZero,setConfirmZero]=useState(false)
   const [zeroing,setZeroing]=useState(false)
 
-  const zeroAll=async()=>{
-    setZeroing(true); setConfirmZero(false)
-    await supabase.from('predictions').update({points:null}).neq('id',0)
-    await supabase.from('knockout_predictions').update({points:null}).neq('id','')
-    await supabase.from('participants').update({total_points:0,exact_hits:0,result_hits:0,predictions_count:0}).neq('id',0)
-    await supabase.from('matches').update({score1:null,score2:null,is_finished:false}).neq('id',0)
-    setMatches(prev=>prev.map(m=>({...m,score1:null,score2:null,is_finished:false})))
-    setZeroing(false)
-    setRecalcMsg('✅ Tudo zerado!')
-    setTimeout(()=>setRecalcMsg(''),3000)
-  }
+  const zeroAll = async() => {
+  setZeroing(true); setConfirmZero(false)
+  // ✅ .not('id','is',null) funciona para qualquer tipo de id
+  await supabase.from('predictions').update({points:null}).not('id','is',null)
+  await supabase.from('knockout_predictions').update({points:null}).not('id','is',null)
+  await supabase.from('participants').update({
+    total_points:0, exact_hits:0, result_hits:0, predictions_count:0
+  }).not('id','is',null)
+  await supabase.from('matches').update({
+    score1:null, score2:null, is_finished:false
+  }).not('id','is',null)
+  setMatches(prev=>prev.map(m=>({...m,score1:null,score2:null,is_finished:false})))
+  setZeroing(false)
+  setRecalcMsg('✅ Tudo zerado!')
+  setTimeout(()=>setRecalcMsg(''),3000)
+}
 
   const auth=(e)=>{
     e.preventDefault()
