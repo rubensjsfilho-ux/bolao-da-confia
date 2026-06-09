@@ -614,7 +614,7 @@ export default function Dashboard({ participant, onLogout }) {
     setRanking(sortedParts.slice(0,5))
     // usa a mesma lista 'parts' para calcular posição do usuário
     const idx = sortedParts.findIndex(p=>p.id===participant.id)
-    setMyRank(idx>=0?idx+1)
+    setMyRank(idx>=0?idx+1:null)
   }, [participant.id])
 
   useEffect(() => {
