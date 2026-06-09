@@ -1,21 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
-import { Avatar } from '../components/Header'
 import { Loader2, ArrowLeft, Camera, Check, Zap, Target, Star, Trophy } from 'lucide-react'
 
 const AVATARS = ['⚽','🏆','🌟','🦁','🔥','⚡','🎯','👑','🐆','🦅']
 
 // ── Card de estatísticas ──────────────────────────────────────────────────────
-function StatsCard({ participant }: { participant: any }) {
-  const [stats, setStats] = useState<{
-    total_points: number
-    exact_hits: number
-    result_hits: number
-    predictions_count: number
-    rank: number | null
-    total: number
-  } | null>(null)
+function StatsCard({ participant }) {
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,13 +25,12 @@ function StatsCard({ participant }: { participant: any }) {
 
       if (!me || !all) { setLoading(false); return }
 
-      // Mesma ordenação do ranking
       const sorted = [...all].sort((a, b) => {
-        const allZero = (p: any) => (p.total_points||0) === 0 && (p.exact_hits||0) === 0 && (p.result_hits||0) === 0
+        const allZero = (p) => (p.total_points||0) === 0 && (p.exact_hits||0) === 0 && (p.result_hits||0) === 0
         if (allZero(a) && allZero(b)) return 0
         if ((b.total_points||0) !== (a.total_points||0)) return (b.total_points||0) - (a.total_points||0)
-        if ((b.exact_hits||0)    !== (a.exact_hits||0))  return (b.exact_hits||0)    - (a.exact_hits||0)
-        if ((b.result_hits||0)   !== (a.result_hits||0)) return (b.result_hits||0)   - (a.result_hits||0)
+        if ((b.exact_hits||0)   !== (a.exact_hits||0))  return (b.exact_hits||0)   - (a.exact_hits||0)
+        if ((b.result_hits||0)  !== (a.result_hits||0)) return (b.result_hits||0)  - (a.result_hits||0)
         return 0
       })
 
@@ -71,21 +62,19 @@ function StatsCard({ participant }: { participant: any }) {
     : 0
 
   const items = [
-    { icon: <Trophy size={16} color="#D4890A"/>,  label: 'Posição',    value: stats.rank ? `${stats.rank}º` : '—',    sub: stats.rank ? `de ${stats.total}` : '—', color: '#D4890A', bg: 'rgba(245,166,35,0.08)' },
-    { icon: <Star    size={16} color="#009639"/>,  label: 'Pontos',     value: stats.total_points,                      sub: 'total',                                 color: '#009639', bg: 'rgba(0,150,57,0.08)'  },
-    { icon: <Zap     size={16} color="#F5A623"/>,  label: 'Exatos',     value: stats.exact_hits,                        sub: '+3 pts cada',                           color: '#F5A623', bg: 'rgba(245,166,35,0.08)' },
-    { icon: <Target  size={16} color="#1A73E8"/>,  label: 'Resultados', value: stats.result_hits,                       sub: '+1 pt cada',                            color: '#1A73E8', bg: 'rgba(26,115,232,0.08)' },
+    { icon: <Trophy size={16} color="#D4890A"/>, label: 'Posição',    value: stats.rank ? `${stats.rank}º` : '—', sub: stats.rank ? `de ${stats.total}` : '—', color: '#D4890A', bg: 'rgba(245,166,35,0.08)' },
+    { icon: <Star   size={16} color="#009639"/>, label: 'Pontos',     value: stats.total_points,                  sub: 'total',                                 color: '#009639', bg: 'rgba(0,150,57,0.08)'  },
+    { icon: <Zap    size={16} color="#F5A623"/>, label: 'Exatos',     value: stats.exact_hits,                    sub: '+3 pts cada',                           color: '#F5A623', bg: 'rgba(245,166,35,0.08)' },
+    { icon: <Target size={16} color="#1A73E8"/>, label: 'Resultados', value: stats.result_hits,                   sub: '+1 pt cada',                            color: '#1A73E8', bg: 'rgba(26,115,232,0.08)' },
   ]
 
   return (
     <div style={{ background:'#fff', borderRadius:16, border:'1px solid #E2EAF0', overflow:'hidden', marginBottom:20, boxShadow:'0 2px 12px rgba(0,40,85,0.06)' }}>
-      {/* Header do card */}
       <div style={{ background:'linear-gradient(135deg,#002855,#009639)', padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <span style={{ color:'#fff', fontWeight:900, fontSize:13, letterSpacing:.5 }}>📊 Seu Desempenho</span>
         <span style={{ color:'rgba(255,255,255,0.7)', fontSize:11 }}>{stats.predictions_count} palpite{stats.predictions_count !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* Grid de métricas */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'#E2EAF0' }}>
         {items.map(({ icon, label, value, sub, color, bg }) => (
           <div key={label} style={{ background:'#fff', padding:'14px 12px', display:'flex', flexDirection:'column', gap:6 }}>
@@ -101,7 +90,6 @@ function StatsCard({ participant }: { participant: any }) {
         ))}
       </div>
 
-      {/* Barra de aproveitamento */}
       <div style={{ padding:'12px 16px', borderTop:'1px solid #F4F6F9' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
           <span style={{ color:'#6B7A8D', fontSize:11, fontWeight:700 }}>Aproveitamento</span>
@@ -123,14 +111,14 @@ function StatsCard({ participant }: { participant: any }) {
 }
 
 // ── Tela de perfil ────────────────────────────────────────────────────────────
-export default function Profile({ participant, onUpdate }: { participant: any; onUpdate: (p: any) => void }) {
+export default function Profile({ participant, onUpdate }) {
   const navigate = useNavigate()
-  const fileRef  = useRef<HTMLInputElement>(null)
+  const fileRef  = useRef(null)
 
   const [name,    setName]    = useState(participant.name    || '')
   const [avatar,  setAvatar]  = useState(participant.avatar  || '⚽')
-  const [photo,   setPhoto]   = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(participant.photoUrl || null)
+  const [photo,   setPhoto]   = useState(null)
+  const [preview, setPreview] = useState(participant.photoUrl || null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error,   setError]   = useState('')
@@ -138,15 +126,15 @@ export default function Profile({ participant, onUpdate }: { participant: any; o
   const inp = {
     width:'100%', background:'#F4F6F9', border:'1.5px solid #E2EAF0',
     borderRadius:12, padding:'12px 14px', color:'#002855', fontSize:14,
-    outline:'none', boxSizing:'border-box' as const, fontFamily:'inherit',
+    outline:'none', boxSizing:'border-box', fontFamily:'inherit',
   }
 
-  const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoto = (e) => {
     const f = e.target.files?.[0]; if (!f) return
     if (f.size > 5 * 1024 * 1024) { setError('Foto muito grande. Máx 5MB.'); return }
     setPhoto(f)
     const r = new FileReader()
-    r.onload = ev => setPreview(ev.target?.result as string)
+    r.onload = ev => setPreview(ev.target.result)
     r.readAsDataURL(f)
     setError('')
   }
@@ -166,7 +154,6 @@ export default function Profile({ participant, onUpdate }: { participant: any; o
         photoUrl = urlData.publicUrl
       }
 
-      // Se preview foi removido, limpa a foto
       if (!preview && !photo) photoUrl = null
 
       const { error: updErr } = await supabase
@@ -178,7 +165,7 @@ export default function Profile({ participant, onUpdate }: { participant: any; o
       onUpdate({ ...participant, name: name.trim(), avatar, photoUrl })
       setSuccess(true)
       setTimeout(() => navigate(-1), 1200)
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'Erro ao salvar. Tente novamente.')
     } finally {
       setLoading(false)
@@ -188,7 +175,6 @@ export default function Profile({ participant, onUpdate }: { participant: any; o
   return (
     <div style={{ minHeight:'100vh', background:'#F4F6F9', display:'flex', flexDirection:'column', alignItems:'center', padding:'24px 20px', paddingBottom:40 }}>
 
-      {/* Header */}
       <div style={{ width:'100%', maxWidth:420, display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
         <button onClick={() => navigate(-1)} style={{ background:'#fff', border:'1px solid #E2EAF0', borderRadius:10, width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
           <ArrowLeft size={18} color="#002855"/>
@@ -198,13 +184,10 @@ export default function Profile({ participant, onUpdate }: { participant: any; o
 
       <div style={{ width:'100%', maxWidth:420 }}>
 
-        {/* ── Card de estatísticas ── */}
         <StatsCard participant={participant} />
 
-        {/* ── Formulário de edição ── */}
         <div style={{ background:'#fff', borderRadius:20, padding:28, boxShadow:'0 4px 24px rgba(0,40,85,0.10)', border:'1px solid #E2EAF0' }}>
 
-          {/* Foto */}
           <div style={{ display:'flex', flexDirection:'column', alignItems:'center', marginBottom:24 }}>
             <div style={{ position:'relative', width:96, height:96 }}>
               <div
@@ -239,7 +222,6 @@ export default function Profile({ participant, onUpdate }: { participant: any; o
             )}
           </div>
 
-          {/* Nome */}
           <label style={{ color:'#002855', fontWeight:700, fontSize:11, textTransform:'uppercase', letterSpacing:1, display:'block', marginBottom:6 }}>Nome</label>
           <input
             style={{ ...inp, marginBottom:20 }}
@@ -249,7 +231,6 @@ export default function Profile({ participant, onUpdate }: { participant: any; o
             maxLength={25}
           />
 
-          {/* Avatar emoji (só se não tiver foto) */}
           {!preview && (
             <>
               <label style={{ color:'#002855', fontWeight:700, fontSize:11, textTransform:'uppercase', letterSpacing:1, display:'block', marginBottom:8 }}>Avatar</label>
