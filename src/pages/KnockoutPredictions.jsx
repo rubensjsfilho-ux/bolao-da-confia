@@ -226,7 +226,7 @@ export default function KnockoutPredictions({ participant, onLogout }) {
         })}
       </div>
 
-      <main style={{ padding:'14px 12px' }}>
+      <main style={{ padding:'14px 12px', maxWidth:760, margin:'0 auto' }}>
         {loading?(
           <div style={{ textAlign:'center', padding:48 }}>
             <Loader2 size={28} style={{ animation:'spin 1s linear infinite', margin:'0 auto', display:'block', color:'#002855' }}/>
