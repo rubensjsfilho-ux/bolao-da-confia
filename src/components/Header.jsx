@@ -35,8 +35,8 @@ export function Logo({ size='md', clickable=false }) {
         src="/logo-bolao.png"
         alt="Bolão da Confia"
         style={{
-          height: big ? 72 : 52,
-          maxWidth: big ? 320 : 200,
+          height: big ? 80 : 56,
+          maxWidth: big ? 360 : 220,
           width: 'auto',
           objectFit: 'contain',
           display: 'block',
