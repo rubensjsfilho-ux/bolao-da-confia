@@ -324,12 +324,12 @@ export default function Groups({ participant, onLogout }) {
   const koFinished    = Object.values(koMatches).filter(m=>m.is_finished).length
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F4F6F9', paddingBottom:80 }}>
+    <div style={{ minHeight:'100vh', background:'#F4F6F9', paddingBottom:90 }}>
       <Header participant={participant} onLogout={onLogout}/>
 
       {/* Hero */}
       <div style={{ background:'linear-gradient(135deg,#002855 0%,#004080 100%)', padding:'70px 16px 20px' }}>
-        <div style={{ maxWidth:900, margin:'0 auto' }}>
+        <div>
           <div style={{ color:'rgba(255,255,255,0.5)', fontSize:9, fontWeight:800, letterSpacing:3, textTransform:'uppercase', marginBottom:4 }}>Copa do Mundo 2026</div>
           <h1 style={{ color:'#fff', fontWeight:900, fontSize:28, margin:'0 0 12px', letterSpacing:-0.5, textTransform:'uppercase' }}>RESULTADOS</h1>
           <div style={{ display:'flex', gap:8 }}>
@@ -345,7 +345,7 @@ export default function Groups({ participant, onLogout }) {
 
       {/* Tabs */}
       <div style={{ background:'#fff', borderBottom:'2px solid #E2EAF0', padding:'0 12px' }}>
-        <div style={{ maxWidth:900, margin:'0 auto', display:'flex', gap:0 }}>
+        <div style={{ display:'flex', gap:0 }}>
           {[['groups','Fase de Grupos'],['knockout','⚔️ Mata-Mata']].map(([key,label])=>(
             <button key={key} onClick={()=>setTab(key)} style={{
               padding:'14px 16px', border:'none', borderBottom:tab===key?'3px solid #002855':'3px solid transparent',
@@ -358,7 +358,7 @@ export default function Groups({ participant, onLogout }) {
 
       {tab==='groups' && (
         <div style={{ background:'#fff', borderBottom:'1px solid #E2EAF0' }}>
-          <div style={{ maxWidth:900, margin:'0 auto', padding:'8px 12px', display:'flex', gap:6, flexWrap:'wrap' }}>
+          <div style={{ padding:'8px 12px', display:'flex', gap:6, flexWrap:'wrap' }}>
             {[['Por Grupo',false],['Todos os Grupos',true]].map(([label,val])=>(
               <button key={label} onClick={()=>setViewAll(val)} style={{
                 padding:'6px 14px', border:'none', borderRadius:20, fontWeight:800, fontSize:11,
@@ -369,7 +369,7 @@ export default function Groups({ participant, onLogout }) {
             ))}
           </div>
           {!viewAll && (
-            <div style={{ maxWidth:900, margin:'0 auto', padding:'0 12px 8px', display:'flex', gap:5, overflowX:'auto' }}>
+            <div style={{ padding:'0 12px 8px', display:'flex', gap:5, overflowX:'auto' }}>
               {GROUPS.map(g=>(
                 <button key={g} onClick={()=>setActiveGroup(g)} style={{
                   flexShrink:0, width:34, height:30, borderRadius:8, border:'none',
@@ -383,7 +383,7 @@ export default function Groups({ participant, onLogout }) {
         </div>
       )}
 
-      <main style={{ padding:'14px 12px', maxWidth:900, margin:'0 auto' }}>
+      <main style={{ padding:'14px 12px' }}>
         {loading ? (
           <div style={{ textAlign:'center', padding:48 }}>
             <Loader2 size={28} style={{ animation:'spin 1s linear infinite', margin:'0 auto 8px', display:'block', color:'#002855' }}/>
@@ -393,7 +393,7 @@ export default function Groups({ participant, onLogout }) {
         ) : tab==='knockout' ? (
           <KnockoutTab koMatches={koMatches}/>
         ) : viewAll ? (
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(420px, 1fr))', gap:16 }}>
+          <div>
             {GROUPS.map(g=><GroupTable key={g} letter={g} results={results}/>)}
           </div>
         ) : (
