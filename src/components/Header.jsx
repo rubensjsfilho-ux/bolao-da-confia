@@ -26,21 +26,24 @@ export function Avatar({ photoUrl, emoji='⚽', size=36, border=true }) {
 export function Logo({ size='md', clickable=false }) {
   const navigate = useNavigate()
   const big = size==='lg'
-  const content = (
-    <div style={{ display:'flex', alignItems:'center', gap:big?12:8, cursor:clickable?'pointer':'default' }}
-      onClick={clickable ? ()=>navigate('/dashboard') : undefined}>
-      <div style={{ width:big?52:40, height:big?52:40, borderRadius:'50%', background:'linear-gradient(135deg,#002855 0%,#009639 60%,#F5A623 100%)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:big?26:20, boxShadow:'0 3px 10px rgba(0,40,85,0.25)', flexShrink:0 }}>⚽</div>
-      <div style={{ lineHeight:1.1 }}>
-        <div style={{ color:'#002855', fontSize:big?11:9, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', opacity:.65 }}>Bolão da</div>
-        <div style={{ display:'flex', alignItems:'center', gap:5 }}>
-          <span style={{ color:'#002855', fontSize:big?28:22, fontWeight:900, letterSpacing:-0.5 }}>CONFIA</span>
-          <div style={{ background:'#1A73E8', color:'#fff', borderRadius:'50%', width:big?20:15, height:big?20:15, display:'flex', alignItems:'center', justifyContent:'center', fontSize:big?11:9, fontWeight:900 }}>✓</div>
-        </div>
-        {big && <div style={{ color:'#009639', fontSize:9, fontWeight:800, letterSpacing:1.2, textTransform:'uppercase', marginTop:1 }}>Confiabilidade dentro e fora de campo!</div>}
-      </div>
+  return (
+    <div
+      style={{ cursor: clickable ? 'pointer' : 'default', display:'flex', alignItems:'center' }}
+      onClick={clickable ? () => navigate('/dashboard') : undefined}
+    >
+      <img
+        src="/logo-bolao.png"
+        alt="Bolão da Confia"
+        style={{
+          height: big ? 64 : 36,
+          maxWidth: big ? 280 : 140,
+          width: 'auto',
+          objectFit: 'contain',
+          display: 'block',
+        }}
+      />
     </div>
   )
-  return content
 }
 
 // ── Modal de estatísticas de participante ─────────────────────────────────────
