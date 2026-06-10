@@ -35,8 +35,8 @@ export function Logo({ size='md', clickable=false }) {
         src="/logo-bolao.png"
         alt="Bolão da Confia"
         style={{
-          height: big ? 80 : 56,
-          maxWidth: big ? 360 : 220,
+          height: big ? 80 : 90,
+          maxWidth: big ? 360 : 260,
           width: 'auto',
           objectFit: 'contain',
           display: 'block',
@@ -180,7 +180,7 @@ export default function Header({ participant, onLogout }) {
     <>
       <ParticipantModal participant={modalP} onClose={() => setModalP(null)} />
 
-      <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, background:'#fff', borderBottom:'1px solid #E2EAF0', padding:'10px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 1px 8px rgba(0,40,85,0.06)' }}>
+      <header style={{ position:'fixed', top:0, left:0, right:0, zIndex:50, background:'#fff', borderBottom:'1px solid #E2EAF0', padding:'4px 16px', height:60, display:'flex', alignItems:'center', justifyContent:'space-between', boxShadow:'0 1px 8px rgba(0,40,85,0.06)', overflow:'hidden' }}>
         {/* Logo clicável */}
         <div onClick={() => navigate('/dashboard')} style={{ cursor:'pointer' }}>
           <Logo />
