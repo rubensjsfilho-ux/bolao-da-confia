@@ -35,7 +35,7 @@ function Hero({ onPalpites, onJogos }) {
         <img
           src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
           alt="Taça Copa 2026"
-          style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-40%,-50%) scale(1.1)', width:'100%', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
+          style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-40%,-50%) scale(1.0)', width:'90%', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
           onError={e => { e.target.style.display='none' }}
         />
       </div>
@@ -537,8 +537,6 @@ function NewsWidget() {
 // ── TOP 5 ─────────────────────────────────────────────────────────────────────
 function Top5({ participant, ranking, myRank }) {
   const navigate = useNavigate()
-  // ranking já vem ordenado por total_points desc (top 5 do Dashboard)
-  // myRank é a posição real do usuário no ranking completo
   const isInTop5 = ranking.some(p => p.id === participant.id)
   return (
     <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', boxShadow:'0 1px 8px rgba(0,40,85,0.05)' }}>
@@ -549,7 +547,12 @@ function Top5({ participant, ranking, myRank }) {
       {ranking.map((p,i)=>{
         const isMe=p.id===participant.id
         return (
-          <div key={p.id} style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:isMe?'#e8f5ee':'transparent', border:isMe?'1px solid rgba(0,150,57,0.2)':'1px solid transparent', marginBottom:4 }}>
+          <div key={p.id}
+            onClick={()=>{ if(!isMe && window.__openParticipantModal) window.__openParticipantModal(p) }}
+            style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:isMe?'#e8f5ee':'transparent', border:isMe?'1px solid rgba(0,150,57,0.2)':'1px solid transparent', marginBottom:4, cursor:isMe?'default':'pointer', transition:'background .15s' }}
+            onMouseEnter={e=>{ if(!isMe) e.currentTarget.style.background='#F4F6F9' }}
+            onMouseLeave={e=>{ e.currentTarget.style.background=isMe?'#e8f5ee':'transparent' }}
+          >
             <div style={{ width:22, height:22, borderRadius:'50%', background:i===0?'#FEF3DC':i===1?'#F4F6F9':i===2?'#FFF0E6':'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:i<3?14:11, fontWeight:900, color:i===0?'#D4890A':i===1?'#9BABB8':i===2?'#C96A2A':'#9BABB8', flexShrink:0 }}>
               {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}º`}
             </div>
@@ -558,6 +561,7 @@ function Top5({ participant, ranking, myRank }) {
             </div>
             <span style={{ flex:1, color:isMe?'#009639':'#002855', fontWeight:800, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}{isMe?' (você)':''}</span>
             <span style={{ color:isMe?'#009639':'#6B7A8D', fontWeight:900, fontSize:11 }}>{(p.total_points||0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
+            {!isMe && <span style={{ color:'#C8D5E0', fontSize:14, flexShrink:0 }}>›</span>}
           </div>
         )
       })}
