@@ -57,7 +57,7 @@ function calcStandings(groupLetter, results) {
 function MatchRow({ match, result }) {
   const hasScore   = result && result.score1 !== null && result.score1 !== undefined
   const isFinished = result?.is_finished
-  const d          = match.date ? new Date(match.date) : null
+  const d          = (match.match_date||match.date) ? new Date(match.match_date||match.date) : null
   const dateStr    = d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',timeZone:'America/Sao_Paulo'}) : 'DD/MM'
   const timeStr    = d ? d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}) : 'HH:MM'
 
@@ -295,7 +295,7 @@ export default function Groups({ participant, onLogout }) {
   const [loading,     setLoading]     = useState(true)
 
   useEffect(() => {
-    supabase.from('matches').select('id,team1,team2,score1,score2,is_finished,date,city')
+    supabase.from('matches').select('id,team1,team2,score1,score2,is_finished,match_date,city')
       .then(({ data }) => { const map={}; data?.forEach(m=>{map[m.id]=m}); setResults(map); setLoading(false) })
       .catch(()=>setLoading(false))
   }, [])
