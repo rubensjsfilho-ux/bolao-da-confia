@@ -541,7 +541,7 @@ function KnockoutTab() {
   )
 }
 
-// ── ADMIN PRINCIPAL ────────────────────────────────────────────────────��──────
+// ── ADMIN PRINCIPAL ────────────────────────────────────────────────────  ──────
 export default function Admin(){
   const [authed,setAuthed]=useState(false)
   const [pwd,setPwd]=useState('')
@@ -578,8 +578,8 @@ export default function Admin(){
 
   const loadMatches=async()=>{
     setLoading(true)
-    const{data}=await supabase.from('matches').select('*').order('match_date')
-    setMatches(data||[])
+    const{data,error}=await supabase.from('matches').select('*').order('id')
+    if(!error) setMatches(data||[])
     setLoading(false)
   }
 
@@ -590,21 +590,22 @@ export default function Admin(){
 
   const finishMatch=async(matchId,score1,score2)=>{
     await supabase.from('matches').update({score1,score2,is_finished:true}).eq('id',matchId)
-    // Atualiza estado local imediatamente — não espera loadMatches()
     setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1,score2,is_finished:true}:m))
     const{data:preds}=await supabase.from('predictions').select('id,score1,score2').eq('match_id',matchId)
     for(const p of preds||[]){
       await supabase.from('predictions').update({points:calcPoints(p.score1,p.score2,score1,score2)}).eq('id',p.id)
     }
     await recalcTotals()
+    // Reload para garantir sincronismo com o banco
+    await loadMatches()
   }
 
   const resetMatch=async(matchId)=>{
     await supabase.from('matches').update({score1:null,score2:null,is_finished:false}).eq('id',matchId)
-    // Atualiza estado local imediatamente
     setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1:null,score2:null,is_finished:false}:m))
     await supabase.from('predictions').update({points:null}).eq('match_id',matchId)
     await recalcTotals()
+    await loadMatches()
   }
 
   const recalcTotals=async()=>{
