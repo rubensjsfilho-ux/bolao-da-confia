@@ -100,7 +100,7 @@ export default function Rankings({ participant, onLogout }) {
       <Header participant={participant} onLogout={onLogout}/>
 
       {/* Hero */}
-      <div style={{ background:'linear-gradient(135deg,#002855 0%,#004080 100%)', padding:'70px 16px 20px' }}>
+      <div style={{ background:'linear-gradient(135deg,#002855 0%,#004080 100%)', padding:'70px 16px 20px', overflowX:'hidden' }}>
         <div style={{ color:'rgba(255,255,255,0.5)', fontSize:9, fontWeight:800, letterSpacing:3, textTransform:'uppercase', marginBottom:4 }}>Copa do Mundo 2026</div>
         <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:16 }}>
           <div>
@@ -160,7 +160,7 @@ export default function Rankings({ participant, onLogout }) {
       )}
 
       {/* Lista */}
-      <div style={{ margin:'14px 12px 0', background:'#fff', borderRadius:16, overflow:'hidden', border:'1px solid #E2EAF0', boxShadow:'0 2px 12px rgba(0,40,85,0.07)' }}>
+      <div style={{ margin:'14px auto 0', maxWidth:760, background:'#fff', borderRadius:16, overflow:'hidden', border:'1px solid #E2EAF0', boxShadow:'0 2px 12px rgba(0,40,85,0.07)' }}>
         {/* Cabeçalho tabela */}
         <div style={{ background:'#1a2a3a', padding:'8px 12px', display:'flex', alignItems:'center', gap:10 }}>
           <div style={{ width:36, textAlign:'center', flexShrink:0 }}>
