@@ -22,11 +22,11 @@ const GROUP_TEAMS = {
 }
 
 const KO_ROUNDS = [
-  { id:'r2',  label:'2ª Fase',         count:16 },
-  { id:'r16', label:'Oitavas de Final', count:8  },
-  { id:'qf',  label:'Quartas de Final', count:4  },
-  { id:'sf',  label:'Semifinais',       count:2  },
-  { id:'f',   label:'Final',            count:2  },
+  { id:'r2',  label:'2ª Fase',          count:16 },
+  { id:'r16', label:'Oitavas de Final',  count:8  },
+  { id:'qf',  label:'Quartas de Final',  count:4  },
+  { id:'sf',  label:'Semifinais',        count:2  },
+  { id:'f',   label:'Final',             count:2  },
 ]
 
 function calcStandings(groupLetter, results) {
@@ -63,34 +63,33 @@ function MatchRow({ match, result }) {
 
   return (
     <div style={{ display:'flex', alignItems:'center', background:'#fff', borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
-      {/* Borda lateral colorida */}
       <div style={{ width:4, alignSelf:'stretch', background:isFinished?'#009639':hasScore?'#F5A623':'#1A73E8', flexShrink:0 }}/>
       {/* Data/hora */}
-      <div style={{ padding:'10px 10px', textAlign:'center', minWidth:52, flexShrink:0 }}>
+      <div style={{ padding:'10px 8px', textAlign:'center', minWidth:46, flexShrink:0 }}>
         <div style={{ fontSize:10, fontWeight:800, color:'#002855' }}>{dateStr}</div>
         <div style={{ fontSize:10, fontWeight:700, color:'#9BABB8' }}>{timeStr}</div>
-        <div style={{ fontSize:8, color:'#C8D5E0', marginTop:2 }}>{match.city?.split('/')[0]||''}</div>
+        <div style={{ fontSize:8, color:'#C8D5E0', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', maxWidth:44, textOverflow:'ellipsis' }}>{match.city?.split('/')[0]||''}</div>
       </div>
       {/* Time 1 */}
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:6, justifyContent:'flex-end', padding:'0 8px' }}>
+      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
         <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team1}</span>
-        <span style={{ fontSize:22 }}>{getFlag(match.team1)}</span>
+        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(match.team1)}</span>
       </div>
       {/* Placar/VS */}
-      <div style={{ minWidth:60, textAlign:'center', flexShrink:0 }}>
+      <div style={{ minWidth:56, textAlign:'center', flexShrink:0 }}>
         {hasScore ? (
-          <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 8px', display:'inline-block' }}>
-            <span style={{ fontSize:14, fontWeight:900, color:'#fff', letterSpacing:1 }}>{result.score1} × {result.score2}</span>
+          <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+            <span style={{ fontSize:13, fontWeight:900, color:'#fff', letterSpacing:1 }}>{result.score1} × {result.score2}</span>
           </div>
         ) : (
-          <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 8px', display:'inline-block' }}>
-            <span style={{ fontSize:12, fontWeight:900, color:'#fff', letterSpacing:1 }}>VS</span>
+          <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+            <span style={{ fontSize:11, fontWeight:900, color:'#fff', letterSpacing:1 }}>VS</span>
           </div>
         )}
       </div>
       {/* Time 2 */}
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:6, padding:'0 8px' }}>
-        <span style={{ fontSize:22 }}>{getFlag(match.team2)}</span>
+      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
+        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(match.team2)}</span>
         <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team2}</span>
       </div>
     </div>
@@ -110,23 +109,23 @@ function KOMatchRow({ db }) {
   return (
     <div style={{ display:'flex', alignItems:'center', background:'#fff', borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
       <div style={{ width:4, alignSelf:'stretch', background:isFinished?'#009639':hasScore?'#F5A623':'#1A73E8', flexShrink:0 }}/>
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:6, justifyContent:'flex-end', padding:'10px 8px' }}>
+      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'10px 6px', minWidth:0 }}>
         <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team1}</span>
-        <span style={{ fontSize:22 }}>{getFlag(db.team1)}</span>
+        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(db.team1)}</span>
       </div>
-      <div style={{ minWidth:60, textAlign:'center', flexShrink:0 }}>
+      <div style={{ minWidth:56, textAlign:'center', flexShrink:0 }}>
         {hasScore ? (
-          <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 8px', display:'inline-block' }}>
-            <span style={{ fontSize:14, fontWeight:900, color:'#fff', letterSpacing:1 }}>{db.score1} × {db.score2}</span>
+          <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+            <span style={{ fontSize:13, fontWeight:900, color:'#fff', letterSpacing:1 }}>{db.score1} × {db.score2}</span>
           </div>
         ) : (
-          <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 8px', display:'inline-block' }}>
-            <span style={{ fontSize:12, fontWeight:900, color:'#fff' }}>VS</span>
+          <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+            <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
           </div>
         )}
       </div>
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:6, padding:'10px 8px' }}>
-        <span style={{ fontSize:22 }}>{getFlag(db.team2)}</span>
+      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'10px 6px', minWidth:0 }}>
+        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(db.team2)}</span>
         <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team2}</span>
       </div>
     </div>
@@ -140,55 +139,61 @@ function GroupTable({ letter, results }) {
 
   return (
     <div style={{ background:'#fff', borderRadius:16, overflow:'hidden', border:'1px solid #E2EAF0', marginBottom:16, boxShadow:'0 2px 12px rgba(0,40,85,0.07)' }}>
-      {/* Header estilo FIFA */}
+      {/* Header */}
       <div style={{ background:'#002855', padding:'14px 16px', display:'flex', alignItems:'center', gap:12 }}>
-        <div style={{ fontSize:28 }}>⚽</div>
+        <div style={{ fontSize:26 }}>⚽</div>
         <div>
           <div style={{ color:'rgba(255,255,255,0.5)', fontSize:9, fontWeight:800, letterSpacing:2, textTransform:'uppercase' }}>Copa do Mundo 2026</div>
-          <div style={{ color:'#fff', fontWeight:900, fontSize:22, letterSpacing:-0.5, textTransform:'uppercase', lineHeight:1 }}>Grupo {letter}</div>
+          <div style={{ color:'#fff', fontWeight:900, fontSize:20, letterSpacing:-0.5, textTransform:'uppercase', lineHeight:1 }}>Grupo {letter}</div>
           <div style={{ width:32, height:3, background:'#009639', borderRadius:2, marginTop:4 }}/>
         </div>
         <div style={{ marginLeft:'auto', color:'rgba(255,255,255,0.4)', fontSize:11 }}>{finished}/{groupMatches.length} jogos</div>
       </div>
 
-      {/* Cabeçalho tabela */}
-      <div style={{ display:'grid', gridTemplateColumns:'40px 1fr 32px 32px 32px 32px 32px 32px 32px 36px', background:'#1a2a3a', padding:'7px 12px' }}>
-        <span style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', textTransform:'uppercase' }}>POS</span>
-        <span style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', textTransform:'uppercase' }}>EQUIPE</span>
-        {['J','V','E','D','GP','GC','SG','PTS'].map(h=>(
-          <span key={h} style={{ fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', textAlign:'center' }}>{h}</span>
-        ))}
+      {/* Tabela — scroll horizontal no mobile */}
+      <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+        <table style={{ width:'100%', minWidth:400, borderCollapse:'collapse' }}>
+          <thead>
+            <tr style={{ background:'#1a2a3a' }}>
+              <th style={thStyle}>POS</th>
+              <th style={{ ...thStyle, textAlign:'left', paddingLeft:8 }}>EQUIPE</th>
+              {['J','V','E','D','GP','GC','SG','PTS'].map(h=>(
+                <th key={h} style={thStyle}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {standings.map((s, i) => {
+              const qualified = i < 2, bubble = i === 2
+              const posColor  = qualified ? '#009639' : bubble ? '#F5A623' : '#9BABB8'
+              return (
+                <tr key={s.team} style={{ background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8' }}>
+                  <td style={{ padding:'9px 8px', textAlign:'center' }}>
+                    <div style={{ width:24, height:24, borderRadius:6, background:posColor, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto' }}>
+                      <span style={{ color:'#fff', fontWeight:900, fontSize:12 }}>{i+1}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding:'9px 8px' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                      <span style={{ fontSize:18 }}>{getFlag(s.team)}</span>
+                      <span style={{ fontSize:12, fontWeight:700, color:'#002855', whiteSpace:'nowrap' }}>{s.team}</span>
+                    </div>
+                  </td>
+                  {[s.j,s.v,s.e,s.d,s.gp,s.gc,s.sg].map((val,idx)=>(
+                    <td key={idx} style={{ padding:'9px 4px', textAlign:'center', fontSize:12, fontWeight:idx===6?700:500, color:idx===6?(val>0?'#009639':val<0?'#e53535':'#9BABB8'):'#3A4A5C' }}>
+                      {val>0&&idx===6?`+${val}`:val}
+                    </td>
+                  ))}
+                  <td style={{ padding:'9px 8px', textAlign:'center', fontSize:13, fontWeight:900, color:posColor }}>{s.pts}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
       </div>
 
-      {/* Linhas */}
-      {standings.map((s, i) => {
-        const qualified = i < 2, bubble = i === 2
-        const posColor  = qualified ? '#009639' : bubble ? '#F5A623' : '#9BABB8'
-        return (
-          <div key={s.team} style={{ display:'grid', gridTemplateColumns:'40px 1fr 32px 32px 32px 32px 32px 32px 32px 36px', padding:'9px 12px', borderBottom:'1px solid #F0F4F8', background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', alignItems:'center' }}>
-            {/* Posição com badge */}
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <div style={{ width:24, height:24, borderRadius:6, background:posColor, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <span style={{ color:'#fff', fontWeight:900, fontSize:12 }}>{i+1}</span>
-              </div>
-            </div>
-            {/* Time */}
-            <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-              <span style={{ fontSize:20 }}>{getFlag(s.team)}</span>
-              <span style={{ fontSize:12, fontWeight:700, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.team}</span>
-            </div>
-            {[s.j,s.v,s.e,s.d,s.gp,s.gc,s.sg].map((val,idx)=>(
-              <span key={idx} style={{ fontSize:12, fontWeight:idx===6?700:500, color:idx===6?(val>0?'#009639':val<0?'#e53':'#9BABB8'):'#3A4A5C', textAlign:'center' }}>
-                {val>0&&idx===6?`+${val}`:val}
-              </span>
-            ))}
-            <span style={{ fontSize:13, fontWeight:900, color:posColor, textAlign:'center' }}>{s.pts}</span>
-          </div>
-        )
-      })}
-
       {/* Legenda */}
-      <div style={{ padding:'8px 14px', background:'#F8FAFC', display:'flex', gap:16, borderTop:'1px solid #E8EDF2', borderBottom:'1px solid #E8EDF2' }}>
+      <div style={{ padding:'8px 14px', background:'#F8FAFC', display:'flex', gap:16, borderTop:'1px solid #E8EDF2', borderBottom:'1px solid #E8EDF2', flexWrap:'wrap' }}>
         <div style={{ display:'flex', alignItems:'center', gap:5 }}>
           <div style={{ width:10, height:10, borderRadius:3, background:'#009639' }}/>
           <span style={{ fontSize:9, color:'#6B7A8D', fontWeight:700 }}>Classificado</span>
@@ -208,6 +213,16 @@ function GroupTable({ letter, results }) {
       </div>
     </div>
   )
+}
+
+const thStyle = {
+  padding:'7px 4px',
+  fontSize:9,
+  fontWeight:800,
+  color:'rgba(255,255,255,0.5)',
+  textTransform:'uppercase',
+  textAlign:'center',
+  whiteSpace:'nowrap',
 }
 
 function KnockoutTab({ koMatches }) {
@@ -314,32 +329,36 @@ export default function Groups({ participant, onLogout }) {
 
       {/* Hero */}
       <div style={{ background:'linear-gradient(135deg,#002855 0%,#004080 100%)', padding:'70px 16px 20px' }}>
-        <div style={{ color:'rgba(255,255,255,0.5)', fontSize:9, fontWeight:800, letterSpacing:3, textTransform:'uppercase', marginBottom:4 }}>Copa do Mundo 2026</div>
-        <h1 style={{ color:'#fff', fontWeight:900, fontSize:28, margin:'0 0 12px', letterSpacing:-0.5, textTransform:'uppercase' }}>RESULTADOS</h1>
-        <div style={{ display:'flex', gap:8 }}>
-          {[[totalFinished,'Jogos','#F5A623'],[72-totalFinished,'Restantes','#4ade80'],[koFinished,'Mata-Mata','#93c5fd']].map(([v,l,c])=>(
-            <div key={l} style={{ background:'rgba(255,255,255,0.1)', borderRadius:10, padding:'8px 12px', textAlign:'center', flex:1 }}>
-              <div style={{ color:c, fontWeight:900, fontSize:20 }}>{v}</div>
-              <div style={{ color:'rgba(255,255,255,0.5)', fontSize:9, textTransform:'uppercase', letterSpacing:.5, marginTop:2 }}>{l}</div>
-            </div>
-          ))}
+        <div style={{ maxWidth:900, margin:'0 auto' }}>
+          <div style={{ color:'rgba(255,255,255,0.5)', fontSize:9, fontWeight:800, letterSpacing:3, textTransform:'uppercase', marginBottom:4 }}>Copa do Mundo 2026</div>
+          <h1 style={{ color:'#fff', fontWeight:900, fontSize:28, margin:'0 0 12px', letterSpacing:-0.5, textTransform:'uppercase' }}>RESULTADOS</h1>
+          <div style={{ display:'flex', gap:8 }}>
+            {[[totalFinished,'Jogos','#F5A623'],[72-totalFinished,'Restantes','#4ade80'],[koFinished,'Mata-Mata','#93c5fd']].map(([v,l,c])=>(
+              <div key={l} style={{ background:'rgba(255,255,255,0.1)', borderRadius:10, padding:'8px 12px', textAlign:'center', flex:1 }}>
+                <div style={{ color:c, fontWeight:900, fontSize:20 }}>{v}</div>
+                <div style={{ color:'rgba(255,255,255,0.5)', fontSize:9, textTransform:'uppercase', letterSpacing:.5, marginTop:2 }}>{l}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ background:'#fff', borderBottom:'2px solid #E2EAF0', padding:'0 12px', display:'flex', gap:0 }}>
-        {[['groups','Fase de Grupos'],['knockout','⚔️ Mata-Mata']].map(([key,label])=>(
-          <button key={key} onClick={()=>setTab(key)} style={{
-            padding:'14px 16px', border:'none', borderBottom:tab===key?'3px solid #002855':'3px solid transparent',
-            fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif',
-            background:'transparent', color:tab===key?'#002855':'#9BABB8', marginBottom:-2,
-          }}>{label}</button>
-        ))}
+      <div style={{ background:'#fff', borderBottom:'2px solid #E2EAF0', padding:'0 12px' }}>
+        <div style={{ maxWidth:900, margin:'0 auto', display:'flex', gap:0 }}>
+          {[['groups','Fase de Grupos'],['knockout','⚔️ Mata-Mata']].map(([key,label])=>(
+            <button key={key} onClick={()=>setTab(key)} style={{
+              padding:'14px 16px', border:'none', borderBottom:tab===key?'3px solid #002855':'3px solid transparent',
+              fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif',
+              background:'transparent', color:tab===key?'#002855':'#9BABB8', marginBottom:-2,
+            }}>{label}</button>
+          ))}
+        </div>
       </div>
 
       {tab==='groups' && (
-        <>
-          <div style={{ background:'#fff', borderBottom:'1px solid #E2EAF0', padding:'8px 12px', display:'flex', gap:6 }}>
+        <div style={{ background:'#fff', borderBottom:'1px solid #E2EAF0' }}>
+          <div style={{ maxWidth:900, margin:'0 auto', padding:'8px 12px', display:'flex', gap:6, flexWrap:'wrap' }}>
             {[['Por Grupo',false],['Todos os Grupos',true]].map(([label,val])=>(
               <button key={label} onClick={()=>setViewAll(val)} style={{
                 padding:'6px 14px', border:'none', borderRadius:20, fontWeight:800, fontSize:11,
@@ -350,7 +369,7 @@ export default function Groups({ participant, onLogout }) {
             ))}
           </div>
           {!viewAll && (
-            <div style={{ background:'#fff', borderBottom:'1px solid #E2EAF0', padding:'8px 10px', display:'flex', gap:5, overflowX:'auto' }}>
+            <div style={{ maxWidth:900, margin:'0 auto', padding:'0 12px 8px', display:'flex', gap:5, overflowX:'auto' }}>
               {GROUPS.map(g=>(
                 <button key={g} onClick={()=>setActiveGroup(g)} style={{
                   flexShrink:0, width:34, height:30, borderRadius:8, border:'none',
@@ -361,10 +380,10 @@ export default function Groups({ participant, onLogout }) {
               ))}
             </div>
           )}
-        </>
+        </div>
       )}
 
-      <main style={{ padding:'14px 12px' }}>
+      <main style={{ padding:'14px 12px', maxWidth:900, margin:'0 auto' }}>
         {loading ? (
           <div style={{ textAlign:'center', padding:48 }}>
             <Loader2 size={28} style={{ animation:'spin 1s linear infinite', margin:'0 auto 8px', display:'block', color:'#002855' }}/>
@@ -374,11 +393,14 @@ export default function Groups({ participant, onLogout }) {
         ) : tab==='knockout' ? (
           <KnockoutTab koMatches={koMatches}/>
         ) : viewAll ? (
-          GROUPS.map(g=><GroupTable key={g} letter={g} results={results}/>)
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(420px, 1fr))', gap:16 }}>
+            {GROUPS.map(g=><GroupTable key={g} letter={g} results={results}/>)}
+          </div>
         ) : (
           <GroupTable letter={activeGroup} results={results}/>
         )}
       </main>
+      <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
     </div>
   )
 }
