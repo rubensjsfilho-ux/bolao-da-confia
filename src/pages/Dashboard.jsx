@@ -28,14 +28,14 @@ function Hero({ onPalpites, onJogos }) {
       {/* Linha vertical decorativa esquerda */}
       <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
-      {/* Taça — direita, grande */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'55%', zIndex:1, overflow:'hidden' }}>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 50%)', zIndex:2 }}/>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 40%)', zIndex:2 }}/>
+      {/* Taça — direita, proporção natural */}
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'52%', zIndex:1 }}>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
         <img
           src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
           alt="Taça Copa 2026"
-          style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-40%,-50%) scale(1.0)', width:'90%', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
+          style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
           onError={e => { e.target.style.display='none' }}
         />
       </div>
@@ -649,7 +649,7 @@ export default function Dashboard({ participant, onLogout }) {
           <TodayCarousel participant={participant} />
         </div>
 
-        <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14, maxWidth:900, margin:'0 auto', width:'100%' }}>
+        <div style={{ padding:'0 12px 90px', display:'flex', flexDirection:'column', gap:14, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
           <NewsWidget/>
