@@ -1,3 +1,4 @@
+import React from 'react'
 // ============================================================
 // COPA DO MUNDO 2026 — TABELA OFICIAL FASE DE GRUPOS
 // Horários em BRT (UTC-3) — Fonte: FIFA / Soccerway
@@ -22,18 +23,18 @@ export const GROUPS = {
 }
 
 export const FLAGS = {
-  'México':           '🇲🇽', 'África do Sul':   '🇿🇦', 'Coreia do Sul':   '🇰🇷', 'República Tcheca':'🇨🇿',
-  'Canadá':           '🇨🇦', 'Bósnia e Herz.':  '🇧🇦', 'Catar':           '🇶🇦', 'Suíça':           '🇨🇭',
-  'Brasil':           '🇧🇷', 'Marrocos':        '🇲🇦', 'Haiti':           '🇭🇹', 'Escócia':         '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
-  'Estados Unidos':   '🇺🇸', 'Paraguai':        '🇵🇾', 'Austrália':       '🇦🇺', 'Turquia':         '🇹🇷',
-  'Alemanha':         '🇩🇪', 'Curaçao':         '🇨🇼', 'Costa do Marfim': '🇨🇮', 'Equador':         '🇪🇨',
-  'Holanda':          '🇳🇱', 'Japão':           '🇯🇵', 'Suécia':          '🇸🇪', 'Tunísia':         '🇹🇳',
-  'Bélgica':          '🇧🇪', 'Egito':           '🇪🇬', 'Irã':             '🇮🇷', 'Nova Zelândia':   '🇳🇿',
-  'Espanha':          '🇪🇸', 'Cabo Verde':      '🇨🇻', 'Arábia Saudita':  '🇸🇦', 'Uruguai':         '🇺🇾',
-  'França':           '🇫🇷', 'Senegal':         '🇸🇳', 'Noruega':         '🇳🇴', 'Iraque':          '🇮🇶',
-  'Argentina':        '🇦🇷', 'Argélia':         '🇩🇿', 'Áustria':         '🇦🇹', 'Jordânia':        '🇯🇴',
-  'Portugal':         '🇵🇹', 'RD Congo':        '🇨🇩', 'Uzbequistão':     '🇺🇿', 'Colômbia':        '🇨🇴',
-  'Inglaterra':       '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croácia':         '🇭🇷', 'Gana':            '🇬🇭', 'Panamá':          '🇵🇦',
+  'México':           'mx', 'África do Sul':   'za', 'Coreia do Sul':   'kr', 'República Tcheca':'cz',
+  'Canadá':           'ca', 'Bósnia e Herz.':  'ba', 'Catar':           'qa', 'Suíça':           'ch',
+  'Brasil':           'br', 'Marrocos':        'ma', 'Haiti':           'ht', 'Escócia':         'gb-sct',
+  'Estados Unidos':   'us', 'Paraguai':        'py', 'Austrália':       'au', 'Turquia':         'tr',
+  'Alemanha':         'de', 'Curaçao':         'cw', 'Costa do Marfim': 'ci', 'Equador':         'ec',
+  'Holanda':          'nl', 'Japão':           'jp', 'Suécia':          'se', 'Tunísia':         'tn',
+  'Bélgica':          'be', 'Egito':           'eg', 'Irã':             'ir', 'Nova Zelândia':   'nz',
+  'Espanha':          'es', 'Cabo Verde':      'cv', 'Arábia Saudita':  'sa', 'Uruguai':         'uy',
+  'França':           'fr', 'Senegal':         'sn', 'Noruega':         'no', 'Iraque':          'iq',
+  'Argentina':        'ar', 'Argélia':         'dz', 'Áustria':         'at', 'Jordânia':        'jo',
+  'Portugal':         'pt', 'RD Congo':        'cd', 'Uzbequistão':     'uz', 'Colômbia':        'co',
+  'Inglaterra':       'gb-eng', 'Croácia':     'hr', 'Gana':            'gh', 'Panamá':          'pa',
 }
 
 // Todos os 72 jogos da fase de grupos
@@ -168,8 +169,16 @@ export const GROUP_MATCHES = [
 ]
 
 // ── Utilitários ───────────────────────────────────────────────────────────────
-export function getFlag(team) {
-  return FLAGS[team] || '🏳️'
+export function getFlag(team, size) {
+  const sz = size || 20
+  const code = FLAGS[team]
+  if (!code) return '🏳️'
+  return React.createElement('img', {
+    src: 'https://flagcdn.com/w' + (sz * 2) + '/' + code + '.png',
+    alt: team,
+    style: { width: sz, height: Math.round(sz * 0.67), objectFit: 'cover', borderRadius: 2, display: 'inline-block', verticalAlign: 'middle' },
+    onError: function(e) { e.target.style.display = 'none' }
+  })
 }
 
 export function formatDate(dateStr) {
