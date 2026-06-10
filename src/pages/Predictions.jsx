@@ -218,7 +218,7 @@ export default function Predictions({ participant, onLogout }) {
   const openCount=enriched.filter(m=>isMatchOpen(m)&&!m.is_finished&&!preds[m.id]).length
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F4F6F9', paddingBottom:80 }}>
+    <div style={{ minHeight:'100vh', background:'#F4F6F9', paddingBottom:80, overflowX:'hidden' }}>
       <Header participant={participant} onLogout={onLogout}/>
 
       {/* Hero */}
@@ -258,7 +258,7 @@ export default function Predictions({ participant, onLogout }) {
         ))}
       </div>
 
-      <main style={{ padding:'14px 12px' }}>
+      <main style={{ padding:'14px 12px', maxWidth:760, margin:'0 auto' }}>
         <ChampionCard participant={participant}/>
 
         {loading?(
@@ -272,7 +272,7 @@ export default function Predictions({ participant, onLogout }) {
             <p style={{ color:'#9BABB8', marginTop:8 }}>Nenhum jogo neste filtro.</p>
           </div>
         ):(
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          <div className="predictions-grid" style={{ display:'flex', flexDirection:'column', gap:10 }}>
             {list.map(m=><MatchRow key={m.id} match={m} prediction={preds[m.id]} onSave={save}/>)}
           </div>
         )}
