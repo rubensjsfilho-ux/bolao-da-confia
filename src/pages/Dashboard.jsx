@@ -641,11 +641,11 @@ export default function Dashboard({ participant, onLogout }) {
       <div style={{ paddingTop: openCount>0?96:58 }}>
         <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/palpites')}/>
 
-        <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0 }}>
+        <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <TodayCarousel participant={participant} />
         </div>
 
-        <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14 }}>
+        <div style={{ padding:'0 12px', display:'flex', flexDirection:'column', gap:14, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
           <NewsWidget/>
