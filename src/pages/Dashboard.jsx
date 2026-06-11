@@ -680,26 +680,90 @@ export default function Dashboard({ participant, onLogout }) {
           <NewsWidget/>
           <Top5 participant={participant} ranking={ranking} myRank={myRank}/>
 
-          {/* Banners */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', position:'relative', overflow:'hidden' }}>
-              <div style={{ position:'absolute', right:-8, bottom:-8, opacity:.12 }}>
-                <img src="/images/trophy-multi.webp" style={{ width:80, height:80, objectFit:'contain' }} alt=""/>
+          {/* Banners — Cards clicáveis */}
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+
+            {/* Card branco — Prêmios */}
+            <div
+              onClick={()=>navigate('/premios')}
+              style={{
+                background:'#fff', borderRadius:18,
+                border:'1.5px solid #E2EAF0',
+                boxShadow:'0 4px 24px rgba(0,150,57,0.10)',
+                padding:'18px 18px 16px',
+                position:'relative', overflow:'hidden',
+                cursor:'pointer',
+                transition:'transform .18s, box-shadow .18s',
+              }}
+              onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(0,150,57,0.18)' }}
+              onMouseLeave={e=>{ e.currentTarget.style.transform='translateY(0)';   e.currentTarget.style.boxShadow='0 4px 24px rgba(0,150,57,0.10)' }}
+            >
+              {/* Barra verde de destaque */}
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:'linear-gradient(90deg,#009639,#00c44f,#F5A623)', borderRadius:'18px 18px 0 0' }}/>
+              {/* Decoração */}
+              <div style={{ position:'absolute', right:-12, bottom:-12, opacity:.10 }}>
+                <img src="/images/trophy-multi.webp" style={{ width:100, height:100, objectFit:'contain' }} alt=""/>
               </div>
-              <div style={{ color:'#6B7A8D', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>Prêmio para o Campeão</div>
-              <div style={{ color:'#009639', fontWeight:900, fontSize:14, lineHeight:1.2, marginBottom:2 }}>Cresce a cada<br/>nova entrada!</div>
-              <div style={{ color:'#9BABB8', fontSize:10, margin:'3px 0 10px' }}>50 vagas · R$ 20 cada</div>
-              <button onClick={()=>navigate('/premios')} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:8, padding:'6px 10px', fontWeight:800, fontSize:9, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>VER PRÊMIOS</button>
+              <div style={{ position:'relative', zIndex:1, display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
+                <div>
+                  <div style={{ color:'#6B7A8D', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:1.2, marginBottom:6 }}>💰 Prêmio em disputa</div>
+                  <div style={{ color:'#009639', fontWeight:900, fontSize:20, lineHeight:1.15, marginBottom:4 }}>Cresce a cada<br/>nova entrada!</div>
+                  <div style={{ color:'#9BABB8', fontSize:11, marginBottom:12 }}>50 vagas · R$ 20 cada</div>
+                  <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'#009639', color:'#fff', borderRadius:10, padding:'7px 14px', fontSize:11, fontWeight:800 }}>
+                    Ver prêmios <span style={{ fontSize:14 }}>→</span>
+                  </div>
+                </div>
+                <div style={{ background:'rgba(0,150,57,0.08)', border:'1px solid rgba(0,150,57,0.18)', borderRadius:12, padding:'8px 10px', textAlign:'center', flexShrink:0 }}>
+                  <div style={{ fontSize:24 }}>🏆</div>
+                  <div style={{ color:'#009639', fontWeight:900, fontSize:9, marginTop:2, letterSpacing:.5, textTransform:'uppercase' }}>Top 3</div>
+                  <div style={{ color:'#9BABB8', fontSize:8, marginTop:1 }}>ganham</div>
+                </div>
+              </div>
             </div>
 
-            <div style={{ borderRadius:14, padding:'14px 12px', background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden' }}>
-              <div style={{ position:'absolute', right:-10, bottom:-10, opacity:.15 }}>
-                <img src="/images/trophy.webp" style={{ width:70, height:70, objectFit:'contain', filter:'grayscale(1)' }} alt=""/>
-              </div>
-              <div style={{ color:'#fff', fontWeight:900, fontSize:13, lineHeight:1.4, position:'relative', zIndex:1 }}>
-                Confiabilidade<br/>é nosso DNA.<br/><span style={{ color:'#F5A623' }}>A vitória<br/>pode ser sua!</span>
+            {/* Card verde — Regras */}
+            <div
+              onClick={()=>navigate('/regras')}
+              style={{
+                borderRadius:18,
+                background:'linear-gradient(135deg, #001833 0%, #002855 50%, #003d1a 100%)',
+                border:'1.5px solid rgba(0,150,57,0.35)',
+                boxShadow:'0 4px 28px rgba(0,40,85,0.30)',
+                padding:'18px 18px 16px',
+                position:'relative', overflow:'hidden',
+                cursor:'pointer',
+                transition:'transform .18s, box-shadow .18s',
+              }}
+              onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 36px rgba(0,40,85,0.45)' }}
+              onMouseLeave={e=>{ e.currentTarget.style.transform='translateY(0)';    e.currentTarget.style.boxShadow='0 4px 28px rgba(0,40,85,0.30)' }}
+            >
+              {/* Glow de fundo */}
+              <div style={{ position:'absolute', right:-30, top:-30, width:140, height:140, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,150,57,0.18) 0%,transparent 70%)', pointerEvents:'none' }}/>
+              <div style={{ position:'absolute', left:-20, bottom:-20, width:100, height:100, borderRadius:'50%', background:'radial-gradient(circle,rgba(245,166,35,0.10) 0%,transparent 70%)', pointerEvents:'none' }}/>
+              {/* Barra dourada */}
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:'linear-gradient(90deg,#F5A623,#FFD700,#F5A623)', borderRadius:'18px 18px 0 0' }}/>
+
+              <div style={{ position:'relative', zIndex:1, display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ color:'rgba(255,255,255,0.45)', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:1.2, marginBottom:6 }}>📋 Guia do bolão</div>
+                  <div style={{ color:'#fff', fontWeight:900, fontSize:18, lineHeight:1.25, marginBottom:6 }}>
+                    Prazos, pontos<br/>e critérios
+                  </div>
+                  <div style={{ color:'rgba(255,255,255,0.5)', fontSize:11, marginBottom:12, lineHeight:1.4 }}>
+                    Quando palpitar, como pontuar<br/>e quem ganha no empate.
+                  </div>
+                  <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(245,166,35,0.15)', border:'1px solid rgba(245,166,35,0.35)', color:'#F5A623', borderRadius:10, padding:'7px 14px', fontSize:11, fontWeight:800 }}>
+                    Ver regras <span style={{ fontSize:14 }}>→</span>
+                  </div>
+                </div>
+                <div style={{ background:'rgba(245,166,35,0.10)', border:'1px solid rgba(245,166,35,0.20)', borderRadius:12, padding:'8px 10px', textAlign:'center', flexShrink:0 }}>
+                  <div style={{ fontSize:24 }}>📋</div>
+                  <div style={{ color:'#F5A623', fontWeight:900, fontSize:9, marginTop:2, letterSpacing:.5, textTransform:'uppercase' }}>Regras</div>
+                  <div style={{ color:'rgba(255,255,255,0.3)', fontSize:8, marginTop:1 }}>completas</div>
+                </div>
               </div>
             </div>
+
           </div>
 
           {/* Pontuação */}
