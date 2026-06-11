@@ -163,9 +163,9 @@ function GroupTable({ letter, results }) {
 
       {isMobile ? (
         /* MOBILE: col fixas + scroll */
-        <div style={{ display:'flex', borderBottom:'1px solid #E8EDF2' }}>
+        <div style={{ display:'flex', borderBottom:'1px solid #E8EDF2', overflow:'hidden' }}>
           {/* Fixo esquerda: pos + time */}
-          <div style={{ flexShrink:0 }}>
+          <div style={{ flexShrink:0, minWidth:0 }}>
             <div style={{ background:'#1a2a3a', padding:'7px 8px', fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', height:30, display:'flex', alignItems:'center' }}>Seleção</div>
             {standings.map((s, i) => {
               const qualified=i<2, bubble=i===2
@@ -182,19 +182,19 @@ function GroupTable({ letter, results }) {
             })}
           </div>
           {/* Scroll: J V E D GP GC SG */}
-          <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', flex:1 }}>
-            <div style={{ display:'flex', background:'#1a2a3a', height:30, alignItems:'center' }}>
+          <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', flex:1, minWidth:0 }}>
+            <div style={{ display:'flex', background:'#1a2a3a', height:30, alignItems:'center', minWidth:224 }}>
               {['J','V','E','D','GP','GC','SG'].map(h=>(
-                <div key={h} style={{ minWidth:32, textAlign:'center', fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', flexShrink:0 }}>{h}</div>
+                <div key={h} style={{ minWidth:32, width:32, textAlign:'center', fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', flexShrink:0 }}>{h}</div>
               ))}
             </div>
             {standings.map((s,i)=>{
               const qualified=i<2, bubble=i===2
               return (
-                <div key={s.team} style={{ display:'flex', background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8', height:40, alignItems:'center' }}>
+                <div key={s.team} style={{ display:'flex', background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8', height:40, alignItems:'center', minWidth:224 }}>
                   {[s.j,s.v,s.e,s.d,s.gp,s.gc,s.sg].map((val,idx)=>(
-                    <div key={idx} style={{ minWidth:32, textAlign:'center', fontSize:12, fontWeight:idx===6?700:500, color:idx===6?(val>0?'#009639':val<0?'#e53535':'#9BABB8'):'#3A4A5C', flexShrink:0 }}>
-                      {val>0&&idx===6?`+${val}`:val}
+                    <div key={idx} style={{ minWidth:32, width:32, textAlign:'center', fontSize:12, fontWeight:idx===6?700:500, color:idx===6?(val>0?'#009639':val<0?'#e53535':'#9BABB8'):'#3A4A5C', flexShrink:0 }}>
+                      {val>0&&idx===6?'+'+val:val}
                     </div>
                   ))}
                 </div>
