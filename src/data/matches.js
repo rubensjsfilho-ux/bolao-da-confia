@@ -191,8 +191,8 @@ export function formatDate(dateStr) {
 }
 
 export function isMatchOpen(match) {
-  // Palpites fecham 30 min antes do jogo
+  // Palpites fecham 1 min antes do jogo
   const matchTime = new Date(match.date)
-  const cutoff    = new Date(matchTime.getTime() - 30 * 60 * 1000)
+  const cutoff    = new Date(matchTime.getTime() - 1 * 60 * 1000)
   return new Date() < cutoff
 }
