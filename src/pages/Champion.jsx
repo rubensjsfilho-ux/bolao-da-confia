@@ -5,7 +5,7 @@ import { GROUPS, getFlag } from '../data/matches'
 import { Check, Loader2, Lock } from 'lucide-react'
 
 const ALL_TEAMS = Object.values(GROUPS).flat()
-const DEADLINE  = new Date('2026-06-11T22:00:00Z')
+const DEADLINE  = new Date('2026-06-11T19:00:00-03:00') // 19h horário de Brasília
 const isClosed  = () => new Date() >= DEADLINE
 const POSITIONS = [
   { key:'champion',    label:'Campeão',      icon:'🥇', pts:10, color:'#D4890A', bg:'rgba(245,166,35,0.10)', border:'rgba(245,166,35,0.3)' },
