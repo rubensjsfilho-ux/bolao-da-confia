@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
@@ -17,8 +17,13 @@ function useIsMobile() {
 }
 
 function Hero({ onPalpites, onJogos }) {
-  const isMobile = useIsMobile()
+  const isMobile  = useIsMobile()
+  const navigate  = useNavigate()
   const [t, setT] = useState({ d:0, h:0, m:0, s:0 })
+  const [slide, setSlide]   = useState(0)
+  const timerRef = useRef(null)
+
+  // Countdown
   useEffect(() => {
     const target = new Date('2026-06-11T22:00:00Z')
     const tick = () => {
@@ -28,113 +33,172 @@ function Hero({ onPalpites, onJogos }) {
     }
     tick(); const id = setInterval(tick,1000); return ()=>clearInterval(id)
   },[])
+
+  // Carousel auto-advance
+  const resetCarousel = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    timerRef.current = setInterval(() => setSlide(s => (s + 1) % 2), 5000)
+  }, [])
+  useEffect(() => { resetCarousel(); return () => clearInterval(timerRef.current) }, [resetCarousel])
+
+  const goTo = (i) => { setSlide(i); resetCarousel() }
   const started = new Date() >= new Date('2026-06-11T22:00:00Z')
+  const SLIDE_H = isMobile ? 310 : 340
 
   return (
-    <div style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
+    <div style={{ position:'relative', overflow:'hidden', background:'#050e05' }}>
 
-      {/* Fundo com gradiente escuro + efeito radial verde */}
-      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
+      {/* ── Slider track ─────────────────────────────────────────────────── */}
+      <div style={{ display:'flex', transform:`translateX(${-slide * 100}%)`, transition:'transform 0.55s cubic-bezier(0.4,0,0.2,1)' }}>
 
-      {/* Linha vertical decorativa esquerda */}
-      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
+        {/* ── Slide 1 — Hero principal ──────────────────────────────────── */}
+        <div style={{ minWidth:'100%', position:'relative', overflow:'hidden', minHeight:SLIDE_H }}>
 
-      {/* Imagem direita — taça no mobile, banner no desktop */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
-        {isMobile ? (
-          <>
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
-            <img
-              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
-              alt="Taça Copa 2026"
-              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
-              onError={e => { e.target.style.display='none' }}
-            />
-          </>
-        ) : (
-          <>
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
-            <img
-              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png"
-              alt="Bolão da Confia 2026"
-              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
-              onError={e => { e.target.style.display='none' }}
-            />
-          </>
-        )}
-      </div>
+          {/* Fundo */}
+          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
+          <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
-      {/* Conteúdo — esquerda */}
-      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
-
-        {/* Label topo */}
-        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
-          <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
-          <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
-        </div>
-
-        {/* COPA DO MUNDO FIFA + 2026 — proporcionais */}
-        <div style={{ marginBottom:12 }}>
-          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
-            <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
-            <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
+          {/* Imagem direita */}
+          <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
+            {isMobile ? (
+              <>
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
+                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg" alt="Taça Copa 2026"
+                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
+                  onError={e => { e.target.style.display='none' }}/>
+              </>
+            ) : (
+              <>
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
+                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png" alt="Bolão da Confia 2026"
+                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
+                  onError={e => { e.target.style.display='none' }}/>
+              </>
+            )}
           </div>
-          <span style={{
-            fontFamily:'Arial Black, Impact, sans-serif',
-            fontWeight:900,
-            fontSize: isMobile ? 62 : 110,
-            lineHeight:.85,
-            letterSpacing:-4,
-            background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)',
-            WebkitBackgroundClip:'text',
-            WebkitTextFillColor:'transparent',
-            backgroundClip:'text',
-            display:'inline-block',
-            filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))',
-          }}>2026</span>
-        </div>
 
-        {/* Países sede */}
-        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
-          {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
-            <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
-              {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
-              <span>{flag}</span><span>{name}</span>
-            </span>
-          ))}
-        </div>
-
-        {/* Countdown ou badge ao vivo */}
-        {!started ? (
-          <div style={{ display:'flex', gap:5, marginBottom:18 }}>
-            {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
-              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
-                <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
-                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
+          {/* Conteúdo */}
+          <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
+              <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
+              <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
+            </div>
+            <div style={{ marginBottom:12 }}>
+              <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
+                <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
+                <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
               </div>
-            ))}
+              <span style={{ fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 62 : 110, lineHeight:.85, letterSpacing:-4, background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', display:'inline-block', filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))' }}>2026</span>
+            </div>
+            <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
+              {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
+                <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
+                  {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
+                  <span>{flag}</span><span>{name}</span>
+                </span>
+              ))}
+            </div>
+            {!started ? (
+              <div style={{ display:'flex', gap:5, marginBottom:18 }}>
+                {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
+                  <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
+                    <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
+                    <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
+                <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
+                <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
+              </div>
+            )}
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
+                🎯 FAZER PALPITES
+              </button>
+              <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
+                📅 VER JOGOS
+              </button>
+            </div>
           </div>
-        ) : (
-          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
-            <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
-            <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
-          </div>
-        )}
-
-        {/* Botões */}
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-          <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
-            🎯 FAZER PALPITES
-          </button>
-          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
-            📅 VER JOGOS
-          </button>
         </div>
+
+        {/* ── Slide 2 — Brasil × Marrocos ───────────────────────────────── */}
+        <div
+          onClick={() => navigate('/palpites?match=7')}
+          style={{ minWidth:'100%', position:'relative', overflow:'hidden', minHeight:SLIDE_H, cursor:'pointer' }}
+        >
+          {/* Imagem de fundo — celular ou desktop */}
+          <img
+            src={isMobile ? '/images/brasil-marrocos-mobile.png.PNG' : '/images/brasil-marrocos-desktop.png.PNG'}
+            alt="Brasil × Marrocos"
+            style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition: isMobile ? 'center top' : 'center center' }}
+          />
+
+          {/* Gradiente escuro na base para legibilidade */}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0.08) 100%)' }}/>
+          {/* Linha verde esquerda */}
+          <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #009639, #F5A623, #009639)', zIndex:2 }}/>
+
+          {/* Conteúdo na base */}
+          <div style={{ position:'absolute', bottom: isMobile ? 18 : 24, left:0, right:0, padding:'0 20px', zIndex:3 }}>
+            {/* Badge do jogo */}
+            <div style={{ marginBottom:8 }}>
+              <span style={{
+                background:'rgba(0,40,85,0.75)', color:'#fff',
+                borderRadius:20, padding:'4px 12px',
+                fontSize:10, fontWeight:800, letterSpacing:.8,
+                border:'1px solid rgba(0,196,79,0.4)',
+                backdropFilter:'blur(6px)',
+              }}>
+                ⚽ GRUPO C · 13 JUN · 19H (BRASÍLIA)
+              </span>
+            </div>
+
+            {/* Título CTA */}
+            <div style={{
+              color:'#fff', fontWeight:900,
+              fontSize: isMobile ? 18 : 26,
+              lineHeight:1.2, marginBottom:14,
+              textShadow:'0 2px 10px rgba(0,0,0,0.7)',
+            }}>
+              Faça seu palpite para<br/>o jogo do <span style={{ color:'#F5A623' }}>Brasil!</span>
+            </div>
+
+            {/* Botão */}
+            <button
+              onClick={e => { e.stopPropagation(); navigate('/palpites?match=7') }}
+              style={{
+                background:'linear-gradient(90deg,#009639,#00c44f)',
+                color:'#fff', border:'none', borderRadius:10,
+                padding:'12px 20px', fontWeight:900, fontSize: isMobile ? 13 : 15,
+                cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                display:'inline-flex', alignItems:'center', gap:6,
+                boxShadow:'0 4px 22px rgba(0,150,57,0.55)',
+              }}
+            >
+              🎯 PALPITAR AGORA
+            </button>
+          </div>
+        </div>
+
+      </div>{/* fim slider track */}
+
+      {/* ── Dots de navegação ────────────────────────────────────────────── */}
+      <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:7, padding:'7px 0', background:'rgba(0,0,0,0.45)', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+        {[0,1].map(i => (
+          <button key={i} onClick={() => goTo(i)} style={{
+            width: i===slide ? 22 : 7, height:7, borderRadius:4, padding:0, border:'none',
+            background: i===slide ? '#00c44f' : 'rgba(255,255,255,0.28)',
+            cursor:'pointer', transition:'all .3s',
+          }}/>
+        ))}
       </div>
 
-      {/* Features strip */}
+      {/* ── Features strip ───────────────────────────────────────────────── */}
       <div style={{ position:'relative', zIndex:3, display:'grid', gridTemplateColumns:'repeat(4,1fr)', borderTop:'1px solid rgba(255,255,255,0.07)', background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)' }}>
         {[
           ['🏆','Prêmios','Exclusivos'],
