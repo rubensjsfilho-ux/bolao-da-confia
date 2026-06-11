@@ -351,6 +351,90 @@ function KnockoutTab({ koMatches }) {
   )
 }
 
+// ── Todas as partidas em ordem cronológica ────────────────────────────────────
+function AllMatchesChronological({ results }) {
+  // Ordenar todos os jogos por data
+  const sorted = [...GROUP_MATCHES].sort((a, b) => new Date(a.date) - new Date(b.date))
+
+  // Agrupar por data (dia)
+  const byDate = {}
+  sorted.forEach(m => {
+    const d    = new Date(m.date)
+    const key  = d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', timeZone:'America/Sao_Paulo' })
+    if (!byDate[key]) byDate[key] = []
+    byDate[key].push(m)
+  })
+
+  return (
+    <div>
+      {Object.entries(byDate).map(([dateLabel, matches]) => (
+        <div key={dateLabel} style={{ marginBottom:18 }}>
+
+          {/* Cabeçalho do dia */}
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+            <div style={{ background:'#002855', borderRadius:10, padding:'5px 14px' }}>
+              <span style={{ color:'#fff', fontWeight:900, fontSize:12, textTransform:'capitalize' }}>{dateLabel}</span>
+            </div>
+            <div style={{ flex:1, height:1, background:'#E2EAF0' }}/>
+            <span style={{ color:'#9BABB8', fontSize:10, fontWeight:700 }}>{matches.length} jogo{matches.length>1?'s':''}</span>
+          </div>
+
+          {/* Partidas do dia */}
+          {matches.map(m => {
+            const res        = results[m.id]
+            const hasScore   = res && res.score1 !== null && res.score1 !== undefined
+            const isFinished = res?.is_finished
+            const d          = new Date(m.date)
+            const timeStr    = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo' })
+
+            return (
+              <div key={m.id} style={{ display:'flex', alignItems:'center', background:'#fff', borderRadius:12, border:'1px solid #E8EDF2', marginBottom:8, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
+
+                {/* Barra lateral colorida */}
+                <div style={{ width:4, alignSelf:'stretch', flexShrink:0, background: isFinished?'#009639':hasScore?'#F5A623':'#1A73E8' }}/>
+
+                {/* Grupo + horário */}
+                <div style={{ padding:'10px 8px', textAlign:'center', minWidth:52, flexShrink:0 }}>
+                  <div style={{ background:'#F0F4F8', borderRadius:6, padding:'2px 6px', marginBottom:4, display:'inline-block' }}>
+                    <span style={{ fontSize:9, fontWeight:900, color:'#002855', letterSpacing:.5 }}>GRP {m.group}</span>
+                  </div>
+                  <div style={{ fontSize:11, fontWeight:800, color:'#002855' }}>{timeStr}</div>
+                  {m.city && <div style={{ fontSize:8, color:'#C8D5E0', marginTop:1, maxWidth:48, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.city.split('/')[0]}</div>}
+                </div>
+
+                {/* Time 1 */}
+                <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
+                  <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team1}</span>
+                  <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team1)}</span>
+                </div>
+
+                {/* Placar / VS */}
+                <div style={{ minWidth:58, textAlign:'center', flexShrink:0 }}>
+                  {hasScore ? (
+                    <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
+                      <span style={{ fontSize:14, fontWeight:900, color:'#fff', letterSpacing:1 }}>{res.score1}×{res.score2}</span>
+                    </div>
+                  ) : (
+                    <div style={{ background:'#1A73E8', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
+                      <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Time 2 */}
+                <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
+                  <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team2)}</span>
+                  <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team2}</span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function Groups({ participant, onLogout }) {
   const [tab,         setTab]         = useState('groups')
   const [activeGroup, setActiveGroup] = useState('A')
@@ -424,7 +508,7 @@ export default function Groups({ participant, onLogout }) {
       {tab==='groups' && (
         <div style={{ background:'#fff', borderBottom:'1px solid #E2EAF0' }}>
           <div style={{ padding:'8px 12px', display:'flex', gap:6, flexWrap:'wrap' }}>
-            {[['Por Grupo',false],['Todos os Grupos',true]].map(([label,val])=>(
+            {[['Partidas',false],['Classificação',true]].map(([label,val])=>(
               <button key={label} onClick={()=>setViewAll(val)} style={{
                 padding:'6px 14px', border:'none', borderRadius:20, fontWeight:800, fontSize:11,
                 cursor:'pointer', fontFamily:'Nunito,sans-serif',
@@ -433,18 +517,7 @@ export default function Groups({ participant, onLogout }) {
               }}>{label}</button>
             ))}
           </div>
-          {!viewAll && (
-            <div style={{ padding:'0 12px 8px', display:'flex', gap:5, overflowX:'auto' }}>
-              {GROUPS.map(g=>(
-                <button key={g} onClick={()=>setActiveGroup(g)} style={{
-                  flexShrink:0, width:34, height:30, borderRadius:8, border:'none',
-                  fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif',
-                  background: activeGroup===g?'#002855':'#F0F4F8',
-                  color: activeGroup===g?'#fff':'#6B7A8D',
-                }}>{g}</button>
-              ))}
-            </div>
-          )}
+          {/* sem seletor de grupo no modo Partidas — mostra tudo cronológico */}
         </div>
       )}
 
@@ -462,7 +535,7 @@ export default function Groups({ participant, onLogout }) {
             {GROUPS.map(g=><GroupTable key={g} letter={g} results={results}/>)}
           </div>
         ) : (
-          <GroupTable letter={activeGroup} results={results}/>
+          <AllMatchesChronological results={results}/>
         )}
       </main>
       <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
