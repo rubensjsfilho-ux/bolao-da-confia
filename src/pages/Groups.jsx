@@ -132,7 +132,18 @@ function KOMatchRow({ db }) {
   )
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640)
+  useEffect(() => {
+    const fn = () => setIsMobile(window.innerWidth < 640)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return isMobile
+}
+
 function GroupTable({ letter, results }) {
+  const isMobile = useIsMobile()
   const standings    = calcStandings(letter, results)
   const groupMatches = GROUP_MATCHES.filter(m => m.group === letter)
   const finished     = groupMatches.filter(m => results[m.id]?.is_finished).length
@@ -150,47 +161,101 @@ function GroupTable({ letter, results }) {
         <div style={{ marginLeft:'auto', color:'rgba(255,255,255,0.4)', fontSize:11 }}>{finished}/{groupMatches.length} jogos</div>
       </div>
 
-      {/* Tabela — scroll horizontal no mobile */}
-      <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
-        <table style={{ width:'100%', minWidth:400, borderCollapse:'collapse' }}>
-          <thead>
-            <tr style={{ background:'#1a2a3a' }}>
-              <th style={thStyle}>POS</th>
-              <th style={{ ...thStyle, textAlign:'left', paddingLeft:8 }}>EQUIPE</th>
-              {['J','V','E','D','GP','GC','SG','PTS'].map(h=>(
-                <th key={h} style={thStyle}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
+      {isMobile ? (
+        /* MOBILE: col fixas + scroll */
+        <div style={{ display:'flex', borderBottom:'1px solid #E8EDF2' }}>
+          {/* Fixo esquerda: pos + time */}
+          <div style={{ flexShrink:0 }}>
+            <div style={{ background:'#1a2a3a', padding:'7px 8px', fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', textTransform:'uppercase', height:30, display:'flex', alignItems:'center' }}>Seleção</div>
             {standings.map((s, i) => {
-              const qualified = i < 2, bubble = i === 2
-              const posColor  = qualified ? '#009639' : bubble ? '#F5A623' : '#9BABB8'
+              const qualified=i<2, bubble=i===2
+              const posColor=qualified?'#009639':bubble?'#F5A623':'#9BABB8'
               return (
-                <tr key={s.team} style={{ background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8' }}>
-                  <td style={{ padding:'9px 8px', textAlign:'center' }}>
-                    <div style={{ width:24, height:24, borderRadius:6, background:posColor, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto' }}>
-                      <span style={{ color:'#fff', fontWeight:900, fontSize:12 }}>{i+1}</span>
-                    </div>
-                  </td>
-                  <td style={{ padding:'9px 8px' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-                      <span style={{ fontSize:18 }}>{getFlag(s.team)}</span>
-                      <span style={{ fontSize:12, fontWeight:700, color:'#002855', whiteSpace:'nowrap' }}>{s.team}</span>
-                    </div>
-                  </td>
-                  {[s.j,s.v,s.e,s.d,s.gp,s.gc,s.sg].map((val,idx)=>(
-                    <td key={idx} style={{ padding:'9px 4px', textAlign:'center', fontSize:12, fontWeight:idx===6?700:500, color:idx===6?(val>0?'#009639':val<0?'#e53535':'#9BABB8'):'#3A4A5C' }}>
-                      {val>0&&idx===6?`+${val}`:val}
-                    </td>
-                  ))}
-                  <td style={{ padding:'9px 8px', textAlign:'center', fontSize:13, fontWeight:900, color:posColor }}>{s.pts}</td>
-                </tr>
+                <div key={s.team} style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 8px', background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8', height:40 }}>
+                  <div style={{ width:20, height:20, borderRadius:5, background:posColor, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <span style={{ color:'#fff', fontWeight:900, fontSize:10 }}>{i+1}</span>
+                  </div>
+                  <span style={{ fontSize:18, flexShrink:0 }}>{getFlag(s.team)}</span>
+                  <span style={{ fontSize:11, fontWeight:700, color:'#002855', whiteSpace:'nowrap', maxWidth:80, overflow:'hidden', textOverflow:'ellipsis' }}>{s.team}</span>
+                </div>
               )
             })}
-          </tbody>
-        </table>
-      </div>
+          </div>
+          {/* Scroll: J V E D GP GC SG */}
+          <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', flex:1 }}>
+            <div style={{ display:'flex', background:'#1a2a3a', height:30, alignItems:'center' }}>
+              {['J','V','E','D','GP','GC','SG'].map(h=>(
+                <div key={h} style={{ minWidth:32, textAlign:'center', fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', flexShrink:0 }}>{h}</div>
+              ))}
+            </div>
+            {standings.map((s,i)=>{
+              const qualified=i<2, bubble=i===2
+              return (
+                <div key={s.team} style={{ display:'flex', background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8', height:40, alignItems:'center' }}>
+                  {[s.j,s.v,s.e,s.d,s.gp,s.gc,s.sg].map((val,idx)=>(
+                    <div key={idx} style={{ minWidth:32, textAlign:'center', fontSize:12, fontWeight:idx===6?700:500, color:idx===6?(val>0?'#009639':val<0?'#e53535':'#9BABB8'):'#3A4A5C', flexShrink:0 }}>
+                      {val>0&&idx===6?`+${val}`:val}
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
+          </div>
+          {/* Fixo direita: PTS */}
+          <div style={{ flexShrink:0, borderLeft:'2px solid #E2EAF0' }}>
+            <div style={{ background:'#1a2a3a', padding:'7px 10px', fontSize:9, fontWeight:800, color:'rgba(255,255,255,0.5)', height:30, display:'flex', alignItems:'center', justifyContent:'center' }}>PTS</div>
+            {standings.map((s,i)=>{
+              const qualified=i<2, bubble=i===2
+              const posColor=qualified?'#009639':bubble?'#F5A623':'#9BABB8'
+              return (
+                <div key={s.team} style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'8px 10px', background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8', height:40 }}>
+                  <span style={{ fontSize:14, fontWeight:900, color:posColor }}>{s.pts}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : (
+        /* DESKTOP: tabela completa */
+        <div style={{ overflowX:'auto' }}>
+          <table style={{ width:'100%', minWidth:500, borderCollapse:'collapse' }}>
+            <thead>
+              <tr style={{ background:'#1a2a3a' }}>
+                <th style={thStyle}>POS</th>
+                <th style={{ ...thStyle, textAlign:'left', paddingLeft:8 }}>EQUIPE</th>
+                {['J','V','E','D','GP','GC','SG','PTS'].map(h=>(<th key={h} style={thStyle}>{h}</th>))}
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((s,i)=>{
+                const qualified=i<2, bubble=i===2
+                const posColor=qualified?'#009639':bubble?'#F5A623':'#9BABB8'
+                return (
+                  <tr key={s.team} style={{ background:qualified?'rgba(0,150,57,0.03)':bubble?'rgba(245,166,35,0.03)':'#fff', borderBottom:'1px solid #F0F4F8' }}>
+                    <td style={{ padding:'9px 8px', textAlign:'center' }}>
+                      <div style={{ width:24, height:24, borderRadius:6, background:posColor, display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto' }}>
+                        <span style={{ color:'#fff', fontWeight:900, fontSize:12 }}>{i+1}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding:'9px 8px' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                        <span style={{ fontSize:18 }}>{getFlag(s.team)}</span>
+                        <span style={{ fontSize:12, fontWeight:700, color:'#002855', whiteSpace:'nowrap' }}>{s.team}</span>
+                      </div>
+                    </td>
+                    {[s.j,s.v,s.e,s.d,s.gp,s.gc,s.sg].map((val,idx)=>(
+                      <td key={idx} style={{ padding:'9px 4px', textAlign:'center', fontSize:12, fontWeight:idx===6?700:500, color:idx===6?(val>0?'#009639':val<0?'#e53535':'#9BABB8'):'#3A4A5C' }}>
+                        {val>0&&idx===6?`+${val}`:val}
+                      </td>
+                    ))}
+                    <td style={{ padding:'9px 8px', textAlign:'center', fontSize:13, fontWeight:900, color:posColor }}>{s.pts}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Legenda */}
       <div style={{ padding:'8px 14px', background:'#F8FAFC', display:'flex', gap:16, borderTop:'1px solid #E8EDF2', borderBottom:'1px solid #E8EDF2', flexWrap:'wrap' }}>
