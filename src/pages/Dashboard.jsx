@@ -6,7 +6,18 @@ import { GROUP_MATCHES, getFlag, isMatchOpen } from '../data/matches'
 import { AlertCircle, Users, Trophy, Star, Calendar } from 'lucide-react'
 
 // ── HERO ──────────────────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  useEffect(() => {
+    const fn = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return isMobile
+}
+
 function Hero({ onPalpites, onJogos }) {
+  const isMobile = useIsMobile()
   const [t, setT] = useState({ d:0, h:0, m:0, s:0 })
   useEffect(() => {
     const target = new Date('2026-06-11T22:00:00Z')
@@ -28,16 +39,30 @@ function Hero({ onPalpites, onJogos }) {
       {/* Linha vertical decorativa esquerda */}
       <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
-      {/* Taça — direita, proporção natural */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width:'52%', zIndex:1 }}>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
-        <img
-          src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
-          alt="Taça Copa 2026"
-          style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
-          onError={e => { e.target.style.display='none' }}
-        />
+      {/* Imagem direita — taça no mobile, banner no desktop */}
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
+        {isMobile ? (
+          <>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
+            <img
+              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
+              alt="Taça Copa 2026"
+              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
+              onError={e => { e.target.style.display='none' }}
+            />
+          </>
+        ) : (
+          <>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
+            <img
+              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png"
+              alt="Bolão da Confia 2026"
+              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
+              onError={e => { e.target.style.display='none' }}
+            />
+          </>
+        )}
       </div>
 
       {/* Conteúdo — esquerda */}
