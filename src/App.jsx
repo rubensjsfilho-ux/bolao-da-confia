@@ -261,10 +261,13 @@ function App() {
       const channel = supabase
         .channel('goal-alerts-app')
         .on('postgres_changes', { event:'UPDATE', schema:'public', table:'matches' }, (payload) => {
+          console.log('🔴 REALTIME RECEBIDO:', payload)
           const match = payload.new
           const newS1 = match.score1 ?? null
           const newS2 = match.score2 ?? null
           const prev  = prevScores.current[match.id] || { score1: null, score2: null }
+
+          console.log('⚽ prev:', prev, '| novo:', newS1, newS2)
 
           // Detecta se houve gol (placar aumentou em qualquer lado)
           if (newS1 !== null && newS2 !== null) {
@@ -275,6 +278,7 @@ function App() {
               newS2 > prevS2 ? 2 : null
 
             if (scoringTeam) {
+              console.log('🎉 GOL! time', scoringTeam)
               setGoalEvent({
                 team1: match.team1,
                 team2: match.team2,
@@ -289,7 +293,12 @@ function App() {
           // Atualiza referência com placar novo
           prevScores.current[match.id] = { score1: newS1, score2: newS2 }
         })
-        .subscribe()
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'matches' }, (payload) => {
+          console.log('🟡 INSERT recebido:', payload)
+        })
+        .subscribe((status) => {
+          console.log('📡 Canal status:', status)
+        })
 
       return channel
     }
