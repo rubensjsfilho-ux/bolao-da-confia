@@ -3,20 +3,34 @@ import { supabase } from '../supabase'
 import Header from '../components/Header'
 import { ChevronLeft, ChevronRight, Lock, Loader2 } from 'lucide-react'
 
-// ── FLAGS ─────────────────────────────────────────────────────────────────────
-const FLAGS = {
-  'Brasil':'🇧🇷','Argentina':'🇦🇷','França':'🇫🇷','Alemanha':'🇩🇪','Espanha':'🇪🇸',
-  'Portugal':'🇵🇹','Inglaterra':'🏴','Holanda':'🇳🇱','Bélgica':'🇧🇪','Itália':'🇮🇹',
-  'México':'🇲🇽','Estados Unidos':'🇺🇸','Uruguai':'🇺🇾','Japão':'🇯🇵','Canadá':'🇨🇦',
-  'Austrália':'🇦🇺','Coreia do Sul':'🇰🇷','Marrocos':'🇲🇦','Senegal':'🇸🇳','Egito':'🇪🇬',
-  'Escócia':'🏴','Croácia':'🇭🇷','Suíça':'🇨🇭','Áustria':'🇦🇹','Noruega':'🇳🇴',
-  'Turquia':'🇹🇷','Irã':'🇮🇷','Colômbia':'🇨🇴','Paraguai':'🇵🇾','Gana':'🇬🇭','Panamá':'🇵🇦',
-  'Argélia':'🇩🇿','Uzbequistão':'🇺🇿','Catar':'🇶🇦','Tunísia':'🇹🇳','Haiti':'🇭🇹',
-  'Sérvia':'🇷🇸','Dinamarca':'🇩🇰','Ucrânia':'🇺🇦','Arábia Saudita':'🇸🇦','Iraque':'🇮🇶',
-  'Nova Zelândia':'🇳🇿','Jordânia':'🇯🇴','RD Congo':'🇨🇩','África do Sul':'🇿🇦',
-  'Cabo Verde':'🇨🇻','Equador':'🇪🇨','Costa do Marfim':'🇨🇮','Curaçao':'🇨🇼',
+// ── FLAGS (flagcdn.com — funciona em todos os sistemas, incluindo Windows) ─────
+const FLAG_CODES = {
+  'México':'mx',         'África do Sul':'za',    'Coreia do Sul':'kr',   'República Tcheca':'cz',
+  'Canadá':'ca',         'Bósnia e Herz.':'ba',   'Catar':'qa',           'Suíça':'ch',
+  'Brasil':'br',         'Marrocos':'ma',          'Haiti':'ht',           'Escócia':'gb-sct',
+  'Estados Unidos':'us', 'Paraguai':'py',          'Austrália':'au',       'Turquia':'tr',
+  'Alemanha':'de',       'Curaçao':'cw',           'Costa do Marfim':'ci', 'Equador':'ec',
+  'Holanda':'nl',        'Japão':'jp',             'Suécia':'se',          'Tunísia':'tn',
+  'Bélgica':'be',        'Egito':'eg',             'Irã':'ir',             'Nova Zelândia':'nz',
+  'Espanha':'es',        'Cabo Verde':'cv',        'Arábia Saudita':'sa',  'Uruguai':'uy',
+  'França':'fr',         'Senegal':'sn',           'Noruega':'no',         'Iraque':'iq',
+  'Argentina':'ar',      'Argélia':'dz',           'Áustria':'at',         'Jordânia':'jo',
+  'Portugal':'pt',       'RD Congo':'cd',          'Uzbequistão':'uz',     'Colômbia':'co',
+  'Inglaterra':'gb-eng', 'Croácia':'hr',           'Gana':'gh',            'Panamá':'pa',
+  'Itália':'it',         'Sérvia':'rs',            'Dinamarca':'dk',       'Ucrânia':'ua',
 }
-const getFlag = t => FLAGS[t] || '🏳️'
+function getFlag(team, size = 24) {
+  const code = FLAG_CODES[team]
+  if (!code) return <span style={{ fontSize: size * 0.9, lineHeight: 1 }}>🏳️</span>
+  return (
+    <img
+      src={`https://flagcdn.com/w${size * 2}/${code}.png`}
+      alt={team}
+      style={{ width: size, height: Math.round(size * 0.67), objectFit: 'cover', borderRadius: 2, display: 'inline-block', verticalAlign: 'middle' }}
+      onError={e => { e.target.style.display = 'none' }}
+    />
+  )
+}
 
 // ── ESTRUTURA COMPLETA DO MATA-MATA COPA 2026 ─────────────────────────────────
 const ROUNDS = [
@@ -107,7 +121,7 @@ function MatchCard({ match, dbMatch, compact }) {
       gap:8, padding:'6px 0',
     }}>
       <div style={{ width:32, height:32, borderRadius:'50%', background: team ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>
-        {team ? getFlag(team) : '🏳️'}
+        {team ? getFlag(team) : <span style={{ fontSize:20 }}>🏳️</span>}
       </div>
       <div style={{ flex:1, textAlign: align }}>
         <div style={{ color: team ? (won?'#4ade80':'#fff') : 'rgba(255,255,255,0.3)', fontWeight: won?900:700, fontSize:12, lineHeight:1.2 }}>
