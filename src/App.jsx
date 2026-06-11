@@ -245,67 +245,69 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // ── Realtime: carrega placares iniciais e escuta gols ───────────────────────
+  // ── Polling a cada 8s para detectar gols (compatível com plano gratuito) ────
   useEffect(() => {
-    // 1. Carrega estado atual de TODOS os placares primeiro
-    const initAndListen = async () => {
-      const { data } = await supabase.from('matches').select('id,score1,score2,team1,team2')
+    const init = async () => {
+      const { data } = await supabase
+        .from('matches')
+        .select('id,score1,score2,team1,team2,group')
       ;(data || []).forEach(m => {
         prevScores.current[m.id] = {
           score1: m.score1 ?? null,
           score2: m.score2 ?? null,
+          team1:  m.team1,
+          team2:  m.team2,
+          group:  m.group || '',
         }
       })
-
-      // 2. Só assina o canal DEPOIS de ter o estado inicial
-      const channel = supabase
-        .channel('goal-alerts-app')
-        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'matches' }, (payload) => {
-          console.log('🔴 REALTIME RECEBIDO:', payload)
-          const match = payload.new
-          const newS1 = match.score1 ?? null
-          const newS2 = match.score2 ?? null
-          const prev  = prevScores.current[match.id] || { score1: null, score2: null }
-
-          console.log('⚽ prev:', prev, '| novo:', newS1, newS2)
-
-          // Detecta se houve gol (placar aumentou em qualquer lado)
-          if (newS1 !== null && newS2 !== null) {
-            const prevS1 = prev.score1 ?? -1
-            const prevS2 = prev.score2 ?? -1
-            const scoringTeam =
-              newS1 > prevS1 ? 1 :
-              newS2 > prevS2 ? 2 : null
-
-            if (scoringTeam) {
-              console.log('🎉 GOL! time', scoringTeam)
-              setGoalEvent({
-                team1: match.team1,
-                team2: match.team2,
-                score1: newS1,
-                score2: newS2,
-                scoringTeam,
-                group: match.group_letter || match.group || '',
-              })
-            }
-          }
-
-          // Atualiza referência com placar novo
-          prevScores.current[match.id] = { score1: newS1, score2: newS2 }
-        })
-        .on('postgres_changes', { event:'INSERT', schema:'public', table:'matches' }, (payload) => {
-          console.log('🟡 INSERT recebido:', payload)
-        })
-        .subscribe((status) => {
-          console.log('📡 Canal status:', status)
-        })
-
-      return channel
     }
 
-    let channel
-    initAndListen().then(ch => { channel = ch })
-    return () => { if (channel) supabase.removeChannel(channel) }
+    const poll = async () => {
+      const { data } = await supabase
+        .from('matches')
+        .select('id,score1,score2,team1,team2,group')
+      if (!data) return
+
+      for (const m of data) {
+        const prev = prevScores.current[m.id]
+        if (!prev) continue
+
+        const newS1 = m.score1 ?? null
+        const newS2 = m.score2 ?? null
+        const prevS1 = prev.score1 ?? -1
+        const prevS2 = prev.score2 ?? -1
+
+        if (newS1 !== null && newS2 !== null) {
+          const scoringTeam =
+            newS1 > prevS1 ? 1 :
+            newS2 > prevS2 ? 2 : null
+
+          if (scoringTeam) {
+            setGoalEvent({
+              team1: m.team1,
+              team2: m.team2,
+              score1: newS1,
+              score2: newS2,
+              scoringTeam,
+              group: m.group || '',
+            })
+          }
+        }
+
+        prevScores.current[m.id] = {
+          score1: newS1,
+          score2: newS2,
+          team1:  m.team1,
+          team2:  m.team2,
+          group:  m.group || '',
+        }
+      }
+    }
+
+    init().then(() => {
+      const interval = setInterval(poll, 8000)
+      return () => clearInterval(interval)
+    })
   }, [])
 
   const logout = async () => { await supabase.auth.signOut(); setParticipant(null) }
