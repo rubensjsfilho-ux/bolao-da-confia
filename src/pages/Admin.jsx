@@ -584,12 +584,12 @@ export default function Admin(){
   }
 
   const saveResult=async(matchId,score1,score2)=>{
-    await supabase.from('matches').update({score1,score2}).eq('id',matchId)
+    await supabase.from('matches').update({score1,score2,updated_at:new Date().toISOString()}).eq('id',matchId)
     setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1,score2}:m))
   }
 
   const finishMatch=async(matchId,score1,score2)=>{
-    await supabase.from('matches').update({score1,score2,is_finished:true}).eq('id',matchId)
+    await supabase.from('matches').update({score1,score2,is_finished:true,updated_at:new Date().toISOString()}).eq('id',matchId)
     setMatches(prev=>prev.map(m=>m.id===matchId?{...m,score1,score2,is_finished:true}:m))
     const{data:preds}=await supabase.from('predictions').select('id,score1,score2').eq('match_id',matchId)
     for(const p of preds||[]){
