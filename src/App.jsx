@@ -15,58 +15,198 @@ import KnockoutPredictions from './pages/KnockoutPredictions'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
 
-function GoalPopup({ event, onClose }) {
-  useEffect(() => {
-    if (!event) return
-    const t = setTimeout(onClose, 5000)
-    return () => clearTimeout(t)
-  }, [event, onClose])
+// ── Confetti particle
+function Particle({ x, color, delay }) {
+  const shapes = ['circle','rect','triangle']
+  const shape  = shapes[Math.floor(Math.random()*3)]
+  const size   = 6 + Math.random()*8
+  const rot    = Math.random()*360
+  const drift  = (Math.random()-0.5)*120
+  return (
+    <div style={{
+      position:'absolute', top:0, left: x+'%',
+      width:size, height:size,
+      background: shape==='triangle'?'transparent':color,
+      borderRadius: shape==='circle'?'50%':'2px',
+      borderLeft:  shape==='triangle'?size/2+'px solid transparent':undefined,
+      borderRight: shape==='triangle'?size/2+'px solid transparent':undefined,
+      borderBottom:shape==='triangle'?size+'px solid '+color:undefined,
+      transform: 'rotate('+rot+'deg)',
+      animation: 'confettiFall 2.4s '+delay+'s ease-in forwards',
+      '--drift': drift+'px',
+      opacity:0,
+      pointerEvents:'none',
+    }}/>
+  )
+}
 
-  if (!event) return null
-  const { team1, team2, score1, score2, scoringTeam } = event
-  const isTeam1 = scoringTeam === 1
+function GoalPopup({ event, onClose }) {
+  const [phase, setPhase] = useState('hidden') // hidden → burst → show → exit
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (!event) { setPhase('hidden'); return }
+    setPhase('burst')
+    const t1 = setTimeout(() => setPhase('show'),  400)
+    const t2 = setTimeout(() => setPhase('exit'),  5500)
+    const t3 = setTimeout(() => { setPhase('hidden'); onClose() }, 6100)
+    timerRef.current = [t1,t2,t3]
+    return () => timerRef.current?.forEach(clearTimeout)
+  }, [event])
+
+  if (phase === 'hidden' || !event) return null
+
+  const { team1, team2, score1, score2, scoringTeam, group } = event
+  const isTeam1    = scoringTeam === 1
+  const scorerTeam = isTeam1 ? team1 : team2
+  const scorerFlag = getFlag(scorerTeam)
+
+  const confettiColors = ['#F5A623','#FFD700','#009639','#00c44f','#fff','#1A73E8','#e53535']
+  const particles = Array.from({length:38}, (_,i) => ({
+    x: Math.random()*100,
+    color: confettiColors[i % confettiColors.length],
+    delay: Math.random()*0.6,
+  }))
+
+  const handleClose = () => {
+    timerRef.current?.forEach(clearTimeout)
+    setPhase('exit')
+    setTimeout(() => { setPhase('hidden'); onClose() }, 500)
+  }
 
   return (
-    <div onClick={onClose} style={{
+    <div onClick={handleClose} style={{
       position:'fixed', inset:0, zIndex:9999,
       display:'flex', alignItems:'center', justifyContent:'center',
-      background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)',
-      animation:'fdIn .3s ease', cursor:'pointer',
+      background: phase==='exit' ? 'rgba(0,0,0,0)' : 'rgba(0,0,0,0.72)',
+      backdropFilter: phase==='exit' ? 'blur(0px)' : 'blur(8px)',
+      transition:'background .5s, backdrop-filter .5s',
+      cursor:'pointer',
+      overflow:'hidden',
     }}>
+
+      {/* Confetti */}
+      <div style={{ position:'absolute', inset:0, pointerEvents:'none', overflow:'hidden' }}>
+        {particles.map((p,i) => <Particle key={i} {...p}/>)}
+      </div>
+
+      {/* Anel de luz pulsante */}
+      <div style={{
+        position:'absolute',
+        width:320, height:320,
+        borderRadius:'50%',
+        background:'radial-gradient(circle, rgba(245,166,35,0.18) 0%, transparent 70%)',
+        animation:'ringPulse 1.2s ease-in-out infinite',
+        pointerEvents:'none',
+      }}/>
+
+      {/* Card principal */}
       <div onClick={e=>e.stopPropagation()} style={{
-        background:'linear-gradient(135deg,#001a00 0%,#002855 100%)',
-        borderRadius:24, padding:'28px 32px', textAlign:'center',
-        boxShadow:'0 0 0 2px rgba(245,166,35,0.5), 0 24px 60px rgba(0,0,0,0.6)',
-        maxWidth:320, width:'90%',
-        animation:'popIn .4s cubic-bezier(0.175,0.885,0.32,1.275)',
+        position:'relative',
+        background:'linear-gradient(160deg, #0a1f0a 0%, #001833 60%, #000d00 100%)',
+        borderRadius:28,
+        padding:'0 0 24px',
+        textAlign:'center',
+        boxShadow:'0 0 0 1.5px rgba(245,166,35,0.6), 0 0 60px rgba(245,166,35,0.25), 0 32px 80px rgba(0,0,0,0.7)',
+        maxWidth:310, width:'88%',
+        overflow:'hidden',
+        transform: phase==='burst'?'scale(0.3) rotate(-8deg)' : phase==='exit'?'scale(0.85) translateY(-20px)':'scale(1) rotate(0deg)',
+        opacity: phase==='burst'?0 : phase==='exit'?0:1,
+        transition: phase==='burst'
+          ? 'transform .45s cubic-bezier(0.175,0.885,0.32,1.4), opacity .3s'
+          : phase==='exit'
+          ? 'transform .5s ease-in, opacity .5s ease-in'
+          : '',
       }}>
-        <div style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#F5A623', borderRadius:20, padding:'4px 16px', marginBottom:18 }}>
-          <span style={{ fontSize:16 }}>⚽</span>
-          <span style={{ color:'#000', fontWeight:900, fontSize:13, letterSpacing:3 }}>G O L !</span>
-          <span style={{ fontSize:16 }}>⚽</span>
-        </div>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:14, marginBottom:16 }}>
-          <div style={{ textAlign:'center', opacity:isTeam1?1:0.45, transition:'opacity .3s' }}>
-            <div style={{ fontSize:36 }}>{getFlag(team1)}</div>
-            <div style={{ color:'#fff', fontSize:11, fontWeight:700, marginTop:4, maxWidth:72, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{team1}</div>
+
+        {/* Faixa topo — GOL! */}
+        <div style={{
+          background:'linear-gradient(90deg, #b8730a, #F5A623, #FFD700, #F5A623, #b8730a)',
+          padding:'12px 0 10px',
+          marginBottom:20,
+          position:'relative',
+          overflow:'hidden',
+        }}>
+          {/* Brilho animado */}
+          <div style={{
+            position:'absolute', inset:0,
+            background:'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%)',
+            animation:'shimmerBar 1.8s ease-in-out infinite',
+          }}/>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:10, position:'relative' }}>
+            <span style={{ fontSize:22, animation:'ballSpin .6s ease-in-out infinite alternate' }}>⚽</span>
+            <span style={{ color:'#000', fontWeight:900, fontSize:22, letterSpacing:6, textTransform:'uppercase' }}>GOL!</span>
+            <span style={{ fontSize:22, animation:'ballSpin .6s .3s ease-in-out infinite alternate' }}>⚽</span>
           </div>
-          <div style={{ background:'rgba(245,166,35,0.15)', border:'1px solid rgba(245,166,35,0.35)', borderRadius:14, padding:'8px 18px' }}>
-            <div style={{ fontWeight:900, fontSize:38, lineHeight:1, letterSpacing:2 }}>
-              <span style={{ color:isTeam1?'#F5A623':'rgba(255,255,255,0.4)' }}>{score1}</span>
-              <span style={{ color:'rgba(255,255,255,0.25)', margin:'0 6px' }}>×</span>
-              <span style={{ color:!isTeam1?'#F5A623':'rgba(255,255,255,0.4)' }}>{score2}</span>
+        </div>
+
+        {/* Quem fez */}
+        <div style={{ marginBottom:18, padding:'0 20px' }}>
+          <div style={{ fontSize:44, marginBottom:4, animation:'flagBounce .6s ease-in-out infinite alternate' }}>{scorerFlag}</div>
+          <div style={{ color:'#fff', fontWeight:900, fontSize:18, letterSpacing:.5, textShadow:'0 2px 12px rgba(245,166,35,0.6)' }}>{scorerTeam}</div>
+          {group && <div style={{ color:'rgba(255,255,255,0.35)', fontSize:10, marginTop:2, fontWeight:700, letterSpacing:1 }}>GRUPO {group}</div>}
+        </div>
+
+        {/* Placar */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:12, marginBottom:20, padding:'0 20px' }}>
+          <div style={{ textAlign:'center', flex:1, opacity:isTeam1?1:0.35 }}>
+            <div style={{ fontSize:28 }}>{getFlag(team1)}</div>
+            <div style={{ color:'#fff', fontSize:10, fontWeight:700, marginTop:3, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{team1}</div>
+          </div>
+
+          <div style={{
+            background:'rgba(245,166,35,0.12)',
+            border:'2px solid rgba(245,166,35,0.5)',
+            borderRadius:16, padding:'10px 16px',
+            boxShadow:'0 0 20px rgba(245,166,35,0.3)',
+            flexShrink:0,
+          }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span style={{
+                fontWeight:900, fontSize:40, lineHeight:1,
+                color: isTeam1 ? '#F5A623' : 'rgba(255,255,255,0.3)',
+                textShadow: isTeam1 ? '0 0 20px rgba(245,166,35,0.8)' : 'none',
+                transition:'all .3s',
+              }}>{score1}</span>
+              <span style={{ color:'rgba(255,255,255,0.2)', fontSize:24, fontWeight:300 }}>×</span>
+              <span style={{
+                fontWeight:900, fontSize:40, lineHeight:1,
+                color: !isTeam1 ? '#F5A623' : 'rgba(255,255,255,0.3)',
+                textShadow: !isTeam1 ? '0 0 20px rgba(245,166,35,0.8)' : 'none',
+                transition:'all .3s',
+              }}>{score2}</span>
             </div>
           </div>
-          <div style={{ textAlign:'center', opacity:!isTeam1?1:0.45, transition:'opacity .3s' }}>
-            <div style={{ fontSize:36 }}>{getFlag(team2)}</div>
-            <div style={{ color:'#fff', fontSize:11, fontWeight:700, marginTop:4, maxWidth:72, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{team2}</div>
+
+          <div style={{ textAlign:'center', flex:1, opacity:!isTeam1?1:0.35 }}>
+            <div style={{ fontSize:28 }}>{getFlag(team2)}</div>
+            <div style={{ color:'#fff', fontSize:10, fontWeight:700, marginTop:3, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{team2}</div>
           </div>
         </div>
-        <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11 }}>Toque para fechar</div>
+
+        {/* Barra de progresso — fecha em 5s */}
+        <div style={{ margin:'0 20px 4px', height:3, background:'rgba(255,255,255,0.08)', borderRadius:2, overflow:'hidden' }}>
+          {phase==='show' && (
+            <div style={{
+              height:'100%', borderRadius:2,
+              background:'linear-gradient(90deg,#009639,#F5A623)',
+              animation:'progressBar 5s linear forwards',
+            }}/>
+          )}
+        </div>
+        <div style={{ color:'rgba(255,255,255,0.2)', fontSize:9, letterSpacing:1 }}>TOQUE PARA FECHAR</div>
       </div>
+
       <style>{`
-        @keyframes fdIn  { from{opacity:0}            to{opacity:1} }
-        @keyframes popIn { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+        @keyframes confettiFall {
+          0%   { transform:translateY(-20px) translateX(0) rotate(0deg);   opacity:1 }
+          100% { transform:translateY(110vh) translateX(var(--drift)) rotate(720deg); opacity:0 }
+        }
+        @keyframes ringPulse  { 0%,100%{transform:scale(1);opacity:.6} 50%{transform:scale(1.3);opacity:0} }
+        @keyframes shimmerBar { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+        @keyframes ballSpin   { from{transform:rotate(-15deg) scale(1)} to{transform:rotate(15deg) scale(1.15)} }
+        @keyframes flagBounce { from{transform:translateY(0) scale(1)} to{transform:translateY(-6px) scale(1.08)} }
+        @keyframes progressBar{ from{width:100%} to{width:0%} }
       `}</style>
     </div>
   )
@@ -131,7 +271,7 @@ function App() {
             newS1 > (prev.score1 ?? -1) ? 1 :
             newS2 > (prev.score2 ?? -1) ? 2 : null
           if (scoringTeam) {
-            setGoalEvent({ team1:match.team1, team2:match.team2, score1:newS1, score2:newS2, scoringTeam })
+            setGoalEvent({ team1:match.team1, team2:match.team2, score1:newS1, score2:newS2, scoringTeam, group:match.group_letter||match.group||'' })
           }
         }
         prevScores.current[match.id] = { score1:newS1, score2:newS2 }
