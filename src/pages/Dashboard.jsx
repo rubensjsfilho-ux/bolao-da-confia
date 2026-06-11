@@ -66,7 +66,7 @@ function Hero({ onPalpites, onJogos }) {
       </div>
 
       {/* Conteúdo — esquerda */}
-      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width:'62%' }}>
+      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
 
         {/* Label topo */}
         <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
@@ -76,17 +76,17 @@ function Hero({ onPalpites, onJogos }) {
 
         {/* COPA DO MUNDO FIFA + 2026 — proporcionais */}
         <div style={{ marginBottom:12 }}>
-          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:22, letterSpacing:1, textTransform:'uppercase', lineHeight:1.15, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
-            <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize:22, letterSpacing:1, textTransform:'uppercase', lineHeight:1.15 }}>FIFA</div>
+          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
+            <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
             <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
           </div>
           <span style={{
             fontFamily:'Arial Black, Impact, sans-serif',
             fontWeight:900,
-            fontSize:62,
-            lineHeight:.9,
-            letterSpacing:-3,
+            fontSize: isMobile ? 62 : 110,
+            lineHeight:.85,
+            letterSpacing:-4,
             background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)',
             WebkitBackgroundClip:'text',
             WebkitTextFillColor:'transparent',
