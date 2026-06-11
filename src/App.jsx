@@ -245,40 +245,58 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // ── Realtime: carrega placares iniciais ANTES de escutar mudanças ──────────
+  // ── Realtime: carrega placares iniciais e escuta gols ───────────────────────
   useEffect(() => {
-    supabase.from('matches').select('id,score1,score2')
-      .then(({ data }) => {
-        ;(data || []).forEach(m => {
-          prevScores.current[m.id] = {
-            score1: m.score1 ?? null,
-            score2: m.score2 ?? null,
-          }
-        })
-      })
-
-    const channel = supabase
-      .channel('goal-alerts-app')
-      .on('postgres_changes', { event:'UPDATE', schema:'public', table:'matches' }, (payload) => {
-        const match = payload.new
-        if (match.is_finished) return
-        const prev  = prevScores.current[match.id]
-        const newS1 = match.score1 ?? null
-        const newS2 = match.score2 ?? null
-
-        if (newS1 !== null && newS2 !== null && prev) {
-          const scoringTeam =
-            newS1 > (prev.score1 ?? -1) ? 1 :
-            newS2 > (prev.score2 ?? -1) ? 2 : null
-          if (scoringTeam) {
-            setGoalEvent({ team1:match.team1, team2:match.team2, score1:newS1, score2:newS2, scoringTeam, group:match.group_letter||match.group||'' })
-          }
+    // 1. Carrega estado atual de TODOS os placares primeiro
+    const initAndListen = async () => {
+      const { data } = await supabase.from('matches').select('id,score1,score2,team1,team2')
+      ;(data || []).forEach(m => {
+        prevScores.current[m.id] = {
+          score1: m.score1 ?? null,
+          score2: m.score2 ?? null,
         }
-        prevScores.current[match.id] = { score1:newS1, score2:newS2 }
       })
-      .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+      // 2. Só assina o canal DEPOIS de ter o estado inicial
+      const channel = supabase
+        .channel('goal-alerts-app')
+        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'matches' }, (payload) => {
+          const match = payload.new
+          const newS1 = match.score1 ?? null
+          const newS2 = match.score2 ?? null
+          const prev  = prevScores.current[match.id] || { score1: null, score2: null }
+
+          // Detecta se houve gol (placar aumentou em qualquer lado)
+          if (newS1 !== null && newS2 !== null) {
+            const prevS1 = prev.score1 ?? -1
+            const prevS2 = prev.score2 ?? -1
+            const scoringTeam =
+              newS1 > prevS1 ? 1 :
+              newS2 > prevS2 ? 2 : null
+
+            if (scoringTeam) {
+              setGoalEvent({
+                team1: match.team1,
+                team2: match.team2,
+                score1: newS1,
+                score2: newS2,
+                scoringTeam,
+                group: match.group_letter || match.group || '',
+              })
+            }
+          }
+
+          // Atualiza referência com placar novo
+          prevScores.current[match.id] = { score1: newS1, score2: newS2 }
+        })
+        .subscribe()
+
+      return channel
+    }
+
+    let channel
+    initAndListen().then(ch => { channel = ch })
+    return () => { if (channel) supabase.removeChannel(channel) }
   }, [])
 
   const logout = async () => { await supabase.auth.signOut(); setParticipant(null) }
