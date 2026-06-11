@@ -14,6 +14,7 @@ import Groups from './pages/Groups'
 import KnockoutPredictions from './pages/KnockoutPredictions'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
+import Rules from './pages/Rules'
 
 // ── Confetti particle
 function Particle({ x, color, delay }) {
@@ -338,6 +339,7 @@ function App() {
         <Route path="/ranking"     element={participant ? <Rankings    {...props}/> : <Navigate to="/" replace/>} />
         <Route path="/campeao"     element={participant ? <Champion    {...props}/> : <Navigate to="/" replace/>} />
         <Route path="/premios"     element={participant ? <Prizes      {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/regras"      element={participant ? <Rules       {...props}/> : <Navigate to="/" replace/>} />
         <Route path="/chaveamento" element={participant ? <Bracket     {...props}/> : <Navigate to="/" replace/>} />
         <Route path="/grupos"      element={participant ? <Groups      {...props}/> : <Navigate to="/" replace/>} />
         <Route path="/mata-mata"   element={participant ? <KnockoutPredictions {...props}/> : <Navigate to="/" replace/>} />
