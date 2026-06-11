@@ -133,9 +133,9 @@ function KOMatchRow({ db }) {
 }
 
 function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 640)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   useEffect(() => {
-    const fn = () => setIsMobile(window.innerWidth < 640)
+    const fn = () => setIsMobile(window.innerWidth < 768)
     window.addEventListener('resize', fn)
     return () => window.removeEventListener('resize', fn)
   }, [])
@@ -218,7 +218,7 @@ function GroupTable({ letter, results }) {
       ) : (
         /* DESKTOP: tabela completa */
         <div style={{ overflowX:'auto' }}>
-          <table style={{ width:'100%', minWidth:500, borderCollapse:'collapse' }}>
+          <table style={{ width:'100%', borderCollapse:'collapse' }}>
             <thead>
               <tr style={{ background:'#1a2a3a' }}>
                 <th style={thStyle}>POS</th>
