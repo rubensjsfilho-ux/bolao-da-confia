@@ -4,11 +4,11 @@ import { Home, Target, BarChart3, ShieldCheck, Users, Zap, LogOut, X, Trophy, St
 import { supabase } from '../supabase'
 
 const NAV = [
-  { to:'/dashboard', label:'Início',   Icon:Home },
-  { to:'/palpites',  label:'Palpites', Icon:Target },
-  { to:'/grupos',    label:'Grupos',   Icon:Users },
-  { to:'/mata-mata', label:'Mata-Mata',Icon:Zap },
-  { to:'/ranking',   label:'Ranking',  Icon:BarChart3 },
+  { to:'/dashboard', label:'Início',       Icon:Home },
+  { to:'/palpites',  label:'Palpite 1ª F', Icon:Target },
+  { to:'/mata-mata', label:'Palpite 2ª F', Icon:Zap },
+  { to:'/grupos',    label:'Tabela',       Icon:Users },
+  { to:'/ranking',   label:'Ranking',      Icon:BarChart3 },
 ]
 
 export function Avatar({ photoUrl, emoji='⚽', size=36, border=true }) {
