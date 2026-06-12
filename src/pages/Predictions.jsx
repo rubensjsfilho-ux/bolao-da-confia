@@ -175,7 +175,7 @@ function MatchRow({ match: m, prediction, onSave, refCallback }) {
             <span style={{ color:'#fff', fontWeight:900, fontSize:13 }}>🔴 Assistir ao vivo — CazéTV</span>
             <span style={{ fontSize:14 }}>📺</span>
           </a>
-        )
+        )}
       </div>
     </div>
   )
