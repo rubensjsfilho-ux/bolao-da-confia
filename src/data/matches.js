@@ -39,7 +39,7 @@ export const FLAGS = {
 
 // Todos os 72 jogos da fase de grupos
 // date: ISO com fuso BRT (UTC-3)
-export const GROUP_MATCHES = [
+export const GROUP_MATCHES = ([
 
   // ─── RODADA 1 ──────────────────────────────────────────────────────────────
   // GRUPO A
@@ -166,7 +166,7 @@ export const GROUP_MATCHES = [
   // GRUPO J (simultâneos)
   { id:71, team1:'Argélia',        team2:'Áustria',         date:'2026-06-27T23:00:00-03:00', group:'J', city:'Kansas City',       venue:'Arrowhead Stadium',         phase:'Fase de Grupos' },
   { id:72, team1:'Jordânia',       team2:'Argentina',       date:'2026-06-27T23:00:00-03:00', group:'J', city:'Dallas',            venue:'AT&T Stadium',              phase:'Fase de Grupos' },
-]
+]).sort((a, b) => new Date(a.date) - new Date(b.date))
 
 // ── Utilitários ───────────────────────────────────────────────────────────────
 export function getFlag(team, size) {
