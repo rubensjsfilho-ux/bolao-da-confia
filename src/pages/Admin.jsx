@@ -23,9 +23,11 @@ function calcPoints(p1,p2,r1,r2){
 }
 
 // ── Card de resultado ─────────────────────────────────────────────────────────
-function MatchRow({ match, onSave, onFinish, onReset }){
+function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
   const [s1,setS1]=useState(match.score1??'')
   const [s2,setS2]=useState(match.score2??'')
+  const [streamUrl,setStreamUrl]=useState(match.stream_url||'')
+  const [streamSaved,setStreamSaved]=useState(false)
   const [saving,setSaving]=useState(false)
   const [finishing,setFinishing]=useState(false)
   const [resetting,setResetting]=useState(false)
@@ -48,6 +50,12 @@ function MatchRow({ match, onSave, onFinish, onReset }){
     await onSave(match.id,parseInt(s1),parseInt(s2))
     setSaving(false);setSaved(true)
     setTimeout(()=>setSaved(false),2500)
+  }
+
+  const saveStream = async()=>{
+    await onSaveStream(match.id, streamUrl.trim())
+    setStreamSaved(true)
+    setTimeout(()=>setStreamSaved(false),2500)
   }
 
   const finish = async()=>{
@@ -151,12 +159,26 @@ function MatchRow({ match, onSave, onFinish, onReset }){
           </>
         )}
       </div>
+      {/* Link da transmissão ao vivo */}
+      <div style={{ marginTop:10, display:'flex', gap:6, alignItems:'center' }}>
+        <input
+          type="text"
+          value={streamUrl}
+          onChange={e=>setStreamUrl(e.target.value)}
+          placeholder="🔴 Link YouTube do jogo (ex: youtube.com/watch?v=...)"
+          style={{ flex:1, background:'rgba(255,255,255,0.07)', border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 10px', color:C.text, fontSize:11, fontFamily:'Nunito,sans-serif', outline:'none' }}
+        />
+        <button onClick={saveStream}
+          style={{ background:streamSaved?'rgba(0,150,57,0.2)':'rgba(255,255,255,0.1)', color:streamSaved?C.green:C.text, border:`1px solid ${streamSaved?C.green:C.border}`, borderRadius:8, padding:'7px 12px', fontWeight:900, fontSize:11, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0 }}>
+          {streamSaved?'✓ Salvo!':'📡 Salvar link'}
+        </button>
+      </div>
     </div>
   )
 }
 
 // ── Aba de resultados ─────────────────────────────────────────────────────────
-function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
+function ResultsTab({ matches, loading, onSave, onFinish, onReset, onSaveStream }){
   const [group,setGroup]=useState('all')
   const [showDone,setShowDone]=useState(true) // ← padrão true para ver encerrados
   const groups=['all','A','B','C','D','E','F','G','H','I','J','K','L']
@@ -208,7 +230,7 @@ function ResultsTab({ matches, loading, onSave, onFinish, onReset }){
           <div style={{ fontSize:40, marginBottom:8 }}>✅</div>
           <p>Nenhum jogo neste filtro.</p>
         </div>
-      ) : filtered.map(m=><MatchRow key={m.id} match={m} onSave={onSave} onFinish={onFinish} onReset={onReset}/>)}
+      ) : filtered.map(m=><MatchRow key={m.id} match={m} onSave={onSave} onFinish={onFinish} onReset={onReset} onSaveStream={onSaveStream}/>)}
     </div>
   )
 }
@@ -608,6 +630,11 @@ export default function Admin(){
     await loadMatches()
   }
 
+  const saveStreamUrl=async(matchId,url)=>{
+    await supabase.from('matches').update({stream_url:url||null}).eq('id',matchId)
+    setMatches(prev=>prev.map(m=>m.id===matchId?{...m,stream_url:url||null}:m))
+  }
+
   const recalcTotals=async()=>{
     const{data:ps}=await supabase.from('participants').select('id')
     for(const p of ps||[]){
@@ -696,7 +723,7 @@ export default function Admin(){
             }}>{t.label}</button>
           ))}
         </div>
-        {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult} onFinish={finishMatch} onReset={resetMatch}/>}
+        {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult} onFinish={finishMatch} onReset={resetMatch} onSaveStream={saveStreamUrl}/>}
         {tab==='knockout'&&<KnockoutTab/>}
         {tab==='participants'&&<ParticipantsTab/>}
       </main>
