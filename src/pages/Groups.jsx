@@ -57,41 +57,54 @@ function calcStandings(groupLetter, results) {
 function MatchRow({ match, result }) {
   const hasScore   = result && result.score1 !== null && result.score1 !== undefined
   const isFinished = result?.is_finished
+  const isLive     = hasScore && !isFinished
+  const streamUrl  = result?.stream_url
   const d          = (match.match_date||match.date) ? new Date(match.match_date||match.date) : null
   const dateStr    = d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',timeZone:'America/Sao_Paulo'}) : 'DD/MM'
   const timeStr    = d ? d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}) : 'HH:MM'
 
   return (
-    <div style={{ display:'flex', alignItems:'center', background:'#fff', borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
-      <div style={{ width:4, alignSelf:'stretch', background:isFinished?'#009639':hasScore?'#F5A623':'#1A73E8', flexShrink:0 }}/>
-      {/* Data/hora */}
-      <div style={{ padding:'10px 8px', textAlign:'center', minWidth:46, flexShrink:0 }}>
-        <div style={{ fontSize:10, fontWeight:800, color:'#002855' }}>{dateStr}</div>
-        <div style={{ fontSize:10, fontWeight:700, color:'#9BABB8' }}>{timeStr}</div>
-        <div style={{ fontSize:8, color:'#C8D5E0', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', maxWidth:44, textOverflow:'ellipsis' }}>{match.city?.split('/')[0]||''}</div>
+    <div style={{ background:'#fff', borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
+      <div style={{ display:'flex', alignItems:'center' }}>
+        <div style={{ width:4, alignSelf:'stretch', background:isFinished?'#009639':isLive?'#F5A623':'#1A73E8', flexShrink:0 }}/>
+        {/* Data/hora */}
+        <div style={{ padding:'10px 8px', textAlign:'center', minWidth:46, flexShrink:0 }}>
+          <div style={{ fontSize:10, fontWeight:800, color:'#002855' }}>{dateStr}</div>
+          <div style={{ fontSize:10, fontWeight:700, color:'#9BABB8' }}>{timeStr}</div>
+          <div style={{ fontSize:8, color:'#C8D5E0', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', maxWidth:44, textOverflow:'ellipsis' }}>{match.city?.split('/')[0]||''}</div>
+        </div>
+        {/* Time 1 */}
+        <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
+          <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team1}</span>
+          <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(match.team1)}</span>
+        </div>
+        {/* Placar/VS */}
+        <div style={{ minWidth:56, textAlign:'center', flexShrink:0 }}>
+          {hasScore ? (
+            <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+              <span style={{ fontSize:13, fontWeight:900, color:'#fff', letterSpacing:1 }}>{result.score1} × {result.score2}</span>
+            </div>
+          ) : (
+            <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+              <span style={{ fontSize:11, fontWeight:900, color:'#fff', letterSpacing:1 }}>VS</span>
+            </div>
+          )}
+        </div>
+        {/* Time 2 */}
+        <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
+          <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(match.team2)}</span>
+          <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team2}</span>
+        </div>
       </div>
-      {/* Time 1 */}
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
-        <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team1}</span>
-        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(match.team1)}</span>
-      </div>
-      {/* Placar/VS */}
-      <div style={{ minWidth:56, textAlign:'center', flexShrink:0 }}>
-        {hasScore ? (
-          <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
-            <span style={{ fontSize:13, fontWeight:900, color:'#fff', letterSpacing:1 }}>{result.score1} × {result.score2}</span>
-          </div>
-        ) : (
-          <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
-            <span style={{ fontSize:11, fontWeight:900, color:'#fff', letterSpacing:1 }}>VS</span>
-          </div>
-        )}
-      </div>
-      {/* Time 2 */}
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
-        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(match.team2)}</span>
-        <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team2}</span>
-      </div>
+      {/* Botão Assistir — só aparece quando o jogo está em andamento */}
+      {isLive && (
+        <a href={streamUrl||'https://www.youtube.com/@CazéTV/live'} target="_blank" rel="noopener noreferrer"
+          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none', borderTop:'none' }}>
+          <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>
+          <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>AO VIVO — Assistir na CazéTV</span>
+          <span style={{ fontSize:12 }}>📺</span>
+        </a>
+      )}
     </div>
   )
 }
@@ -444,7 +457,7 @@ export default function Groups({ participant, onLogout }) {
   const [loading,     setLoading]     = useState(true)
 
   useEffect(() => {
-    supabase.from('matches').select('id,team1,team2,score1,score2,is_finished,match_date,city')
+    supabase.from('matches').select('id,team1,team2,score1,score2,is_finished,match_date,city,stream_url')
       .then(({ data }) => { const map={}; data?.forEach(m=>{map[m.id]=m}); setResults(map); setLoading(false) })
       .catch(()=>setLoading(false))
   }, [])
