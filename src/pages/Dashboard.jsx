@@ -290,6 +290,7 @@ function useWikiPhoto(wiki) {
 function TodayCarousel({ participant }) {
   const navigate = useNavigate()
   const [predictions, setPredictions] = useState({})
+  const [matchResults, setMatchResults] = useState({})
 
   const now = new Date()
   const tomorrowEnd = new Date(now)
@@ -307,6 +308,12 @@ function TodayCarousel({ participant }) {
         const map = {}
         data?.forEach(p => { map[p.match_id] = true })
         setPredictions(map)
+      })
+    supabase.from('matches').select('id,score1,score2,is_finished')
+      .then(({ data }) => {
+        const map = {}
+        data?.forEach(m => { map[m.id] = m })
+        setMatchResults(map)
       })
   }, [participant?.id])
 
@@ -352,6 +359,7 @@ function TodayCarousel({ participant }) {
             <MatchCard key={match.id} match={match}
               hasPred={!!predictions[match.id]}
               locked={isLocked(match.date)}
+              isLive={isLocked(match.date) && !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== undefined}
               today={dl.isToday}
               dateLabel={dl.label}
               formatTime={formatTime}
@@ -369,7 +377,7 @@ function TodayCarousel({ participant }) {
 const SUPABASE_URL = 'https://nkbumxaksiibljgpmgak.supabase.co'
 const getMatchThumb = (id) => `${SUPABASE_URL}/storage/v1/object/public/matches/match_${id}.png`
 
-function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap }) {
+function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTime, onTap }) {
   const [imgOk, setImgOk] = useState(true)
   const c1 = TEAM_COLORS[match.team1] || ['#1a2a4a','#2a4a6a']
   const c2 = TEAM_COLORS[match.team2] || ['#1a4a2a','#2a6a4a']
@@ -435,9 +443,22 @@ function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap
           <span style={{ color:'#002855', fontWeight:900, fontSize:10, flex:1, textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{match.team2}</span>
         </div>
         <div style={{ color:'#9BABB8', fontSize:8, textAlign:'center', marginBottom:7, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>📍 {match.city}</div>
-        <div style={{ background:statusBg, borderRadius:8, padding:'5px', textAlign:'center' }}>
-          <span style={{ color:statusColor, fontWeight:900, fontSize:10 }}>{statusText}</span>
-        </div>
+        {isLive ? (
+          <div style={{ display:'flex', gap:5 }}>
+            <div style={{ flex:1, background:'rgba(220,38,38,0.08)', borderRadius:8, padding:'5px', textAlign:'center', border:'1px solid rgba(220,38,38,0.2)' }}>
+              <span style={{ color:'#dc2626', fontWeight:900, fontSize:10 }}>🔴 Ao vivo</span>
+            </div>
+            <a href="https://www.youtube.com/@CazéTV/live" target="_blank" rel="noopener noreferrer"
+              onClick={e=>e.stopPropagation()}
+              style={{ flex:1, background:'#dc2626', borderRadius:8, padding:'5px', textAlign:'center', textDecoration:'none', display:'block' }}>
+              <span style={{ color:'#fff', fontWeight:900, fontSize:10 }}>▶ Assistir</span>
+            </a>
+          </div>
+        ) : (
+          <div style={{ background:statusBg, borderRadius:8, padding:'5px', textAlign:'center' }}>
+            <span style={{ color:statusColor, fontWeight:900, fontSize:10 }}>{statusText}</span>
+          </div>
+        )}
       </div>
     </div>
   )
