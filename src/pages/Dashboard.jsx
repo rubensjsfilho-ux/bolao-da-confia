@@ -290,6 +290,7 @@ function useWikiPhoto(wiki) {
 function TodayCarousel({ participant }) {
   const navigate = useNavigate()
   const [predictions, setPredictions] = useState({})
+  const [dbMatches, setDbMatches] = useState({})
   const [matchResults, setMatchResults] = useState({})
 
   const now = new Date()
@@ -302,6 +303,11 @@ function TodayCarousel({ participant }) {
   const displayMatches = todayMatches.length > 0 ? todayMatches : upcoming.slice(0,6)
 
   useEffect(() => {
+    supabase.from('matches').select('id,score1,score2,is_finished,stream_url')
+      .then(({ data }) => { const map={}; data?.forEach(m=>{map[m.id]=m}); setDbMatches(map) })
+  }, [])
+
+  useEffect(() => {
     if (!participant?.id) return
     supabase.from('predictions').select('match_id').eq('participant_id', participant.id)
       .then(({ data }) => {
@@ -309,7 +315,7 @@ function TodayCarousel({ participant }) {
         data?.forEach(p => { map[p.match_id] = true })
         setPredictions(map)
       })
-    supabase.from('matches').select('id,score1,score2,is_finished')
+    supabase.from('matches').select('id,score1,score2,is_finished,stream_url')
       .then(({ data }) => {
         const map = {}
         data?.forEach(m => { map[m.id] = m })
@@ -363,6 +369,7 @@ function TodayCarousel({ participant }) {
               today={dl.isToday}
               dateLabel={dl.label}
               formatTime={formatTime}
+              streamUrl={dbMatches[match.id]?.stream_url}
               onTap={()=>{ if(!isLocked(match.date)) navigate(`/palpites?match=${match.id}`) }}
             />
           )
@@ -377,7 +384,7 @@ function TodayCarousel({ participant }) {
 const SUPABASE_URL = 'https://nkbumxaksiibljgpmgak.supabase.co'
 const getMatchThumb = (id) => `${SUPABASE_URL}/storage/v1/object/public/matches/match_${id}.png`
 
-function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTime, onTap }) {
+function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTime, streamUrl, onTap }) {
   const [imgOk, setImgOk] = useState(true)
   const c1 = TEAM_COLORS[match.team1] || ['#1a2a4a','#2a4a6a']
   const c2 = TEAM_COLORS[match.team2] || ['#1a4a2a','#2a6a4a']
@@ -448,7 +455,7 @@ function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTim
             <div style={{ flex:1, background:'rgba(220,38,38,0.08)', borderRadius:8, padding:'5px', textAlign:'center', border:'1px solid rgba(220,38,38,0.2)' }}>
               <span style={{ color:'#dc2626', fontWeight:900, fontSize:10 }}>🔴 Ao vivo</span>
             </div>
-            <a href="https://www.youtube.com/@CazéTV/live" target="_blank" rel="noopener noreferrer"
+            <a href={streamUrl||"https://www.youtube.com/@CazéTV/live"} target="_blank" rel="noopener noreferrer"
               onClick={e=>e.stopPropagation()}
               style={{ flex:1, background:'#dc2626', borderRadius:8, padding:'5px', textAlign:'center', textDecoration:'none', display:'block' }}>
               <span style={{ color:'#fff', fontWeight:900, fontSize:10 }}>▶ Assistir</span>
