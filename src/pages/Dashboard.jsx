@@ -665,7 +665,7 @@ export default function Dashboard({ participant, onLogout }) {
       )}
 
       <div style={{ paddingTop: openCount>0?96:58 }}>
-        <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/palpites')}/>
+        <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/grupos')}/>
 
         <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <TodayCarousel participant={participant} />
