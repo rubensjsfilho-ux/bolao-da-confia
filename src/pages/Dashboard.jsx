@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
@@ -17,13 +17,8 @@ function useIsMobile() {
 }
 
 function Hero({ onPalpites, onJogos }) {
-  const isMobile  = useIsMobile()
-  const navigate  = useNavigate()
+  const isMobile = useIsMobile()
   const [t, setT] = useState({ d:0, h:0, m:0, s:0 })
-  const [slide, setSlide]   = useState(0)
-  const timerRef = useRef(null)
-
-  // Countdown
   useEffect(() => {
     const target = new Date('2026-06-11T22:00:00Z')
     const tick = () => {
@@ -33,172 +28,113 @@ function Hero({ onPalpites, onJogos }) {
     }
     tick(); const id = setInterval(tick,1000); return ()=>clearInterval(id)
   },[])
-
-  // Carousel auto-advance
-  const resetCarousel = useCallback(() => {
-    if (timerRef.current) clearInterval(timerRef.current)
-    timerRef.current = setInterval(() => setSlide(s => (s + 1) % 2), 5000)
-  }, [])
-  useEffect(() => { resetCarousel(); return () => clearInterval(timerRef.current) }, [resetCarousel])
-
-  const goTo = (i) => { setSlide(i); resetCarousel() }
   const started = new Date() >= new Date('2026-06-11T22:00:00Z')
-  const SLIDE_H = isMobile ? 310 : 340
 
   return (
-    <div style={{ position:'relative', overflow:'hidden', background:'#050e05' }}>
+    <div style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
 
-      {/* ── Slider track ─────────────────────────────────────────────────── */}
-      <div style={{ display:'flex', transform:`translateX(${-slide * 100}%)`, transition:'transform 0.55s cubic-bezier(0.4,0,0.2,1)' }}>
+      {/* Fundo com gradiente escuro + efeito radial verde */}
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
 
-        {/* ── Slide 1 — Hero principal ──────────────────────────────────── */}
-        <div style={{ minWidth:'100%', position:'relative', overflow:'hidden', minHeight:SLIDE_H }}>
+      {/* Linha vertical decorativa esquerda */}
+      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
-          {/* Fundo */}
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
-          <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
-
-          {/* Imagem direita */}
-          <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
-            {isMobile ? (
-              <>
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
-                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg" alt="Taça Copa 2026"
-                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
-                  onError={e => { e.target.style.display='none' }}/>
-              </>
-            ) : (
-              <>
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
-                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png" alt="Bolão da Confia 2026"
-                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
-                  onError={e => { e.target.style.display='none' }}/>
-              </>
-            )}
-          </div>
-
-          {/* Conteúdo */}
-          <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
-              <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
-              <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
-            </div>
-            <div style={{ marginBottom:12 }}>
-              <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
-              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
-                <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
-                <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
-              </div>
-              <span style={{ fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 62 : 110, lineHeight:.85, letterSpacing:-4, background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', display:'inline-block', filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))' }}>2026</span>
-            </div>
-            <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
-              {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
-                <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
-                  {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
-                  <span>{flag}</span><span>{name}</span>
-                </span>
-              ))}
-            </div>
-            {!started ? (
-              <div style={{ display:'flex', gap:5, marginBottom:18 }}>
-                {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
-                  <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
-                    <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
-                    <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
-                <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
-                <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
-              </div>
-            )}
-            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-              <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
-                🎯 FAZER PALPITES
-              </button>
-              <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
-                📅 VER JOGOS
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Slide 2 — Brasil × Marrocos ───────────────────────────────── */}
-        <div
-          onClick={() => navigate('/palpites?match=7')}
-          style={{ minWidth:'100%', position:'relative', overflow:'hidden', minHeight:SLIDE_H, cursor:'pointer' }}
-        >
-          {/* Imagem de fundo — celular ou desktop */}
-          <img
-            src={isMobile ? '/images/brasil-marrocos-mobile.png.PNG' : '/images/brasil-marrocos-desktop.png.PNG'}
-            alt="Brasil × Marrocos"
-            style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition: isMobile ? 'center top' : 'center center' }}
-          />
-
-          {/* Gradiente escuro na base para legibilidade */}
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0.08) 100%)' }}/>
-          {/* Linha verde esquerda */}
-          <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #009639, #F5A623, #009639)', zIndex:2 }}/>
-
-          {/* Conteúdo na base */}
-          <div style={{ position:'absolute', bottom: isMobile ? 18 : 24, left:0, right:0, padding:'0 20px', zIndex:3 }}>
-            {/* Badge do jogo */}
-            <div style={{ marginBottom:8 }}>
-              <span style={{
-                background:'rgba(0,40,85,0.75)', color:'#fff',
-                borderRadius:20, padding:'4px 12px',
-                fontSize:10, fontWeight:800, letterSpacing:.8,
-                border:'1px solid rgba(0,196,79,0.4)',
-                backdropFilter:'blur(6px)',
-              }}>
-                ⚽ GRUPO C · 13 JUN · 19H (BRASÍLIA)
-              </span>
-            </div>
-
-            {/* Título CTA */}
-            <div style={{
-              color:'#fff', fontWeight:900,
-              fontSize: isMobile ? 18 : 26,
-              lineHeight:1.2, marginBottom:14,
-              textShadow:'0 2px 10px rgba(0,0,0,0.7)',
-            }}>
-              Faça seu palpite para<br/>o jogo do <span style={{ color:'#F5A623' }}>Brasil!</span>
-            </div>
-
-            {/* Botão */}
-            <button
-              onClick={e => { e.stopPropagation(); navigate('/palpites?match=7') }}
-              style={{
-                background:'linear-gradient(90deg,#009639,#00c44f)',
-                color:'#fff', border:'none', borderRadius:10,
-                padding:'12px 20px', fontWeight:900, fontSize: isMobile ? 13 : 15,
-                cursor:'pointer', fontFamily:'Nunito,sans-serif',
-                display:'inline-flex', alignItems:'center', gap:6,
-                boxShadow:'0 4px 22px rgba(0,150,57,0.55)',
-              }}
-            >
-              🎯 PALPITAR AGORA
-            </button>
-          </div>
-        </div>
-
-      </div>{/* fim slider track */}
-
-      {/* ── Dots de navegação ────────────────────────────────────────────── */}
-      <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:7, padding:'7px 0', background:'rgba(0,0,0,0.45)', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
-        {[0,1].map(i => (
-          <button key={i} onClick={() => goTo(i)} style={{
-            width: i===slide ? 22 : 7, height:7, borderRadius:4, padding:0, border:'none',
-            background: i===slide ? '#00c44f' : 'rgba(255,255,255,0.28)',
-            cursor:'pointer', transition:'all .3s',
-          }}/>
-        ))}
+      {/* Imagem direita — taça no mobile, banner no desktop */}
+      <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
+        {isMobile ? (
+          <>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
+            <img
+              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
+              alt="Taça Copa 2026"
+              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
+              onError={e => { e.target.style.display='none' }}
+            />
+          </>
+        ) : (
+          <>
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
+            <img
+              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png"
+              alt="Bolão da Confia 2026"
+              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
+              onError={e => { e.target.style.display='none' }}
+            />
+          </>
+        )}
       </div>
 
-      {/* ── Features strip ───────────────────────────────────────────────── */}
+      {/* Conteúdo — esquerda */}
+      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
+
+        {/* Label topo */}
+        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
+          <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
+          <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
+        </div>
+
+        {/* COPA DO MUNDO FIFA + 2026 — proporcionais */}
+        <div style={{ marginBottom:12 }}>
+          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
+            <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
+            <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
+          </div>
+          <span style={{
+            fontFamily:'Arial Black, Impact, sans-serif',
+            fontWeight:900,
+            fontSize: isMobile ? 62 : 110,
+            lineHeight:.85,
+            letterSpacing:-4,
+            background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)',
+            WebkitBackgroundClip:'text',
+            WebkitTextFillColor:'transparent',
+            backgroundClip:'text',
+            display:'inline-block',
+            filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))',
+          }}>2026</span>
+        </div>
+
+        {/* Países sede */}
+        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
+          {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
+            <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
+              {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
+              <span>{flag}</span><span>{name}</span>
+            </span>
+          ))}
+        </div>
+
+        {/* Countdown ou badge ao vivo */}
+        {!started ? (
+          <div style={{ display:'flex', gap:5, marginBottom:18 }}>
+            {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
+              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
+                <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
+                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
+            <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
+          </div>
+        )}
+
+        {/* Botões */}
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
+            🎯 FAZER PALPITES
+          </button>
+          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
+            📅 VER JOGOS
+          </button>
+        </div>
+      </div>
+
+      {/* Features strip */}
       <div style={{ position:'relative', zIndex:3, display:'grid', gridTemplateColumns:'repeat(4,1fr)', borderTop:'1px solid rgba(255,255,255,0.07)', background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)' }}>
         {[
           ['🏆','Prêmios','Exclusivos'],
@@ -244,139 +180,110 @@ function StatsStrip({ stats, totalParts, myRank }) {
 }
 
 // ── DADOS DOS ESCUDOS E JOGADORES ─────────────────────────────────────────────
-// Escudos via ESPN CDN — sem CORS, sem API key
-// URL: https://a.espncdn.com/i/teamlogos/soccer/500/{ID}.png
+const CDN = "https://cdn.prod.website-files.com/68f550992570ca0322737dc2/"
+// ESPN team IDs → escudos oficiais das seleções
 const ESPN_TEAM_IDS = {
-  'Brasil':           205,
-  'Argentina':        2750,
-  'França':           587,
-  'Alemanha':         481,
-  'Espanha':          164,
-  'Portugal':         2802,
-  'Inglaterra':       5159,
-  'Holanda':          2576,
-  'Bélgica':          2808,
-  'México':           203,
-  'Estados Unidos':   2765,
-  'Uruguai':          2774,
-  'Canadá':           206,
-  'Marrocos':         2742,
-  'Senegal':          2806,
-  'Escócia':          2807,
-  'Croácia':          2805,
-  'Suíça':            2817,
-  'Turquia':          2818,
-  'Colômbia':         2853,
-  'Paraguai':         2735,
-  'Equador':          2804,
-  'Egito':            2788,
-  'Gana':             2791,
-  'Panamá':           2734,
-  'África do Sul':    2795,
-  'Cabo Verde':       17859,
-  'Argélia':          2780,
-  'Tunísia':          2816,
-  'Costa do Marfim':  2786,
-  'RD Congo':         3210,
-  'Curaçao':          15985,
-  'Haiti':            2793,
-  'Uzbequistão':      12513,
-  'Nova Zelândia':    2743,
-  'Áustria':          2782,
-  'Noruega':          2797,
-  'Coreia do Sul':    17639,
-  'Japão':            2796,
-  'Austrália':        2781,
-  'Irã':              2794,
-  'Arábia Saudita':   2803,
-  'República Tcheca': 2785,
-  'República Tch.':   2785,
-  'Bósnia e Herz.':   3204,
-  'Sérvia':           18276,
-  'Suécia':           2814,
-  'Polônia':          2799,
-  'Dinamarca':        2787,
-  'Hungria':          2733,
-  'Romênia':          2801,
-  'Geórgia':          17858,
-  'Grécia':           2792,
-  'Eslovênia':        2810,
-  'Venezuela':        2775,
-  'Peru':             2736,
-  'Chile':            2752,
-  'Bolívia':          2751,
-  'Costa Rica':       2753,
-  'Jamaica':          2731,
-  'Catar':            2800,
-  'Iraque':           3212,
-  'Indonésia':        17636,
+  'Brasil':205,'Argentina':2750,'França':587,'Alemanha':481,'Espanha':164,
+  'Portugal':2802,'Inglaterra':5159,'Holanda':2576,'Bélgica':2808,
+  'México':203,'Estados Unidos':2765,'Uruguai':2774,'Canadá':206,
+  'Marrocos':2742,'Senegal':2806,'Escócia':2807,'Croácia':2805,
+  'Suíça':2817,'Turquia':2818,'Colômbia':2853,'Paraguai':2735,
+  'Equador':2804,'Egito':2788,'Gana':2791,'Panamá':2734,
+  'África do Sul':2795,'Argélia':2780,'Tunísia':2816,
+  'Costa do Marfim':2786,'Uzbequistão':12513,'Nova Zelândia':2743,
+  'Áustria':2782,'Noruega':2797,'Coreia do Sul':17639,'Japão':2796,
+  'Austrália':2781,'Irã':2794,'Arábia Saudita':2803,
+  'República Tcheca':2785,'República Tch.':2785,'Bósnia e Herz.':3204,
+  'Sérvia':18276,'Suécia':2814,'Polônia':2799,'Dinamarca':2787,
+  'Hungria':2733,'Romênia':2801,'Geórgia':17858,'Grécia':2792,
+  'Eslovênia':2810,'Venezuela':2775,'Peru':2736,'Chile':2752,
+  'Bolívia':2751,'Costa Rica':2753,'Jamaica':2731,'Catar':2800,
+  'Iraque':3212,'Indonésia':17636,'RD Congo':3210,'Haiti':2793,
+  'Curaçao':15985,'Cabo Verde':17859,
 }
 
-function getCrestUrl(team) {
-  const id = ESPN_TEAM_IDS[team]
-  if (!id) return null
-  return `https://a.espncdn.com/i/teamlogos/soccer/500/${id}.png`
+const CRESTS = Object.fromEntries(
+  Object.entries(ESPN_TEAM_IDS).map(([k,v]) => [k, `https://a.espncdn.com/i/teamlogos/soccer/500/${v}.png`])
+)
+
+const STARS = {
+  'Brasil':         { name:'Vini Jr.',       wiki:'Vinícius_Júnior' },
+  'Argentina':      { name:'L. Messi',       wiki:'Lionel_Messi' },
+  'França':         { name:'K. Mbappé',      wiki:'Kylian_Mbappé' },
+  'Alemanha':       { name:'J. Kimmich',     wiki:'Joshua_Kimmich' },
+  'Espanha':        { name:'Pedri',          wiki:'Pedri' },
+  'Portugal':       { name:'C. Ronaldo',     wiki:'Cristiano_Ronaldo' },
+  'Inglaterra':     { name:'J. Bellingham',  wiki:'Jude_Bellingham' },
+  'Holanda':        { name:'V. van Dijk',    wiki:'Virgil_van_Dijk' },
+  'Bélgica':        { name:'K. De Bruyne',   wiki:'Kevin_De_Bruyne' },
+  'México':         { name:'H. Lozano',      wiki:'Hirving_Lozano' },
+  'Estados Unidos': { name:'C. Pulisic',     wiki:'Christian_Pulisic' },
+  'Uruguai':        { name:'D. Núñez',       wiki:'Darwin_Núñez' },
+  'Canadá':         { name:'A. Davies',      wiki:'Alphonso_Davies' },
+  'Marrocos':       { name:'A. Hakimi',      wiki:'Achraf_Hakimi' },
+  'Senegal':        { name:'S. Mané',        wiki:'Sadio_Mané' },
+  'Escócia':        { name:'A. Robertson',   wiki:'Andrew_Robertson' },
+  'Croácia':        { name:'L. Modrić',      wiki:'Luka_Modrić' },
+  'Suíça':          { name:'G. Xhaka',       wiki:'Granit_Xhaka' },
+  'Turquia':        { name:'H. Çalhanoğlu',  wiki:'Hakan_Çalhanoğlu' },
+  'Colômbia':       { name:'L. Díaz',        wiki:'Luis_Díaz_(footballer,_born_1997)' },
+  'Paraguai':       { name:'M. Almirón',     wiki:'Miguel_Almirón' },
+  'Egito':          { name:'M. Salah',       wiki:'Mohamed_Salah' },
+  'Gana':           { name:'T. Partey',      wiki:'Thomas_Partey' },
+  'Coreia do Sul':  { name:'Son Heung-min',  wiki:'Son_Heung-min' },
+  'Japão':          { name:'T. Endo',        wiki:'Wataru_Endo' },
+  'Austrália':      { name:'M. Leckie',      wiki:'Mathew_Leckie' },
+  'Irã':            { name:'S. Azmoun',      wiki:'Sardar_Azmoun' },
+  'Arábia Saudita': { name:'S. Al-Dawsari',  wiki:'Salem_Al-Dawsari' },
+  'África do Sul':  { name:'P. Tau',         wiki:'Percy_Tau' },
+  'Noruega':        { name:'E. Haaland',     wiki:'Erling_Haaland' },
+  'Áustria':        { name:'D. Alaba',       wiki:'David_Alaba' },
 }
 
-const CRESTS = {}
+const TEAM_COLORS = {
+  'Brasil':['#009C3B','#FFDF00'], 'Argentina':['#74ACDF','#fff'],
+  'França':['#002395','#ED2939'], 'Alemanha':['#000','#DD0000'],
+  'Espanha':['#AA151B','#F1BF00'], 'Portugal':['#006600','#FF0000'],
+  'Inglaterra':['#CF091D','#fff'], 'Holanda':['#FF6600','#003DA5'],
+  'Bélgica':['#000','#EF3340'], 'México':['#006847','#CE1126'],
+  'Estados Unidos':['#002868','#BF0A30'], 'Uruguai':['#5EB6E4','#fff'],
+  'Canadá':['#FF0000','#fff'], 'Marrocos':['#C1272D','#006233'],
+  'Senegal':['#00853F','#FDEF42'], 'Escócia':['#003DA5','#fff'],
+  'Croácia':['#FF0000','#fff'], 'Suíça':['#FF0000','#fff'],
+  'Turquia':['#E30A17','#fff'], 'Colômbia':['#FCD116','#003087'],
+  'Paraguai':['#D52B1E','#fff'], 'Egito':['#CE1126','#fff'],
+  'Gana':['#006B3F','#FCD116'], 'Panamá':['#DA121A','#fff'],
+  'Coreia do Sul':['#CD2E3A','#003478'], 'Japão':['#BC002D','#fff'],
+  'Austrália':['#FFD700','#006400'], 'Irã':['#239F40','#DA0000'],
+  'Noruega':['#EF2B2D','#fff'], 'Áustria':['#ED2939','#fff'],
+  'África do Sul':['#007A4D','#FFB612'], 'Argélia':['#006233','#D21034'],
+  'Tunísia':['#E70013','#fff'],
+}
 
-
-// ESPN CDN — headshots oficiais (sem CORS, sem API key)
-// URL: https://a.espncdn.com/i/headshots/soccer/players/full/{ID}.png
+// ESPN player IDs → headshots com uniforme da seleção
 const ESPN_IDS = {
-  'Vinícius_Júnior':    252107,
-  'Lionel_Messi':       45843,
-  'Kylian_Mbappé':      188545,
-  'Joshua_Kimmich':     209819,
-  'Pedri':              291743,
-  'Cristiano_Ronaldo':  1341,
-  'Jude_Bellingham':    320097,
-  'Virgil_van_Dijk':    195857,
-  'Kevin_De_Bruyne':    156616,
-  'Hirving_Lozano':     192048,
-  'Christian_Pulisic':  198710,
-  'Darwin_Núñez':       279634,
-  'Alphonso_Davies':    253537,
-  'Achraf_Hakimi':      241649,
-  'Sadio_Mané':         158278,
-  'Andrew_Robertson':   194026,
-  'Luka_Modrić':        76762,
-  'Granit_Xhaka':       163399,
-  'Hakan_Çalhanoğlu':   155490,
-  'Luis_Díaz_(footballer,_born_1997)': 265892,
-  'Miguel_Almirón':     197681,
-  'Mohamed_Salah':      134771,
-  'Thomas_Partey':      216154,
-  'Son_Heung-min':      149945,
-  'Wataru_Endo':        232064,
-  'Mathew_Leckie':      142402,
-  'Mehdi_Taremi':       200503,
-  'Sardar_Azmoun':      208889,
-  'Salem_Al-Dawsari':   210901,
-  'Keagan_Dolly':       226563,
-  'Percy_Tau':          226563,
-  'Erling_Haaland':     253989,
-  'Marcel_Sabitzer':    196793,
-  'David_Alaba':        142765,
-  'Tomáš_Souček':       228649,
-  'Edin_Džeko':         68874,
-  'Robert_Lewandowski': 113304,
-  'Viktor_Gyökeres':    282406,
-  'Dominik_Szoboszlai': 284799,
-  'Dušan_Vlahović':     272979,
-  'Khvicha_Kvaratskhelia': 313617,
-  'Riyad_Mahrez':       160047,
-  'Sébastien_Haller':   211117,
-  'Robert_Lewandowski': 113304,
-  'Hiroki_Ito':         232064,
-  'Keylor_Navas':       132208,
+  'Vinícius_Júnior':252107,'Lionel_Messi':45843,'Kylian_Mbappé':188545,
+  'Joshua_Kimmich':209819,'Pedri':291743,'Cristiano_Ronaldo':1341,
+  'Jude_Bellingham':320097,'Virgil_van_Dijk':195857,'Kevin_De_Bruyne':156616,
+  'Hirving_Lozano':192048,'Christian_Pulisic':198710,'Darwin_Núñez':279634,
+  'Alphonso_Davies':253537,'Achraf_Hakimi':241649,'Sadio_Mané':158278,
+  'Andrew_Robertson':194026,'Luka_Modrić':76762,'Granit_Xhaka':163399,
+  'Hakan_Çalhanoğlu':155490,'Luis_Díaz_(footballer,_born_1997)':265892,
+  'Miguel_Almirón':197681,'Mohamed_Salah':134771,'Thomas_Partey':216154,
+  'Son_Heung-min':149945,'Wataru_Endo':232064,'Mathew_Leckie':142402,
+  'Mehdi_Taremi':200503,'Sardar_Azmoun':208889,'Salem_Al-Dawsari':210901,
+  'Percy_Tau':226563,'Keagan_Dolly':226563,'Erling_Haaland':253989,
+  'Marcel_Sabitzer':196793,'David_Alaba':142765,'Tomáš_Souček':228649,
+  'Edin_Džeko':68874,'Robert_Lewandowski':113304,'Viktor_Gyökeres':282406,
+  'Dominik_Szoboszlai':284799,'Dušan_Vlahović':272979,
+  'Khvicha_Kvaratskhelia':313617,'Riyad_Mahrez':160047,
+  'Sébastien_Haller':211117,'Keylor_Navas':132208,
 }
 
-
-function getPlayerPhoto(wiki) {
+function useWikiPhoto(wiki) {
   const id = ESPN_IDS[wiki]
-  if (!id) return null
-  return `https://a.espncdn.com/i/headshots/soccer/players/full/${id}.png`
+  if (id) return `https://a.espncdn.com/i/headshots/soccer/players/full/${id}.png`
+  return null
 }
 
 // ── CARROSSEL DE JOGOS DO DIA ─────────────────────────────────────────────────
@@ -461,8 +368,8 @@ function TodayCarousel({ participant }) {
 function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap }) {
   const star1 = STARS[match.team1]
   const star2 = STARS[match.team2]
-  const photo1 = star1 ? getPlayerPhoto(star1.wiki) : null
-  const photo2 = star2 ? getPlayerPhoto(star2.wiki) : null
+  const photo1 = star1 ? useWikiPhoto(star1.wiki) : null
+  const photo2 = star2 ? useWikiPhoto(star2.wiki) : null
   const c1 = TEAM_COLORS[match.team1] || ['#002855','#009639']
   const c2 = TEAM_COLORS[match.team2] || ['#009639','#002855']
 
@@ -487,8 +394,8 @@ function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
           {/* Escudo */}
           <div style={{ position:'absolute', top:6, left:6, zIndex:2, width:26, height:26 }}>
-            {getCrestUrl(match.team1)
-              ? <img src={getCrestUrl(match.team1)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:4, filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }} onError={e=>{e.target.style.display='none'}}/>
+            {CRESTS[match.team1]
+              ? <img src={CRESTS[match.team1]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
               : <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>}
           </div>
           {/* Badge data do jogo */}
@@ -512,8 +419,8 @@ function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to left,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
           <div style={{ position:'absolute', top:6, right:6, zIndex:2, width:26, height:26 }}>
-            {getCrestUrl(match.team2)
-              ? <img src={getCrestUrl(match.team2)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:4, filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }} onError={e=>{e.target.style.display='none'}}/>
+            {CRESTS[match.team2]
+              ? <img src={CRESTS[match.team2]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
               : <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>}
           </div>
           <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
@@ -674,7 +581,7 @@ function Top5({ participant, ranking, myRank }) {
               {i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}º`}
             </div>
             <div style={{ width:28, height:28, borderRadius:'50%', overflow:'hidden', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0, border:isMe?'2px solid #009639':'none' }}>
-              {p.avatar_url ? <img src={p.avatar_url.startsWith('http') ? p.avatar_url : `https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/${p.avatar_url}`} style={{ width:'100%', height:'100%', objectFit:'cover' }} onError={e=>{e.target.style.display='none'}}/> : p.avatar_emoji}
+              {p.avatar_url ? <img src={p.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : p.avatar_emoji}
             </div>
             <span style={{ flex:1, color:isMe?'#009639':'#002855', fontWeight:800, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}{isMe?' (você)':''}</span>
             <span style={{ color:isMe?'#009639':'#6B7A8D', fontWeight:900, fontSize:11 }}>{(p.total_points||0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
@@ -688,7 +595,7 @@ function Top5({ participant, ranking, myRank }) {
           <div style={{ display:'flex', alignItems:'center', gap:7, padding:'6px 8px', borderRadius:10, background:'#e8f5ee', border:'1px solid rgba(0,150,57,0.2)' }}>
             <div style={{ width:22, height:22, borderRadius:'50%', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900, color:'#9BABB8', flexShrink:0 }}>{myRank}º</div>
             <div style={{ width:28, height:28, borderRadius:'50%', overflow:'hidden', background:'#F4F6F9', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0, border:'2px solid #009639' }}>
-              {participant.avatar_url ? <img src={participant.avatar_url.startsWith('http') ? participant.avatar_url : `https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/${participant.avatar_url}`} style={{ width:'100%', height:'100%', objectFit:'cover' }} onError={e=>{e.target.style.display='none'}}/> : participant.avatar_emoji}
+              {participant.avatar_url ? <img src={participant.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : participant.avatar_emoji}
             </div>
             <span style={{ flex:1, color:'#009639', fontWeight:800, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{participant.name} (você)</span>
             <span style={{ color:'#009639', fontWeight:900, fontSize:11 }}>{(participant.total_points||0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
@@ -772,90 +679,26 @@ export default function Dashboard({ participant, onLogout }) {
           <NewsWidget/>
           <Top5 participant={participant} ranking={ranking} myRank={myRank}/>
 
-          {/* Banners — Cards clicáveis */}
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-
-            {/* Card branco — Prêmios */}
-            <div
-              onClick={()=>navigate('/premios')}
-              style={{
-                background:'#fff', borderRadius:18,
-                border:'1.5px solid #E2EAF0',
-                boxShadow:'0 4px 24px rgba(0,150,57,0.10)',
-                padding:'18px 18px 16px',
-                position:'relative', overflow:'hidden',
-                cursor:'pointer',
-                transition:'transform .18s, box-shadow .18s',
-              }}
-              onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(0,150,57,0.18)' }}
-              onMouseLeave={e=>{ e.currentTarget.style.transform='translateY(0)';   e.currentTarget.style.boxShadow='0 4px 24px rgba(0,150,57,0.10)' }}
-            >
-              {/* Barra verde de destaque */}
-              <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:'linear-gradient(90deg,#009639,#00c44f,#F5A623)', borderRadius:'18px 18px 0 0' }}/>
-              {/* Decoração */}
-              <div style={{ position:'absolute', right:-12, bottom:-12, opacity:.10 }}>
-                <img src="/images/trophy-multi.webp" style={{ width:100, height:100, objectFit:'contain' }} alt=""/>
+          {/* Banners */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+            <div style={{ background:'#fff', borderRadius:14, padding:'14px 12px', border:'1px solid #E2EAF0', position:'relative', overflow:'hidden' }}>
+              <div style={{ position:'absolute', right:-8, bottom:-8, opacity:.12 }}>
+                <img src="/images/trophy-multi.webp" style={{ width:80, height:80, objectFit:'contain' }} alt=""/>
               </div>
-              <div style={{ position:'relative', zIndex:1, display:'flex', alignItems:'flex-start', justifyContent:'space-between' }}>
-                <div>
-                  <div style={{ color:'#6B7A8D', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:1.2, marginBottom:6 }}>💰 Prêmio em disputa</div>
-                  <div style={{ color:'#009639', fontWeight:900, fontSize:20, lineHeight:1.15, marginBottom:4 }}>Cresce a cada<br/>nova entrada!</div>
-                  <div style={{ color:'#9BABB8', fontSize:11, marginBottom:12 }}>50 vagas · R$ 20 cada</div>
-                  <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'#009639', color:'#fff', borderRadius:10, padding:'7px 14px', fontSize:11, fontWeight:800 }}>
-                    Ver prêmios <span style={{ fontSize:14 }}>→</span>
-                  </div>
-                </div>
-                <div style={{ background:'rgba(0,150,57,0.08)', border:'1px solid rgba(0,150,57,0.18)', borderRadius:12, padding:'8px 10px', textAlign:'center', flexShrink:0 }}>
-                  <div style={{ fontSize:24 }}>🏆</div>
-                  <div style={{ color:'#009639', fontWeight:900, fontSize:9, marginTop:2, letterSpacing:.5, textTransform:'uppercase' }}>Top 3</div>
-                  <div style={{ color:'#9BABB8', fontSize:8, marginTop:1 }}>ganham</div>
-                </div>
-              </div>
+              <div style={{ color:'#6B7A8D', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>Prêmio para o Campeão</div>
+              <div style={{ color:'#009639', fontWeight:900, fontSize:14, lineHeight:1.2, marginBottom:2 }}>Cresce a cada<br/>nova entrada!</div>
+              <div style={{ color:'#9BABB8', fontSize:10, margin:'3px 0 10px' }}>50 vagas · R$ 20 cada</div>
+              <button onClick={()=>navigate('/premios')} style={{ background:'#009639', color:'#fff', border:'none', borderRadius:8, padding:'6px 10px', fontWeight:800, fontSize:9, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>VER PRÊMIOS</button>
             </div>
 
-            {/* Card verde — Regras */}
-            <div
-              onClick={()=>navigate('/regras')}
-              style={{
-                borderRadius:18,
-                background:'linear-gradient(135deg, #001833 0%, #002855 50%, #003d1a 100%)',
-                border:'1.5px solid rgba(0,150,57,0.35)',
-                boxShadow:'0 4px 28px rgba(0,40,85,0.30)',
-                padding:'18px 18px 16px',
-                position:'relative', overflow:'hidden',
-                cursor:'pointer',
-                transition:'transform .18s, box-shadow .18s',
-              }}
-              onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 36px rgba(0,40,85,0.45)' }}
-              onMouseLeave={e=>{ e.currentTarget.style.transform='translateY(0)';    e.currentTarget.style.boxShadow='0 4px 28px rgba(0,40,85,0.30)' }}
-            >
-              {/* Glow de fundo */}
-              <div style={{ position:'absolute', right:-30, top:-30, width:140, height:140, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,150,57,0.18) 0%,transparent 70%)', pointerEvents:'none' }}/>
-              <div style={{ position:'absolute', left:-20, bottom:-20, width:100, height:100, borderRadius:'50%', background:'radial-gradient(circle,rgba(245,166,35,0.10) 0%,transparent 70%)', pointerEvents:'none' }}/>
-              {/* Barra dourada */}
-              <div style={{ position:'absolute', top:0, left:0, right:0, height:4, background:'linear-gradient(90deg,#F5A623,#FFD700,#F5A623)', borderRadius:'18px 18px 0 0' }}/>
-
-              <div style={{ position:'relative', zIndex:1, display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
-                <div style={{ flex:1 }}>
-                  <div style={{ color:'rgba(255,255,255,0.45)', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:1.2, marginBottom:6 }}>📋 Guia do bolão</div>
-                  <div style={{ color:'#fff', fontWeight:900, fontSize:18, lineHeight:1.25, marginBottom:6 }}>
-                    Prazos, pontos<br/>e critérios
-                  </div>
-                  <div style={{ color:'rgba(255,255,255,0.5)', fontSize:11, marginBottom:12, lineHeight:1.4 }}>
-                    Quando palpitar, como pontuar<br/>e quem ganha no empate.
-                  </div>
-                  <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(245,166,35,0.15)', border:'1px solid rgba(245,166,35,0.35)', color:'#F5A623', borderRadius:10, padding:'7px 14px', fontSize:11, fontWeight:800 }}>
-                    Ver regras <span style={{ fontSize:14 }}>→</span>
-                  </div>
-                </div>
-                <div style={{ background:'rgba(245,166,35,0.10)', border:'1px solid rgba(245,166,35,0.20)', borderRadius:12, padding:'8px 10px', textAlign:'center', flexShrink:0 }}>
-                  <div style={{ fontSize:24 }}>📋</div>
-                  <div style={{ color:'#F5A623', fontWeight:900, fontSize:9, marginTop:2, letterSpacing:.5, textTransform:'uppercase' }}>Regras</div>
-                  <div style={{ color:'rgba(255,255,255,0.3)', fontSize:8, marginTop:1 }}>completas</div>
-                </div>
+            <div style={{ borderRadius:14, padding:'14px 12px', background:'linear-gradient(135deg,#002855 0%,#009639 100%)', position:'relative', overflow:'hidden' }}>
+              <div style={{ position:'absolute', right:-10, bottom:-10, opacity:.15 }}>
+                <img src="/images/trophy.webp" style={{ width:70, height:70, objectFit:'contain', filter:'grayscale(1)' }} alt=""/>
+              </div>
+              <div style={{ color:'#fff', fontWeight:900, fontSize:13, lineHeight:1.4, position:'relative', zIndex:1 }}>
+                Confiabilidade<br/>é nosso DNA.<br/><span style={{ color:'#F5A623' }}>A vitória<br/>pode ser sua!</span>
               </div>
             </div>
-
           </div>
 
           {/* Pontuação */}
