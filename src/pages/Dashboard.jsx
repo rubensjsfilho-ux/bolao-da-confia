@@ -373,7 +373,7 @@ const ESPN_IDS = {
 }
 
 
-function useWikiPhoto(wiki) {
+function getPlayerPhoto(wiki) {
   const id = ESPN_IDS[wiki]
   if (!id) return null
   return `https://a.espncdn.com/i/headshots/soccer/players/full/${id}.png`
@@ -461,8 +461,8 @@ function TodayCarousel({ participant }) {
 function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap }) {
   const star1 = STARS[match.team1]
   const star2 = STARS[match.team2]
-  const photo1 = star1 ? useWikiPhoto(star1.wiki) : null
-  const photo2 = star2 ? useWikiPhoto(star2.wiki) : null
+  const photo1 = star1 ? getPlayerPhoto(star1.wiki) : null
+  const photo2 = star2 ? getPlayerPhoto(star2.wiki) : null
   const c1 = TEAM_COLORS[match.team1] || ['#002855','#009639']
   const c2 = TEAM_COLORS[match.team2] || ['#009639','#002855']
 
