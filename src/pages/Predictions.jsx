@@ -5,7 +5,7 @@ import Header from '../components/Header'
 import { GROUP_MATCHES, getFlag, formatDate, isMatchOpen, GROUPS as ALL_GROUPS } from '../data/matches'
 import { Check, Lock, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
 
-const CHAMPION_DEADLINE = new Date('2026-06-11T22:00:00Z')
+const CHAMPION_DEADLINE = new Date('2026-06-20T23:59:00-03:00') // Sincronizado com Champion.jsx
 const isChampionClosed = () => new Date() >= CHAMPION_DEADLINE
 
 const FILTERS = [
