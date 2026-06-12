@@ -401,7 +401,7 @@ function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap
               onError={() => setImgOk(false)}
             />
             {/* Badge data sobre a imagem */}
-            <div style={{ position:'absolute', top:7, left:7, zIndex:3, background:today?'#009639':'rgba(0,0,0,0.6)', borderRadius:5, padding:'2px 6px' }}>
+            <div style={{ position:'absolute', bottom:7, left:'50%', transform:'translateX(-50%)', zIndex:3, background:today?'#009639':'rgba(0,0,0,0.6)', borderRadius:5, padding:'2px 8px' }}>
               <span style={{ color:'#fff', fontSize:7, fontWeight:900 }}>{dateLabel}</span>
             </div>
           </>
@@ -411,7 +411,7 @@ function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap
             <div style={{ flex:1, background:`linear-gradient(150deg,${c1[0]},${c1[1]})`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:4 }}>
               <span style={{ fontSize:30, filter:'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }}>{getFlag(match.team1)}</span>
               <span style={{ color:'rgba(255,255,255,0.9)', fontSize:7, fontWeight:800 }}>{star1?.name||''}</span>
-              <div style={{ position:'absolute', top:6, left:6, background:today?'#009639':'rgba(0,0,0,0.5)', borderRadius:5, padding:'2px 5px' }}>
+              <div style={{ position:'absolute', bottom:6, left:'50%', transform:'translateX(-50%)', background:today?'#009639':'rgba(0,0,0,0.5)', borderRadius:5, padding:'2px 8px' }}>
                 <span style={{ color:'#fff', fontSize:7, fontWeight:900 }}>{dateLabel}</span>
               </div>
             </div>
