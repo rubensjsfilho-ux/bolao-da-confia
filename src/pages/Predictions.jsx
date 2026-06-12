@@ -169,6 +169,13 @@ function MatchRow({ match: m, prediction, onSave, refCallback }) {
           )}
           {!open&&!prediction&&!m.is_finished&&<span style={{ color:'#C8D5E0', fontSize:11, fontStyle:'italic' }}>Sem palpite</span>}
         </div>
+        {!open&&!m.is_finished&&(
+          <a href="https://www.youtube.com/@CazéTV/live" target="_blank" rel="noopener noreferrer"
+            style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, marginTop:10, background:'#dc2626', borderRadius:10, padding:'10px', textDecoration:'none' }}>
+            <span style={{ color:'#fff', fontWeight:900, fontSize:13 }}>🔴 Assistir ao vivo — CazéTV</span>
+            <span style={{ fontSize:14 }}>📺</span>
+          </a>
+        )
       </div>
     </div>
   )
