@@ -600,7 +600,7 @@ export default function Admin(){
 
   const loadMatches=async()=>{
     setLoading(true)
-    const{data,error}=await supabase.from('matches').select('*').order('id')
+    const{data,error}=await supabase.from('matches').select('*').order('date')
     if(!error) setMatches(data||[])
     setLoading(false)
   }
