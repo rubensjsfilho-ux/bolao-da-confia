@@ -244,188 +244,139 @@ function StatsStrip({ stats, totalParts, myRank }) {
 }
 
 // ── DADOS DOS ESCUDOS E JOGADORES ─────────────────────────────────────────────
-// Escudos via Wikimedia Commons — confiável e sem CORS
-const CRESTS = {
-  'Brasil':           'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/CBF_logo.svg/200px-CBF_logo.svg.png',
-  'Argentina':        'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/AFA_logo_2014.svg/200px-AFA_logo_2014.svg.png',
-  'França':           'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Football_France.svg/200px-Football_France.svg.png',
-  'Alemanha':         'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/DFB-Logo.svg/200px-DFB-Logo.svg.png',
-  'Espanha':          'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/RFEF.svg/200px-RFEF.svg.png',
-  'Portugal':         'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/FPF_logo.svg/200px-FPF_logo.svg.png',
-  'Inglaterra':       'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Three_Lions_on_a_shield.svg/200px-Three_Lions_on_a_shield.svg.png',
-  'Holanda':          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/KNVB_logo.svg/200px-KNVB_logo.svg.png',
-  'Bélgica':          'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/URBSFA_KBVB_logo.svg/200px-URBSFA_KBVB_logo.svg.png',
-  'México':           'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/FMF_logo.svg/200px-FMF_logo.svg.png',
-  'Estados Unidos':   'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/USSF_logo.svg/200px-USSF_logo.svg.png',
-  'Uruguai':          'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/AUF_logo.svg/200px-AUF_logo.svg.png',
-  'Canadá':           'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Canada_Soccer_Logo.svg/200px-Canada_Soccer_Logo.svg.png',
-  'Marrocos':         'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/FRMF_logo.svg/200px-FRMF_logo.svg.png',
-  'Senegal':          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/FSF_logo.svg/200px-FSF_logo.svg.png',
-  'Escócia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Scottish_FA.svg/200px-Scottish_FA.svg.png',
-  'Croácia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/HNS_logo.svg/200px-HNS_logo.svg.png',
-  'Suíça':            'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/SFV-ASF.svg/200px-SFV-ASF.svg.png',
-  'Turquia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/TFF_logo.svg/200px-TFF_logo.svg.png',
-  'Colômbia':         'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/FCF_logo.svg/200px-FCF_logo.svg.png',
-  'Paraguai':         'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/APF_logo.svg/200px-APF_logo.svg.png',
-  'Equador':          'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/FEF_logo.svg/200px-FEF_logo.svg.png',
-  'Egito':            'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/EFA_logo.svg/200px-EFA_logo.svg.png',
-  'Gana':             'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/GFA_logo.svg/200px-GFA_logo.svg.png',
-  'Panamá':           'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Federaci%C3%B3n_Paname%C3%B1a_de_F%C3%BAtbol_logo.svg/200px-Federaci%C3%B3n_Paname%C3%B1a_de_F%C3%BAtbol_logo.svg.png',
-  'África do Sul':    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/SAFA_logo.svg/200px-SAFA_logo.svg.png',
-  'Cabo Verde':       'https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/FCF_logo_%28Cape_Verde%29.svg/200px-FCF_logo_%28Cape_Verde%29.svg.png',
-  'Argélia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/FAF_logo.svg/200px-FAF_logo.svg.png',
-  'Tunísia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/FTF_logo.svg/200px-FTF_logo.svg.png',
-  'Costa do Marfim':  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/FIF_Ivory_Coast.svg/200px-FIF_Ivory_Coast.svg.png',
-  'RD Congo':         'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/FECOFA_logo.svg/200px-FECOFA_logo.svg.png',
-  'Curaçao':          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/FFK_logo.svg/200px-FFK_logo.svg.png',
-  'Haiti':            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/FHF_logo.svg/200px-FHF_logo.svg.png',
-  'Uzbequistão':      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/UFF_logo.svg/200px-UFF_logo.svg.png',
-  'Nova Zelândia':    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/New_Zealand_Football_logo.svg/200px-New_Zealand_Football_logo.svg.png',
-  'Áustria':          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/OeFB_logo.svg/200px-OeFB_logo.svg.png',
-  'Noruega':          'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/NFF_logo.svg/200px-NFF_logo.svg.png',
-  'Coreia do Sul':    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/KFA_Logo_2018.svg/200px-KFA_Logo_2018.svg.png',
-  'Japão':            'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/JFA_logo.svg/200px-JFA_logo.svg.png',
-  'Austrália':        'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Football_Federation_Australia_logo.svg/200px-Football_Federation_Australia_logo.svg.png',
-  'Irã':              'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/FFIRI_logo.svg/200px-FFIRI_logo.svg.png',
-  'Arábia Saudita':   'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/SAFF_logo.svg/200px-SAFF_logo.svg.png',
-  'República Tcheca': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Football_Association_of_Czech_Republic_crest_%282016%29.svg/200px-Football_Association_of_Czech_Republic_crest_%282016%29.svg.png',
-  'República Tch.':   'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Football_Association_of_Czech_Republic_crest_%282016%29.svg/200px-Football_Association_of_Czech_Republic_crest_%282016%29.svg.png',
-  'Bósnia e Herz.':   'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Football_Association_of_Bosnia_and_Herzegovina_crest.svg/200px-Football_Association_of_Bosnia_and_Herzegovina_crest.svg.png',
-  'Sérvia':           'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Football_Association_of_Serbia_badge.svg/200px-Football_Association_of_Serbia_badge.svg.png',
-  'Suécia':           'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Swedish_Football_Association_logo.svg/200px-Swedish_Football_Association_logo.svg.png',
-  'Polônia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Polish_Football_Association_crest.svg/200px-Polish_Football_Association_crest.svg.png',
-  'Dinamarca':        'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/DBU_logo.svg/200px-DBU_logo.svg.png',
-  'Hungria':          'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Magyar_Labdar%C3%BAg%C3%B3_Sz%C3%B6vets%C3%A9g_logo.svg/200px-Magyar_Labdar%C3%BAg%C3%B3_Sz%C3%B6vets%C3%A9g_logo.svg.png',
-  'Romênia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/FRF.svg/200px-FRF.svg.png',
-  'Geórgia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Georgian_Football_Federation_logo_%282022%29.svg/200px-Georgian_Football_Federation_logo_%282022%29.svg.png',
-  'Grécia':           'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/EPO_logo.svg/200px-EPO_logo.svg.png',
-  'Eslovênia':        'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/NZS_logo_2021.svg/200px-NZS_logo_2021.svg.png',
-  'Venezuela':        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/FVF_logo.svg/200px-FVF_logo.svg.png',
-  'Peru':             'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Federacion_Peruana_de_Futbol.svg/200px-Federacion_Peruana_de_Futbol.svg.png',
-  'Chile':            'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Federacion_de_Futbol_de_Chile.svg/200px-Federacion_de_Futbol_de_Chile.svg.png',
-  'Bolívia':          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/FBF_logo.svg/200px-FBF_logo.svg.png',
-  'Costa Rica':       'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/FEDEFUTBOL_logo.svg/200px-FEDEFUTBOL_logo.svg.png',
-  'Jamaica':          'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Jamaica_Football_Federation_logo.svg/200px-Jamaica_Football_Federation_logo.svg.png',
-  'Catar':            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Qatar_Football_Association_Logo.svg/200px-Qatar_Football_Association_Logo.svg.png',
-  'Iraque':           'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Iraq_FA.svg/200px-Iraq_FA.svg.png',
-  'Indonésia':        'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/PSSI.svg/200px-PSSI.svg.png',
+// Escudos via ESPN CDN — sem CORS, sem API key
+// URL: https://a.espncdn.com/i/teamlogos/soccer/500/{ID}.png
+const ESPN_TEAM_IDS = {
+  'Brasil':           205,
+  'Argentina':        2750,
+  'França':           587,
+  'Alemanha':         481,
+  'Espanha':          164,
+  'Portugal':         2802,
+  'Inglaterra':       5159,
+  'Holanda':          2576,
+  'Bélgica':          2808,
+  'México':           203,
+  'Estados Unidos':   2765,
+  'Uruguai':          2774,
+  'Canadá':           206,
+  'Marrocos':         2742,
+  'Senegal':          2806,
+  'Escócia':          2807,
+  'Croácia':          2805,
+  'Suíça':            2817,
+  'Turquia':          2818,
+  'Colômbia':         2853,
+  'Paraguai':         2735,
+  'Equador':          2804,
+  'Egito':            2788,
+  'Gana':             2791,
+  'Panamá':           2734,
+  'África do Sul':    2795,
+  'Cabo Verde':       17859,
+  'Argélia':          2780,
+  'Tunísia':          2816,
+  'Costa do Marfim':  2786,
+  'RD Congo':         3210,
+  'Curaçao':          15985,
+  'Haiti':            2793,
+  'Uzbequistão':      12513,
+  'Nova Zelândia':    2743,
+  'Áustria':          2782,
+  'Noruega':          2797,
+  'Coreia do Sul':    17639,
+  'Japão':            2796,
+  'Austrália':        2781,
+  'Irã':              2794,
+  'Arábia Saudita':   2803,
+  'República Tcheca': 2785,
+  'República Tch.':   2785,
+  'Bósnia e Herz.':   3204,
+  'Sérvia':           18276,
+  'Suécia':           2814,
+  'Polônia':          2799,
+  'Dinamarca':        2787,
+  'Hungria':          2733,
+  'Romênia':          2801,
+  'Geórgia':          17858,
+  'Grécia':           2792,
+  'Eslovênia':        2810,
+  'Venezuela':        2775,
+  'Peru':             2736,
+  'Chile':            2752,
+  'Bolívia':          2751,
+  'Costa Rica':       2753,
+  'Jamaica':          2731,
+  'Catar':            2800,
+  'Iraque':           3212,
+  'Indonésia':        17636,
 }
 
-
-const STARS = {
-  'Brasil':           { name:'Vini Jr.',        wiki:'Vinícius_Júnior' },
-  'Argentina':        { name:'L. Messi',        wiki:'Lionel_Messi' },
-  'França':           { name:'K. Mbappé',       wiki:'Kylian_Mbappé' },
-  'Alemanha':         { name:'J. Kimmich',      wiki:'Joshua_Kimmich' },
-  'Espanha':          { name:'Pedri',           wiki:'Pedri' },
-  'Portugal':         { name:'C. Ronaldo',      wiki:'Cristiano_Ronaldo' },
-  'Inglaterra':       { name:'J. Bellingham',   wiki:'Jude_Bellingham' },
-  'Holanda':          { name:'V. van Dijk',     wiki:'Virgil_van_Dijk' },
-  'Bélgica':          { name:'K. De Bruyne',    wiki:'Kevin_De_Bruyne' },
-  'México':           { name:'H. Lozano',       wiki:'Hirving_Lozano' },
-  'Estados Unidos':   { name:'C. Pulisic',      wiki:'Christian_Pulisic' },
-  'Uruguai':          { name:'D. Núñez',        wiki:'Darwin_Núñez' },
-  'Canadá':           { name:'A. Davies',       wiki:'Alphonso_Davies' },
-  'Marrocos':         { name:'A. Hakimi',       wiki:'Achraf_Hakimi' },
-  'Senegal':          { name:'S. Mané',         wiki:'Sadio_Mané' },
-  'Escócia':          { name:'A. Robertson',    wiki:'Andrew_Robertson' },
-  'Croácia':          { name:'L. Modrić',       wiki:'Luka_Modrić' },
-  'Suíça':            { name:'G. Xhaka',        wiki:'Granit_Xhaka' },
-  'Turquia':          { name:'H. Çalhanoğlu',   wiki:'Hakan_Çalhanoğlu' },
-  'Colômbia':         { name:'L. Díaz',         wiki:'Luis_Díaz_(footballer,_born_1997)' },
-  'Paraguai':         { name:'M. Almirón',      wiki:'Miguel_Almirón' },
-  'Egito':            { name:'M. Salah',        wiki:'Mohamed_Salah' },
-  'Gana':             { name:'T. Partey',       wiki:'Thomas_Partey' },
-  'Coreia do Sul':    { name:'Son Heung-min',   wiki:'Son_Heung-min' },
-  'Japão':            { name:'H. Ito',          wiki:'Hiroki_Ito' },
-  'Austrália':        { name:'M. Leckie',       wiki:'Mathew_Leckie' },
-  'Irã':              { name:'M. Taremi',       wiki:'Mehdi_Taremi' },
-  'Arábia Saudita':   { name:'S. Al-Dawsari',   wiki:'Salem_Al-Dawsari' },
-  'África do Sul':    { name:'R. Dolly',        wiki:'Keagan_Dolly' },
-  'Noruega':          { name:'E. Haaland',      wiki:'Erling_Haaland' },
-  'Áustria':          { name:'M. Sabitzer',     wiki:'Marcel_Sabitzer' },
-  'República Tcheca':{ name:'T. Souček',     wiki:'Tomáš_Souček' },
-  'República Tch.': { name:'T. Souček',      wiki:'Tomáš_Souček' },
-  'Eslovênia':      { name:'J. Oblak',       wiki:'Jan_Oblak' },
-  'Escócia':        { name:'A. Robertson',   wiki:'Andrew_Robertson' },
-  'Albânia':        { name:'B. Djimsiti',    wiki:'Berat_Djimsiti' },
-  'Hungria':        { name:'D. Szoboszlai',  wiki:'Dominik_Szoboszlai' },
-  'Romênia':        { name:'N. Stanciu',     wiki:'Nicolae_Stanciu' },
-  'Uzbequistão':    { name:'O. Alijonov',    wiki:'Otabek_Shukurov' },
-  'Venezuela':      { name:'S. Rondón',      wiki:'Salomón_Rondón' },
-  'Peru':           { name:'A. Lapadula',    wiki:'Gianluca_Lapadula' },
-  'Chile':          { name:'A. Vidal',       wiki:'Arturo_Vidal' },
-  'Bolívia':        { name:'M. Martins',     wiki:'Marcelo_Martins' },
-  'Costa Rica':     { name:'K. Navas',       wiki:'Keylor_Navas' },
-  'Honduras':       { name:'R. Quioto',      wiki:'Romell_Quioto' },
-  'Jamaica':        { name:'L. Bailey',      wiki:'Leon_Bailey' },
-  'El Salvador':    { name:'N. Vásquez',     wiki:'Nelson_Bonilla' },
-  'Trinidad':       { name:'K. Jones',       wiki:'Kevin_Molino' },
-  'Bósnia e Herz.': { name:'E. Džeko',       wiki:'Edin_Džeko' },
-  'Sérvia':         { name:'D. Vlahović',    wiki:'Dušan_Vlahović' },
-  'Polônia':        { name:'R. Lewandowski', wiki:'Robert_Lewandowski' },
-  'Suécia':         { name:'V. Gyökeres',    wiki:'Viktor_Gyökeres' },
-  'Dinamarca':      { name:'C. Eriksen',     wiki:'Christian_Eriksen' },
-  'Grécia':         { name:'G. Masouras',    wiki:'Giorgos_Masouras' },
-  'Geórgia':        { name:'K. Kvaratskhelia',wiki:'Khvicha_Kvaratskhelia' },
-  'Catar':          { name:'A. Afif',        wiki:'Akram_Afif' },
-  'Arábia Saudita': { name:'S. Al-Dawsari',  wiki:'Salem_Al-Dawsari' },
-  'Iraque':         { name:'A. Al-Hamdani',  wiki:'Amjad_Attwan' },
-  'Jordânia':       { name:'Y. Al-Naimat',   wiki:'Yazan_Al-Naimat' },
-  'Omã':            { name:'A. Al-Sinani',   wiki:'Abdullah_Fawaz' },
-  'Indonésia':      { name:'M. Struijk',     wiki:'Thom_Haye' },
-  'Tailândia':      { name:'C. Pokklaw',     wiki:'Chanathip_Songkrasin' },
-  'Nova Zelândia':  { name:'C. Wood',        wiki:'Chris_Wood_(footballer)' },
-  'Fiji':           { name:'R. Kumar',       wiki:'Roy_Krishna' },
-  'Panamá':         { name:'A. Murillo',     wiki:'Adalberto_Carrasquilla' },
-  'Cuba':           { name:'O. Cuesta',      wiki:'Osvaldo_Alonso' },
-  'Curaçao':        { name:'L. Fer',         wiki:'Leroy_Fer' },
-  'Haiti':          { name:'N. Geffrard',    wiki:'Nazon_(footballer)' },
-  'RD Congo':       { name:'S. Mbokani',     wiki:'Dieumerci_Mbokani' },
-  'Costa do Marfim':{ name:'S. Haller',      wiki:'Sébastien_Haller' },
-  'Cabo Verde':     { name:'G. Tavares',     wiki:'Garry_Rodrigues' },
-  'Argélia':        { name:'R. Mahrez',      wiki:'Riyad_Mahrez' },
+function getCrestUrl(team) {
+  const id = ESPN_TEAM_IDS[team]
+  if (!id) return null
+  return `https://a.espncdn.com/i/teamlogos/soccer/500/${id}.png`
 }
 
-const TEAM_COLORS = {
-  'Brasil':['#009C3B','#FFDF00'], 'Argentina':['#74ACDF','#fff'],
-  'França':['#002395','#ED2939'], 'Alemanha':['#000','#DD0000'],
-  'Espanha':['#AA151B','#F1BF00'], 'Portugal':['#006600','#FF0000'],
-  'Inglaterra':['#CF091D','#fff'], 'Holanda':['#FF6600','#003DA5'],
-  'Bélgica':['#000','#EF3340'], 'México':['#006847','#CE1126'],
-  'Estados Unidos':['#002868','#BF0A30'], 'Uruguai':['#5EB6E4','#fff'],
-  'Canadá':['#FF0000','#fff'], 'Marrocos':['#C1272D','#006233'],
-  'Senegal':['#00853F','#FDEF42'], 'Escócia':['#003DA5','#fff'],
-  'Croácia':['#FF0000','#fff'], 'Suíça':['#FF0000','#fff'],
-  'Turquia':['#E30A17','#fff'], 'Colômbia':['#FCD116','#003087'],
-  'Paraguai':['#D52B1E','#fff'], 'Egito':['#CE1126','#fff'],
-  'Gana':['#006B3F','#FCD116'], 'Panamá':['#DA121A','#fff'],
-  'Coreia do Sul':['#CD2E3A','#003478'], 'Japão':['#BC002D','#fff'],
-  'Austrália':['#FFD700','#006400'], 'Irã':['#239F40','#DA0000'],
-  'Noruega':['#EF2B2D','#fff'], 'Áustria':['#ED2939','#fff'],
-  'África do Sul':['#007A4D','#FFB612'], 'Argélia':['#006233','#D21034'],
-  'Tunísia':['#E70013','#fff'],
+const CRESTS = {}
+
+
+// ESPN CDN — headshots oficiais (sem CORS, sem API key)
+// URL: https://a.espncdn.com/i/headshots/soccer/players/full/{ID}.png
+const ESPN_IDS = {
+  'Vinícius_Júnior':    252107,
+  'Lionel_Messi':       45843,
+  'Kylian_Mbappé':      188545,
+  'Joshua_Kimmich':     209819,
+  'Pedri':              291743,
+  'Cristiano_Ronaldo':  1341,
+  'Jude_Bellingham':    320097,
+  'Virgil_van_Dijk':    195857,
+  'Kevin_De_Bruyne':    156616,
+  'Hirving_Lozano':     192048,
+  'Christian_Pulisic':  198710,
+  'Darwin_Núñez':       279634,
+  'Alphonso_Davies':    253537,
+  'Achraf_Hakimi':      241649,
+  'Sadio_Mané':         158278,
+  'Andrew_Robertson':   194026,
+  'Luka_Modrić':        76762,
+  'Granit_Xhaka':       163399,
+  'Hakan_Çalhanoğlu':   155490,
+  'Luis_Díaz_(footballer,_born_1997)': 265892,
+  'Miguel_Almirón':     197681,
+  'Mohamed_Salah':      134771,
+  'Thomas_Partey':      216154,
+  'Son_Heung-min':      149945,
+  'Wataru_Endo':        232064,
+  'Mathew_Leckie':      142402,
+  'Mehdi_Taremi':       200503,
+  'Sardar_Azmoun':      208889,
+  'Salem_Al-Dawsari':   210901,
+  'Keagan_Dolly':       226563,
+  'Percy_Tau':          226563,
+  'Erling_Haaland':     253989,
+  'Marcel_Sabitzer':    196793,
+  'David_Alaba':        142765,
+  'Tomáš_Souček':       228649,
+  'Edin_Džeko':         68874,
+  'Robert_Lewandowski': 113304,
+  'Viktor_Gyökeres':    282406,
+  'Dominik_Szoboszlai': 284799,
+  'Dušan_Vlahović':     272979,
+  'Khvicha_Kvaratskhelia': 313617,
+  'Riyad_Mahrez':       160047,
+  'Sébastien_Haller':   211117,
+  'Robert_Lewandowski': 113304,
+  'Hiroki_Ito':         232064,
+  'Keylor_Navas':       132208,
 }
+
 
 function useWikiPhoto(wiki) {
-  const [url, setUrl] = useState(null)
-  useEffect(() => {
-    if (!wiki) return
-    // Use /page/media-list to get all images and pick the best portrait photo
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wiki)}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.originalimage?.source) {
-          setUrl(d.originalimage.source)
-        } else if (d.thumbnail?.source) {
-          // Upgrade thumbnail to larger version (800px wide)
-          const bigger = d.thumbnail.source.replace(/\/\d+px-/, '/400px-')
-          setUrl(bigger)
-        }
-      })
-      .catch(() => {})
-  }, [wiki])
-  return url
+  const id = ESPN_IDS[wiki]
+  if (!id) return null
+  return `https://a.espncdn.com/i/headshots/soccer/players/full/${id}.png`
 }
 
 // ── CARROSSEL DE JOGOS DO DIA ─────────────────────────────────────────────────
@@ -510,8 +461,8 @@ function TodayCarousel({ participant }) {
 function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap }) {
   const star1 = STARS[match.team1]
   const star2 = STARS[match.team2]
-  const photo1 = useWikiPhoto(star1?.wiki)
-  const photo2 = useWikiPhoto(star2?.wiki)
+  const photo1 = star1 ? useWikiPhoto(star1.wiki) : null
+  const photo2 = star2 ? useWikiPhoto(star2.wiki) : null
   const c1 = TEAM_COLORS[match.team1] || ['#002855','#009639']
   const c2 = TEAM_COLORS[match.team2] || ['#009639','#002855']
 
@@ -536,8 +487,8 @@ function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
           {/* Escudo */}
           <div style={{ position:'absolute', top:6, left:6, zIndex:2, width:26, height:26 }}>
-            {CRESTS[match.team1]
-              ? <img src={CRESTS[match.team1]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
+            {getCrestUrl(match.team1)
+              ? <img src={getCrestUrl(match.team1)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:4, filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }} onError={e=>{e.target.style.display='none'}}/>
               : <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>}
           </div>
           {/* Badge data do jogo */}
@@ -561,8 +512,8 @@ function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to left,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
           <div style={{ position:'absolute', top:6, right:6, zIndex:2, width:26, height:26 }}>
-            {CRESTS[match.team2]
-              ? <img src={CRESTS[match.team2]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
+            {getCrestUrl(match.team2)
+              ? <img src={getCrestUrl(match.team2)} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:4, filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.5))' }} onError={e=>{e.target.style.display='none'}}/>
               : <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>}
           </div>
           <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
