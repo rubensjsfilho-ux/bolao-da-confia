@@ -5,7 +5,7 @@ import { GROUPS, getFlag } from '../data/matches'
 import { Check, Loader2, Lock } from 'lucide-react'
 
 const ALL_TEAMS = Object.values(GROUPS).flat()
-const DEADLINE  = new Date('2026-06-11T19:00:00-03:00') // 19h horário de Brasília
+const DEADLINE  = new Date('2026-06-14T23:59:00-03:00') // Até 14/06 meia-noite — Brasília
 const isClosed  = () => new Date() >= DEADLINE
 const POSITIONS = [
   { key:'champion',    label:'Campeão',      icon:'🥇', pts:10, color:'#D4890A', bg:'rgba(245,166,35,0.10)', border:'rgba(245,166,35,0.3)' },
@@ -110,7 +110,7 @@ export default function Champion({ participant, onLogout }) {
             ))}
           </div>
           <div style={{ opacity:.6, fontSize:11, textAlign:'center', marginTop:12, borderTop:'1px solid rgba(255,255,255,0.15)', paddingTop:10 }}>
-            Palpites encerram em 11/06 às 19h (início da Copa)
+            Palpites encerram em 14/06 às 23h59 (horário de Brasília)
           </div>
         </div>
 
