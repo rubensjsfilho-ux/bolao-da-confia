@@ -49,7 +49,7 @@ export const GROUP_MATCHES = [
   { id:3,  team1:'Canadá',         team2:'Bósnia e Herz.', date:'2026-06-12T16:00:00-03:00', group:'B', city:'Toronto',           venue:'BMO Field',                 phase:'Fase de Grupos' },
   { id:4,  team1:'Estados Unidos', team2:'Paraguai',        date:'2026-06-12T22:00:00-03:00', group:'D', city:'Los Angeles',       venue:'SoFi Stadium',              phase:'Fase de Grupos' },
   // GRUPO D
-  { id:5,  team1:'Austrália',      team2:'Turquia',         date:'2026-06-13T01:00:00-03:00', group:'D', city:'Vancouver',         venue:'BC Place',                  phase:'Fase de Grupos' },
+  { id:5,  team1:'Austrália',      team2:'Turquia',         date:'2026-06-14T01:00:00-03:00', group:'D', city:'Vancouver',         venue:'BC Place',                  phase:'Fase de Grupos' },
   { id:6,  team1:'Catar',          team2:'Suíça',           date:'2026-06-13T16:00:00-03:00', group:'B', city:'San Francisco',     venue:'Levi\'s Stadium',           phase:'Fase de Grupos' },
   // GRUPO C
   { id:7,  team1:'Brasil',         team2:'Marrocos',        date:'2026-06-13T19:00:00-03:00', group:'C', city:'Nova York/NJ',      venue:'MetLife Stadium',           phase:'Fase de Grupos' },
