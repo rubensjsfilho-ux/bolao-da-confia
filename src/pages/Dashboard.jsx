@@ -368,63 +368,56 @@ function TodayCarousel({ participant }) {
 function MatchCard({ match, hasPred, locked, today, dateLabel, formatTime, onTap }) {
   const star1 = STARS[match.team1]
   const star2 = STARS[match.team2]
-  const photo1 = star1 ? useWikiPhoto(star1.wiki) : null
-  const photo2 = star2 ? useWikiPhoto(star2.wiki) : null
-  const c1 = TEAM_COLORS[match.team1] || ['#002855','#009639']
-  const c2 = TEAM_COLORS[match.team2] || ['#009639','#002855']
+  const c1 = TEAM_COLORS[match.team1] || ['#1a2a4a','#2a4a6a']
+  const c2 = TEAM_COLORS[match.team2] || ['#1a4a2a','#2a6a4a']
 
   let borderColor, statusBg, statusColor, statusText
   if (locked)       { borderColor='#E2EAF0'; statusBg='rgba(155,171,184,0.1)'; statusColor='#9BABB8'; statusText='🔒 Encerrado' }
-  else if (hasPred) { borderColor='rgba(0,150,57,0.3)'; statusBg='rgba(0,150,57,0.1)'; statusColor='#009639'; statusText='✓ Palpitado' }
-  else              { borderColor='rgba(245,166,35,0.5)'; statusBg='rgba(245,166,35,0.12)'; statusColor='#D4890A'; statusText='⚡ Palpitar' }
+  else if (hasPred) { borderColor='rgba(0,150,57,0.3)'; statusBg='rgba(0,150,57,0.08)'; statusColor='#009639'; statusText='✓ Palpitado' }
+  else              { borderColor='rgba(245,166,35,0.5)'; statusBg='rgba(245,166,35,0.10)'; statusColor='#D4890A'; statusText='⚡ Palpitar' }
 
   return (
     <div onClick={onTap} style={{
       flexShrink:0, scrollSnapAlign:'start', width:175,
       borderRadius:16, overflow:'hidden', border:`1.5px solid ${borderColor}`,
       boxShadow:'0 4px 16px rgba(0,40,85,0.09)', cursor:locked?'default':'pointer',
-      opacity:locked?.75:1, background:'#fff',
+      opacity:locked?0.75:1, background:'#fff',
     }}>
-      {/* Thumbnail */}
-      <div style={{ height:110, display:'flex', position:'relative' }}>
-        {/* Time 1 */}
-        <div style={{ flex:1, background:`linear-gradient(135deg,${c1[0]},${c1[1]})`, position:'relative', overflow:'hidden' }}>
-          {photo1 && <img src={photo1} alt={star1?.name} style={{ position:'absolute', bottom:0, width:'100%', height:'135%', objectFit:'cover', objectPosition:'top center' }}/>}
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
-          {/* Escudo */}
-          <div style={{ position:'absolute', top:6, left:6, zIndex:2, width:26, height:26 }}>
-            {CRESTS[match.team1]
-              ? <img src={CRESTS[match.team1]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
-              : <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>}
+      {/* Thumbnail — visual clean com gradiente + bandeira + nome */}
+      <div style={{ height:115, display:'flex', position:'relative' }}>
+
+        {/* Time 1 — lado esquerdo */}
+        <div style={{ flex:1, background:`linear-gradient(150deg,${c1[0]} 0%,${c1[1]} 100%)`, position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6 }}>
+          {/* Círculo de fundo decorativo */}
+          <div style={{ position:'absolute', bottom:-20, left:-20, width:90, height:90, borderRadius:'50%', background:'rgba(255,255,255,0.06)' }}/>
+          <div style={{ position:'absolute', top:-15, right:-15, width:60, height:60, borderRadius:'50%', background:'rgba(255,255,255,0.04)' }}/>
+          {/* Bandeira grande */}
+          <span style={{ fontSize:34, lineHeight:1, filter:'drop-shadow(0 2px 6px rgba(0,0,0,0.4))', zIndex:1 }}>{getFlag(match.team1)}</span>
+          {/* Nome do jogador */}
+          <div style={{ zIndex:1, textAlign:'center', padding:'0 4px' }}>
+            <div style={{ color:'rgba(255,255,255,0.95)', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.6)', lineHeight:1.2 }}>{star1?.name || ''}</div>
           </div>
-          {/* Badge data do jogo */}
-          <div style={{ position:'absolute', top:6, right:6, zIndex:2, background:today?'#009639':'rgba(0,0,0,0.55)', borderRadius:6, padding:'2px 5px' }}>
-            <span style={{ color:'#fff', fontSize:7, fontWeight:800 }}>{dateLabel}</span>
-          </div>
-          <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
-            <span style={{ color:'#fff', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.9)' }}>{star1?.name||match.team1}</span>
+          {/* Badge data — só no time 1 */}
+          <div style={{ position:'absolute', top:6, left:6, zIndex:3, background:today?'#009639':'rgba(0,0,0,0.5)', borderRadius:5, padding:'2px 5px' }}>
+            <span style={{ color:'#fff', fontSize:7, fontWeight:900 }}>{dateLabel}</span>
           </div>
         </div>
 
         {/* VS central */}
-        <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', zIndex:5, background:'rgba(255,255,255,0.95)', borderRadius:20, padding:'4px 7px', boxShadow:'0 2px 8px rgba(0,0,0,0.2)', display:'flex', flexDirection:'column', alignItems:'center', gap:1 }}>
+        <div style={{ position:'absolute', left:'50%', top:'50%', transform:'translate(-50%,-50%)', zIndex:5,
+          background:'rgba(255,255,255,0.97)', borderRadius:22, padding:'5px 8px',
+          boxShadow:'0 2px 10px rgba(0,0,0,0.25)', display:'flex', flexDirection:'column', alignItems:'center', gap:1 }}>
           <span style={{ color:'#9BABB8', fontSize:7, fontWeight:900, letterSpacing:1 }}>VS</span>
-          <span style={{ color:'#002855', fontSize:11, fontWeight:900, lineHeight:1 }}>{formatTime(match.date)}</span>
+          <span style={{ color:'#002855', fontSize:12, fontWeight:900, lineHeight:1 }}>{formatTime(match.date)}</span>
         </div>
 
-        {/* Time 2 */}
-        <div style={{ flex:1, background:`linear-gradient(135deg,${c2[1]},${c2[0]})`, position:'relative', overflow:'hidden' }}>
-          {photo2 && <img src={photo2} alt={star2?.name} style={{ position:'absolute', bottom:0, width:'100%', height:'135%', objectFit:'cover', objectPosition:'top center' }}/>}
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to left,transparent 55%,rgba(0,0,0,0.25))', zIndex:1 }}/>
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)', zIndex:1 }}/>
-          <div style={{ position:'absolute', top:6, right:6, zIndex:2, width:26, height:26 }}>
-            {CRESTS[match.team2]
-              ? <img src={CRESTS[match.team2]} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.6))' }}/>
-              : <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>}
-          </div>
-          <div style={{ position:'absolute', bottom:5, left:0, right:0, textAlign:'center', zIndex:2 }}>
-            <span style={{ color:'#fff', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.9)' }}>{star2?.name||match.team2}</span>
+        {/* Time 2 — lado direito */}
+        <div style={{ flex:1, background:`linear-gradient(150deg,${c2[1]} 0%,${c2[0]} 100%)`, position:'relative', overflow:'hidden', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6 }}>
+          <div style={{ position:'absolute', bottom:-20, right:-20, width:90, height:90, borderRadius:'50%', background:'rgba(255,255,255,0.06)' }}/>
+          <div style={{ position:'absolute', top:-15, left:-15, width:60, height:60, borderRadius:'50%', background:'rgba(255,255,255,0.04)' }}/>
+          <span style={{ fontSize:34, lineHeight:1, filter:'drop-shadow(0 2px 6px rgba(0,0,0,0.4))', zIndex:1 }}>{getFlag(match.team2)}</span>
+          <div style={{ zIndex:1, textAlign:'center', padding:'0 4px' }}>
+            <div style={{ color:'rgba(255,255,255,0.95)', fontSize:8, fontWeight:800, textShadow:'0 1px 3px rgba(0,0,0,0.6)', lineHeight:1.2 }}>{star2?.name || ''}</div>
           </div>
         </div>
       </div>
