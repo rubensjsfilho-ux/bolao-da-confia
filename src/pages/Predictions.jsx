@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
 import { GROUP_MATCHES, getFlag, formatDate, isMatchOpen, GROUPS as ALL_GROUPS } from '../data/matches'
@@ -77,7 +77,7 @@ function ChampionCard({ participant }) {
   )
 }
 
-function MatchRow({ match: m, prediction, onSave }) {
+function MatchRow({ match: m, prediction, onSave, refCallback }) {
   const [s1,setS1] = useState(prediction?.score1??'')
   const [s2,setS2] = useState(prediction?.score2??'')
   const [saving,setSaving] = useState(false)
@@ -105,7 +105,7 @@ function MatchRow({ match: m, prediction, onSave }) {
   const timeStr = d ? d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}) : ''
 
   return (
-    <div style={{
+    <div ref={refCallback} style={{
       background:'#fff', borderRadius:14, overflow:'hidden',
       border: m.is_finished?'1px solid rgba(0,150,57,0.15)':open?'1px solid rgba(245,166,35,0.3)':'1px solid #E2EAF0',
       boxShadow:'0 1px 6px rgba(0,40,85,0.05)',
@@ -180,6 +180,8 @@ export default function Predictions({ participant, onLogout }) {
   const [filter, setFilter] = useState('all')
   const [grp,    setGrp]    = useState('all')
   const [loading,setLoading]= useState(true)
+  const matchRefs = useRef({})
+  const location  = useLocation()
 
   const fetchPreds = useCallback(async () => {
     const { data } = await supabase.from('predictions').select('match_id,score1,score2,points').eq('participant_id',participant.id)
@@ -191,7 +193,20 @@ export default function Predictions({ participant, onLogout }) {
     const m={}; data?.forEach(r=>{m[r.id]=r}); setResults(m)
   },[])
 
-  useEffect(()=>{ Promise.all([fetchPreds(),fetchResults()]).then(()=>setLoading(false)) },[fetchPreds,fetchResults])
+  useEffect(()=>{
+    Promise.all([fetchPreds(),fetchResults()]).then(()=>{
+      setLoading(false)
+      // Scroll to match if ?match=ID in URL
+      const params = new URLSearchParams(location.search)
+      const targetId = parseInt(params.get('match'))
+      if (targetId) {
+        setTimeout(()=>{
+          const el = matchRefs.current[targetId]
+          if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
+        }, 400)
+      }
+    })
+  },[fetchPreds,fetchResults])
 
   useEffect(()=>{
     const ch=supabase.channel('predictions-rt')
@@ -273,7 +288,7 @@ export default function Predictions({ participant, onLogout }) {
           </div>
         ):(
           <div className="predictions-grid" style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {list.map(m=><MatchRow key={m.id} match={m} prediction={preds[m.id]} onSave={save}/>)}
+            {list.map(m=><MatchRow key={m.id} match={m} prediction={preds[m.id]} onSave={save} refCallback={el=>{ if(el) matchRefs.current[m.id]=el }}/>)}
           </div>
         )}
       </main>
