@@ -696,6 +696,7 @@ export default function Dashboard({ participant, onLogout }) {
               <div style={{ color:'#fff', fontWeight:900, fontSize:13, lineHeight:1.4, position:'relative', zIndex:1 }}>
                 Confiabilidade<br/>é nosso DNA.<br/><span style={{ color:'#F5A623' }}>A vitória<br/>pode ser sua!</span>
               </div>
+              <button onClick={(e)=>{ e.stopPropagation(); navigate('/regras') }} style={{ marginTop:10, background:'#F5A623', color:'#002855', border:'none', borderRadius:8, padding:'6px 10px', fontWeight:800, fontSize:9, cursor:'pointer', fontFamily:'Nunito,sans-serif', position:'relative', zIndex:1 }}>VER REGRAS</button>
             </div>
           </div>
 
