@@ -71,7 +71,7 @@ export const GROUP_MATCHES = ([
   // GRUPO G
   { id:16, team1:'Irã',            team2:'Nova Zelândia',   date:'2026-06-15T22:00:00-03:00', group:'G', city:'Los Angeles',       venue:'SoFi Stadium',              phase:'Fase de Grupos' },
   // GRUPO J
-  { id:17, team1:'Argentina',      team2:'Argélia',         date:'2026-06-16T14:00:00-03:00', group:'J', city:'Kansas City',       venue:'Arrowhead Stadium',         phase:'Fase de Grupos' },
+  { id:17, team1:'Argentina',      team2:'Argélia',         date:'2026-06-16T22:00:00-03:00', group:'J', city:'Kansas City',       venue:'Arrowhead Stadium',         phase:'Fase de Grupos' },
   // GRUPO I
   { id:18, team1:'França',         team2:'Senegal',         date:'2026-06-16T16:00:00-03:00', group:'I', city:'Nova York/NJ',      venue:'MetLife Stadium',           phase:'Fase de Grupos' },
   { id:19, team1:'Iraque',         team2:'Noruega',         date:'2026-06-16T19:00:00-03:00', group:'I', city:'Boston',            venue:'Gillette Stadium',          phase:'Fase de Grupos' },
