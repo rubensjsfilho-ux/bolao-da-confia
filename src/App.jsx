@@ -275,8 +275,8 @@ function App() {
 
         const newS1 = m.score1 ?? null
         const newS2 = m.score2 ?? null
-        const prevS1 = prev.score1 ?? -1
-        const prevS2 = prev.score2 ?? -1
+        const prevS1 = prev.score1 ?? 0
+        const prevS2 = prev.score2 ?? 0
 
         if (newS1 !== null && newS2 !== null) {
           const scoringTeam =
