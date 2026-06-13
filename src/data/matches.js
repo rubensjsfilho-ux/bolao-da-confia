@@ -94,11 +94,11 @@ export const GROUP_MATCHES = ([
   // GRUPO A
   { id:28, team1:'México',         team2:'Coreia do Sul',   date:'2026-06-18T22:00:00-03:00', group:'A', city:'Guadalajara',       venue:'Estadio Jalisco',           phase:'Fase de Grupos' },
   // GRUPO D
-  { id:29, team1:'Turquia',        team2:'Paraguai',        date:'2026-06-19T01:00:00-03:00', group:'D', city:'San Francisco',     venue:'Levi\'s Stadium',           phase:'Fase de Grupos' },
+  { id:29, team1:'Turquia',        team2:'Paraguai',        date:'2026-06-20T00:00:00-03:00', group:'D', city:'San Francisco',     venue:'Levi\'s Stadium',           phase:'Fase de Grupos' },
   { id:30, team1:'Estados Unidos', team2:'Austrália',       date:'2026-06-19T16:00:00-03:00', group:'D', city:'Seattle',           venue:'Lumen Field',               phase:'Fase de Grupos' },
   // GRUPO C
   { id:31, team1:'Escócia',        team2:'Marrocos',        date:'2026-06-19T19:00:00-03:00', group:'C', city:'Boston',            venue:'Gillette Stadium',          phase:'Fase de Grupos' },
-  { id:32, team1:'Brasil',         team2:'Haiti',           date:'2026-06-19T22:00:00-03:00', group:'C', city:'Filadélfia',        venue:'Lincoln Financial Field',   phase:'Fase de Grupos' },
+  { id:32, team1:'Brasil',         team2:'Haiti',           date:'2026-06-19T21:30:00-03:00', group:'C', city:'Filadélfia',        venue:'Lincoln Financial Field',   phase:'Fase de Grupos' },
   // GRUPO F
   { id:33, team1:'Holanda',        team2:'Suécia',          date:'2026-06-20T14:00:00-03:00', group:'F', city:'Houston',           venue:'NRG Stadium',               phase:'Fase de Grupos' },
   // GRUPO E
