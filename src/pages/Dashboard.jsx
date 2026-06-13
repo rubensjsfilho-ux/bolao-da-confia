@@ -382,7 +382,7 @@ function TodayCarousel({ participant }) {
 
 // URL base do Supabase Storage
 const SUPABASE_URL = 'https://nkbumxaksiibljgpmgak.supabase.co'
-const getMatchThumb = (id) => `${SUPABASE_URL}/storage/v1/object/public/matches/match_${id}.png`
+const getMatchThumb = (id) => `${SUPABASE_URL}/storage/v1/object/public/matches/match_${id}.png?v=2`
 
 function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTime, streamUrl, onTap }) {
   const [imgOk, setImgOk] = useState(true)
