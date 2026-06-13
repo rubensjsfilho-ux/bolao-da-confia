@@ -360,14 +360,12 @@ function KnockoutTab({ koMatches }) {
 
 // ── Todas as partidas em ordem cronológica ────────────────────────────────────
 function AllMatchesChronological({ results }) {
-  // Ordenar todos os jogos por data
   const sorted = [...GROUP_MATCHES].sort((a, b) => new Date(a.date) - new Date(b.date))
 
-  // Agrupar por data (dia)
   const byDate = {}
   sorted.forEach(m => {
-    const d    = new Date(m.date)
-    const key  = d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', timeZone:'America/Sao_Paulo' })
+    const d   = new Date(m.date)
+    const key = d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', timeZone:'America/Sao_Paulo' })
     if (!byDate[key]) byDate[key] = []
     byDate[key].push(m)
   })
@@ -391,58 +389,63 @@ function AllMatchesChronological({ results }) {
             const res        = results[m.id]
             const hasScore   = res && res.score1 !== null && res.score1 !== undefined
             const isFinished = res?.is_finished
+            const isLive     = hasScore && !isFinished
             const d          = new Date(m.date)
             const timeStr    = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo' })
 
             return (
-              <div key={m.id} style={{ display:'flex', alignItems:'center', background:'#fff', borderRadius:12, border:'1px solid #E8EDF2', marginBottom:8, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
+              <div key={m.id} style={{ background:'#fff', borderRadius:12, border:'1px solid #E8EDF2', marginBottom:8, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
 
-                {/* Barra lateral colorida */}
-                <div style={{ width:4, alignSelf:'stretch', flexShrink:0, background: isFinished?'#009639':hasScore?'#F5A623':'#1A73E8' }}/>
+                {/* Linha dos times */}
+                <div style={{ display:'flex', alignItems:'center' }}>
+                  {/* Barra lateral colorida */}
+                  <div style={{ width:4, alignSelf:'stretch', flexShrink:0, background: isFinished?'#009639':isLive?'#F5A623':'#1A73E8' }}/>
 
-                {/* Grupo + horário */}
-                <div style={{ padding:'10px 8px', textAlign:'center', minWidth:52, flexShrink:0 }}>
-                  <div style={{ background:'#F0F4F8', borderRadius:6, padding:'2px 6px', marginBottom:4, display:'inline-block' }}>
-                    <span style={{ fontSize:9, fontWeight:900, color:'#002855', letterSpacing:.5 }}>GRP {m.group}</span>
+                  {/* Grupo + horário */}
+                  <div style={{ padding:'10px 8px', textAlign:'center', minWidth:52, flexShrink:0 }}>
+                    <div style={{ background:'#F0F4F8', borderRadius:6, padding:'2px 6px', marginBottom:4, display:'inline-block' }}>
+                      <span style={{ fontSize:9, fontWeight:900, color:'#002855', letterSpacing:.5 }}>GRP {m.group}</span>
+                    </div>
+                    <div style={{ fontSize:11, fontWeight:800, color:'#002855' }}>{timeStr}</div>
+                    {m.city && <div style={{ fontSize:8, color:'#C8D5E0', marginTop:1, maxWidth:48, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.city.split('/')[0]}</div>}
                   </div>
-                  <div style={{ fontSize:11, fontWeight:800, color:'#002855' }}>{timeStr}</div>
-                  {m.city && <div style={{ fontSize:8, color:'#C8D5E0', marginTop:1, maxWidth:48, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.city.split('/')[0]}</div>}
+
+                  {/* Time 1 */}
+                  <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
+                    <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team1}</span>
+                    <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team1)}</span>
+                  </div>
+
+                  {/* Placar / VS */}
+                  <div style={{ minWidth:58, textAlign:'center', flexShrink:0 }}>
+                    {hasScore ? (
+                      <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
+                        <span style={{ fontSize:14, fontWeight:900, color:'#fff', letterSpacing:1 }}>{res.score1}×{res.score2}</span>
+                      </div>
+                    ) : (
+                      <div style={{ background:'#1A73E8', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
+                        <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Time 2 */}
+                  <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
+                    <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team2)}</span>
+                    <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team2}</span>
+                  </div>
                 </div>
 
-                {/* Time 1 */}
-                <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
-                  <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team1}</span>
-                  <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team1)}</span>
-                </div>
-
-                {/* Placar / VS */}
-                <div style={{ minWidth:58, textAlign:'center', flexShrink:0 }}>
-                  {hasScore ? (
-                    <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
-                      <span style={{ fontSize:14, fontWeight:900, color:'#fff', letterSpacing:1 }}>{res.score1}×{res.score2}</span>
-                    </div>
-                  ) : (
-                    <div style={{ background:'#1A73E8', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
-                      <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Time 2 */}
-                <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
-                  <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team2)}</span>
-                  <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team2}</span>
-                </div>
+                {/* Botão CazéTV — só quando em andamento */}
+                {isLive && (
+                  <a href={res?.stream_url||'https://www.youtube.com/@CazéTV/live'} target="_blank" rel="noopener noreferrer"
+                    style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none' }}>
+                    <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>
+                    <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>AO VIVO — Assistir na CazéTV</span>
+                    <span style={{ fontSize:12 }}>📺</span>
+                  </a>
+                )}
               </div>
-              {/* Botão CazéTV — só quando em andamento */}
-              {(hasScore && !isFinished) && (
-                <a href={results[m.id]?.stream_url||'https://www.youtube.com/@CazéTV/live'} target="_blank" rel="noopener noreferrer"
-                  style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none' }}>
-                  <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>
-                  <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>AO VIVO — Assistir na CazéTV</span>
-                  <span style={{ fontSize:12 }}>📺</span>
-                </a>
-              )}
             )
           })}
         </div>
@@ -450,6 +453,7 @@ function AllMatchesChronological({ results }) {
     </div>
   )
 }
+
 
 export default function Groups({ participant, onLogout }) {
   const [tab,         setTab]         = useState('groups')
