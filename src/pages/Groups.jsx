@@ -469,7 +469,7 @@ export default function Groups({ participant, onLogout }) {
 
   useEffect(() => {
     const ch = supabase.channel('groups-rt')
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'matches'},(p)=>{ setResults(prev=>({...prev,[p.new.id]:p.new})) })
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'matches'},(p)=>{ setResults(prev=>({...prev,[p.new.id]:{...prev[p.new.id],...p.new}})) })
       .subscribe()
     return ()=>supabase.removeChannel(ch)
   }, [])
