@@ -43,16 +43,18 @@ function Hero({ onPalpites, onJogos }) {
     tick(); const id = setInterval(tick,1000); return ()=>clearInterval(id)
   },[])
 
-  // Pré-carrega banners e filtra os válidos
+  // Pré-carrega banners (testa a versão desktop) e filtra os válidos
   useEffect(() => {
     const valid = []
     let checked = 0
-    if (BANNER_IDS.length === 0) { setValidBanners([]); return }
-    BANNER_IDS.forEach(id => {
+    if (BANNERS.length === 0) { setValidBanners([]); return }
+    BANNERS.forEach(b => {
       const img = new Image()
-      img.src = `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${id}.png?v=2`
-      img.onload  = () => { valid.push(id); checked++; if (checked === BANNER_IDS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
-      img.onerror = () => { checked++; if (checked === BANNER_IDS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
+      // Testa a versão correta conforme dispositivo
+      const testId = window.innerWidth < 768 ? b.mobile : b.desktop
+      img.src = `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${testId}.png?v=2`
+      img.onload  = () => { valid.push(b.desktop); checked++; if (checked === BANNERS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
+      img.onerror = () => { checked++; if (checked === BANNERS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
     })
   }, [])
 
@@ -175,7 +177,7 @@ function Hero({ onPalpites, onJogos }) {
           style={{ cursor:'pointer', opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none', position:'relative', minHeight:340, display:'flex', flexDirection:'column' }}>
           {/* Imagem de fundo full */}
           <img src={bannerUrl} alt="Jogo destaque"
-            style={{ width:'100%', display:'block', objectFit: isMobile ? 'cover' : 'contain', objectPosition:'center top', background:'#000', maxHeight: isMobile ? 380 : 420 }}/>
+            style={{ width:'100%', display:'block', objectFit:'cover', objectPosition:'center top', maxHeight: isMobile ? 380 : 420 }}/>
           {/* Overlay escuro suave */}
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)', pointerEvents:'none' }}/>
           {/* CTA canto inferior esquerdo */}
