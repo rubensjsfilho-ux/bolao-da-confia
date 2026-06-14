@@ -382,7 +382,7 @@ function TodayCarousel({ participant }) {
 
 // URL base do Supabase Storage
 const SUPABASE_URL = 'https://nkbumxaksiibljgpmgak.supabase.co'
-const getMatchThumb = (id) => `${SUPABASE_URL}/storage/v1/object/public/matches/match_${id}.png?v=2`
+const getMatchThumb = (id) => `${SUPABASE_URL}/storage/v1/object/public/matches/match_${id}.png`
 
 function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTime, streamUrl, onTap }) {
   const [imgOk, setImgOk] = useState(true)
@@ -633,6 +633,129 @@ function Top5({ participant, ranking, myRank }) {
 }
 
 
+
+// ── BANNER DESTAQUE ───────────────────────────────────────────────────────────
+function FeaturedBanner() {
+  const navigate = useNavigate()
+  const [banners, setBanners] = useState([])
+  const [current, setCurrent] = useState(0)
+  const [loaded, setLoaded] = useState({})
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    // Busca partidas em andamento ou próximas que tenham imagem no Storage
+    // e não estejam encerradas — usa os ids das partidas como referência
+    supabase
+      .from('matches')
+      .select('id,team1,team2,score1,score2,is_finished,match_date')
+      .eq('is_finished', false)
+      .order('match_date')
+      .limit(5)
+      .then(({ data }) => {
+        if (!data) return
+        // Filtra só os que têm imagem disponível — tenta carregar e remove se 404
+        setBanners(data)
+      })
+  }, [])
+
+  // Troca de banner suave a cada 5s quando há mais de 1
+  useEffect(() => {
+    if (banners.length <= 1) return
+    const id = setInterval(() => {
+      setVisible(false)
+      setTimeout(() => {
+        setCurrent(i => (i + 1) % banners.length)
+        setVisible(true)
+      }, 300)
+    }, 5000)
+    return () => clearInterval(id)
+  }, [banners.length])
+
+  if (banners.length === 0) return null
+
+  const match = banners[current]
+  const imgUrl = `${SUPABASE_URL}/storage/v1/object/public/matches/match_${match.id}.png?v=2`
+
+  return (
+    <div style={{ margin:'14px 12px 0', position:'relative' }}>
+      {/* Card principal */}
+      <div
+        onClick={() => navigate('/palpites')}
+        style={{
+          borderRadius:16,
+          overflow:'hidden',
+          cursor:'pointer',
+          position:'relative',
+          boxShadow:'0 4px 24px rgba(0,40,85,0.13)',
+          border:'1px solid #E2EAF0',
+          transition:'opacity 0.3s ease',
+          opacity: visible ? 1 : 0,
+        }}
+      >
+        {/* Imagem do jogo */}
+        <img
+          src={imgUrl}
+          alt={`${match.team1} x ${match.team2}`}
+          onLoad={() => setLoaded(p => ({ ...p, [match.id]: true }))}
+          onError={() => setBanners(prev => prev.filter(b => b.id !== match.id))}
+          style={{
+            width:'100%',
+            display:'block',
+            aspectRatio:'16/6',
+            objectFit:'cover',
+            objectPosition:'center top',
+          }}
+        />
+
+        {/* Overlay gradiente suave no rodapé */}
+        <div style={{
+          position:'absolute', inset:0,
+          background:'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%)',
+          pointerEvents:'none',
+        }}/>
+
+        {/* Badge "Ver na tabela" */}
+        <div style={{
+          position:'absolute', bottom:10, right:10,
+          background:'rgba(255,255,255,0.92)',
+          backdropFilter:'blur(6px)',
+          borderRadius:20,
+          padding:'4px 10px',
+          display:'flex', alignItems:'center', gap:4,
+        }}>
+          <span style={{ color:'#002855', fontSize:9, fontWeight:900, letterSpacing:.3 }}>VER NA TABELA</span>
+          <span style={{ color:'#009639', fontSize:11 }}>›</span>
+        </div>
+      </div>
+
+      {/* Indicadores de página — só se houver mais de 1 */}
+      {banners.length > 1 && (
+        <div style={{
+          display:'flex', justifyContent:'center', gap:5, marginTop:8,
+        }}>
+          {banners.map((_, i) => (
+            <div
+              key={i}
+              onClick={() => {
+                setVisible(false)
+                setTimeout(() => { setCurrent(i); setVisible(true) }, 300)
+              }}
+              style={{
+                width: i === current ? 20 : 6,
+                height: 6,
+                borderRadius: 3,
+                background: i === current ? '#002855' : '#C8D5E0',
+                cursor:'pointer',
+                transition:'all 0.3s ease',
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── DASHBOARD PRINCIPAL ───────────────────────────────────────────────────────
 export default function Dashboard({ participant, onLogout }) {
   const navigate = useNavigate()
@@ -694,6 +817,8 @@ export default function Dashboard({ participant, onLogout }) {
 
       <div style={{ paddingTop: openCount>0?96:58 }}>
         <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/grupos')}/>
+
+        <FeaturedBanner/>
 
         <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <TodayCarousel participant={participant} />
