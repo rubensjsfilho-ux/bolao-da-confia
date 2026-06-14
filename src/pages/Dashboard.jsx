@@ -17,7 +17,12 @@ function useIsMobile() {
 }
 
 // IDs dos banners de jogos destaque no Storage (banner_XX.png)
-const BANNER_IDS = [10] // Holanda x Japão — adicione mais aqui conforme criar
+// Banners: { desktop: id landscape, mobile: id portrait }
+// Adicione novos jogos aqui: { desktop: 20, mobile: 21 }
+const BANNERS = [
+  { desktop: 11, mobile: 10 },
+]
+const BANNER_IDS = BANNERS.map(b => b.desktop) // usa desktop como id base
 
 function Hero({ onPalpites, onJogos }) {
   const isMobile = useIsMobile()
@@ -70,7 +75,10 @@ function Hero({ onPalpites, onJogos }) {
   const started = new Date() >= new Date('2026-06-11T22:00:00Z')
   const isBannerSlide = slide > 0
   const bannerId = isBannerSlide ? validBanners[slide - 1] : null
-  const bannerUrl = bannerId ? `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${bannerId}.png?v=2` : null
+  // Mobile usa banner_11 (portrait), desktop usa banner_10 (landscape)
+  const bannerConfig = bannerId ? BANNERS.find(b => b.desktop === bannerId) : null
+  const bannerFile = bannerConfig ? (isMobile ? bannerConfig.mobile : bannerConfig.desktop) : bannerId
+  const bannerUrl = bannerId ? `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${bannerFile}.png?v=2` : null
 
   return (
     <div style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
@@ -167,13 +175,14 @@ function Hero({ onPalpites, onJogos }) {
           style={{ cursor:'pointer', opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none', position:'relative', minHeight:340, display:'flex', flexDirection:'column' }}>
           {/* Imagem de fundo full */}
           <img src={bannerUrl} alt="Jogo destaque"
-            style={{ width:'100%', display:'block', objectFit:'cover', objectPosition:'center', maxHeight:340, minHeight:300 }}/>
+            style={{ width:'100%', display:'block', objectFit: isMobile ? 'cover' : 'contain', objectPosition:'center top', background:'#000', maxHeight: isMobile ? 380 : 420 }}/>
           {/* Overlay escuro suave */}
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)', pointerEvents:'none' }}/>
-          {/* CTA no rodapé */}
-          <div style={{ position:'absolute', bottom:52, left:0, right:0, display:'flex', justifyContent:'center', zIndex:4 }}>
-            <div style={{ background:'rgba(0,196,79,0.95)', backdropFilter:'blur(8px)', borderRadius:20, padding:'7px 18px', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 16px rgba(0,150,57,0.4)' }}>
-              <span style={{ color:'#fff', fontWeight:900, fontSize:11, letterSpacing:.5 }}>🎯 FAZER PALPITE</span>
+          {/* CTA canto inferior esquerdo */}
+          <div style={{ position:'absolute', bottom:20, left:16, zIndex:4 }}>
+            <div style={{ background:'rgba(0,196,79,0.95)', backdropFilter:'blur(8px)', borderRadius:14, padding:'10px 20px', display:'flex', alignItems:'center', gap:8, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
+              <span style={{ fontSize:16 }}>🎯</span>
+              <span style={{ color:'#fff', fontWeight:900, fontSize:14, letterSpacing:.5 }}>FAZER PALPITE</span>
             </div>
           </div>
         </div>
