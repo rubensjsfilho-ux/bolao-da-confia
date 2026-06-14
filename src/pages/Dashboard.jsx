@@ -16,9 +16,18 @@ function useIsMobile() {
   return isMobile
 }
 
+// IDs dos banners de jogos destaque no Storage (banner_XX.png)
+const BANNER_IDS = [10] // Holanda x Japão — adicione mais aqui conforme criar
+
 function Hero({ onPalpites, onJogos }) {
   const isMobile = useIsMobile()
+  const navigate = useNavigate()
   const [t, setT] = useState({ d:0, h:0, m:0, s:0 })
+  const [slide, setSlide] = useState(0)       // slide atual
+  const [fading, setFading] = useState(false) // controla fade
+  const [validBanners, setValidBanners] = useState([]) // banners com imagem válida
+
+  // Countdown
   useEffect(() => {
     const target = new Date('2026-06-11T22:00:00Z')
     const tick = () => {
@@ -28,130 +37,179 @@ function Hero({ onPalpites, onJogos }) {
     }
     tick(); const id = setInterval(tick,1000); return ()=>clearInterval(id)
   },[])
+
+  // Pré-carrega banners e filtra os válidos
+  useEffect(() => {
+    const valid = []
+    let checked = 0
+    if (BANNER_IDS.length === 0) { setValidBanners([]); return }
+    BANNER_IDS.forEach(id => {
+      const img = new Image()
+      img.src = `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${id}.png?v=2`
+      img.onload  = () => { valid.push(id); checked++; if (checked === BANNER_IDS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
+      img.onerror = () => { checked++; if (checked === BANNER_IDS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
+    })
+  }, [])
+
+  // total de slides = 1 hero + banners válidos
+  const totalSlides = 1 + validBanners.length
+
+  // Troca automática a cada 5s com fade
+  useEffect(() => {
+    if (totalSlides <= 1) return
+    const id = setInterval(() => goTo((slide + 1) % totalSlides), 5000)
+    return () => clearInterval(id)
+  }, [slide, totalSlides])
+
+  const goTo = (idx) => {
+    if (idx === slide) return
+    setFading(true)
+    setTimeout(() => { setSlide(idx); setFading(false) }, 320)
+  }
+
   const started = new Date() >= new Date('2026-06-11T22:00:00Z')
+  const isBannerSlide = slide > 0
+  const bannerId = isBannerSlide ? validBanners[slide - 1] : null
+  const bannerUrl = bannerId ? `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${bannerId}.png?v=2` : null
 
   return (
     <div style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
+      <style>{`
+        @keyframes heroFadeIn {
+          from { opacity:0; transform:scale(1.03); }
+          to   { opacity:1; transform:scale(1); }
+        }
+      `}</style>
 
-      {/* Fundo com gradiente escuro + efeito radial verde */}
-      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
+      {/* ── SLIDE 0: Hero original ── */}
+      {!isBannerSlide && (
+        <div key="hero" style={{ opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none' }}>
 
-      {/* Linha vertical decorativa esquerda */}
-      <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
+          {/* Fundo */}
+          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
+          <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
 
-      {/* Imagem direita — taça no mobile, banner no desktop */}
-      <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
-        {isMobile ? (
-          <>
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
-            <img
-              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
-              alt="Taça Copa 2026"
-              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
-              onError={e => { e.target.style.display='none' }}
-            />
-          </>
-        ) : (
-          <>
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
-            <img
-              src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png"
-              alt="Bolão da Confia 2026"
-              style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
-              onError={e => { e.target.style.display='none' }}
-            />
-          </>
-        )}
-      </div>
-
-      {/* Conteúdo — esquerda */}
-      <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
-
-        {/* Label topo */}
-        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
-          <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
-          <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
-        </div>
-
-        {/* COPA DO MUNDO FIFA + 2026 — proporcionais */}
-        <div style={{ marginBottom:12 }}>
-          <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
-            <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
-            <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
+          {/* Imagem direita */}
+          <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
+            {isMobile ? (
+              <>
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
+                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
+                  alt="Taça Copa 2026"
+                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
+                  onError={e=>{ e.target.style.display='none' }}/>
+              </>
+            ) : (
+              <>
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
+                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png"
+                  alt="Bolão da Confia 2026"
+                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
+                  onError={e=>{ e.target.style.display='none' }}/>
+              </>
+            )}
           </div>
-          <span style={{
-            fontFamily:'Arial Black, Impact, sans-serif',
-            fontWeight:900,
-            fontSize: isMobile ? 62 : 110,
-            lineHeight:.85,
-            letterSpacing:-4,
-            background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)',
-            WebkitBackgroundClip:'text',
-            WebkitTextFillColor:'transparent',
-            backgroundClip:'text',
-            display:'inline-block',
-            filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))',
-          }}>2026</span>
-        </div>
 
-        {/* Países sede */}
-        <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
-          {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
-            <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
-              {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
-              <span>{flag}</span><span>{name}</span>
-            </span>
+          {/* Conteúdo esquerda */}
+          <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
+              <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
+              <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
+            </div>
+            <div style={{ marginBottom:12 }}>
+              <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
+                <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
+                <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
+              </div>
+              <span style={{ fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 62 : 110, lineHeight:.85, letterSpacing:-4, background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', display:'inline-block', filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))' }}>2026</span>
+            </div>
+            <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
+              {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
+                <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
+                  {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
+                  <span>{flag}</span><span>{name}</span>
+                </span>
+              ))}
+            </div>
+            {!started ? (
+              <div style={{ display:'flex', gap:5, marginBottom:18 }}>
+                {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
+                  <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
+                    <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
+                    <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
+                <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
+                <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
+              </div>
+            )}
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
+                🎯 FAZER PALPITES
+              </button>
+              <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
+                📅 VER JOGOS
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SLIDES 1+: Banners de jogos ── */}
+      {isBannerSlide && bannerUrl && (
+        <div key={`banner-${bannerId}`}
+          onClick={() => navigate('/palpites')}
+          style={{ cursor:'pointer', opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none', position:'relative', minHeight:340, display:'flex', flexDirection:'column' }}>
+          {/* Imagem de fundo full */}
+          <img src={bannerUrl} alt="Jogo destaque"
+            style={{ width:'100%', display:'block', objectFit:'cover', objectPosition:'center', maxHeight:340, minHeight:300 }}/>
+          {/* Overlay escuro suave */}
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)', pointerEvents:'none' }}/>
+          {/* CTA no rodapé */}
+          <div style={{ position:'absolute', bottom:52, left:0, right:0, display:'flex', justifyContent:'center', zIndex:4 }}>
+            <div style={{ background:'rgba(0,196,79,0.95)', backdropFilter:'blur(8px)', borderRadius:20, padding:'7px 18px', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 16px rgba(0,150,57,0.4)' }}>
+              <span style={{ color:'#fff', fontWeight:900, fontSize:11, letterSpacing:.5 }}>🎯 FAZER PALPITE</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Indicadores ── */}
+      {totalSlides > 1 && (
+        <div style={{ position:'absolute', bottom: isBannerSlide ? 24 : 0, left:0, right:0, display:'flex', justifyContent:'center', gap:6, zIndex:10, paddingBottom: isBannerSlide ? 0 : 8, pointerEvents:'none' }}>
+          {Array.from({ length: totalSlides }).map((_, i) => (
+            <div key={i} onClick={(e)=>{ e.stopPropagation(); goTo(i) }}
+              style={{ width: i===slide ? 20 : 6, height:6, borderRadius:3, background: i===slide ? '#fff' : 'rgba(255,255,255,0.35)', transition:'all 0.3s ease', cursor:'pointer', pointerEvents:'all' }}/>
           ))}
         </div>
+      )}
 
-        {/* Countdown ou badge ao vivo */}
-        {!started ? (
-          <div style={{ display:'flex', gap:5, marginBottom:18 }}>
-            {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
-              <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
-                <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
-                <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
-            <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
-            <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
-          </div>
-        )}
-
-        {/* Botões */}
-        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-          <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
-            🎯 FAZER PALPITES
-          </button>
-          <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
-            📅 VER JOGOS
-          </button>
+      {/* Features strip — sempre visível no slide 0 */}
+      {!isBannerSlide && (
+        <div style={{ position:'relative', zIndex:3, display:'grid', gridTemplateColumns:'repeat(4,1fr)', borderTop:'1px solid rgba(255,255,255,0.07)', background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)' }}>
+          {[
+            ['🏆','Prêmios','Exclusivos'],
+            ['📊','Ranking','Tempo real'],
+            ['🎯','Palpites','72 jogos'],
+            ['🔒','100%','Seguro'],
+          ].map(([icon,l1,l2])=>(
+            <div key={l1} style={{ textAlign:'center', padding:'8px 4px', borderRight:'1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ fontSize:14, marginBottom:2 }}>{icon}</div>
+              <div style={{ color:'#ffffff', fontSize:8, fontWeight:800, lineHeight:1.3 }}>{l1}</div>
+              <div style={{ color:'rgba(255,255,255,0.4)', fontSize:7, fontWeight:600 }}>{l2}</div>
+            </div>
+          ))}
         </div>
-      </div>
-
-      {/* Features strip */}
-      <div style={{ position:'relative', zIndex:3, display:'grid', gridTemplateColumns:'repeat(4,1fr)', borderTop:'1px solid rgba(255,255,255,0.07)', background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)' }}>
-        {[
-          ['🏆','Prêmios','Exclusivos'],
-          ['📊','Ranking','Tempo real'],
-          ['🎯','Palpites','72 jogos'],
-          ['🔒','100%','Seguro'],
-        ].map(([icon,l1,l2])=>(
-          <div key={l1} style={{ textAlign:'center', padding:'8px 4px', borderRight:'1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize:14, marginBottom:2 }}>{icon}</div>
-            <div style={{ color:'#ffffff', fontSize:8, fontWeight:800, lineHeight:1.3 }}>{l1}</div>
-            <div style={{ color:'rgba(255,255,255,0.4)', fontSize:7, fontWeight:600 }}>{l2}</div>
-          </div>
-        ))}
-      </div>
+      )}
     </div>
   )
 }
+
 
 
 // ── STATS ─────────────────────────────────────────────────────────────────────
@@ -633,129 +691,6 @@ function Top5({ participant, ranking, myRank }) {
 }
 
 
-
-// ── BANNER DESTAQUE ───────────────────────────────────────────────────────────
-function FeaturedBanner() {
-  const navigate = useNavigate()
-  const [banners, setBanners] = useState([])
-  const [current, setCurrent] = useState(0)
-  const [loaded, setLoaded] = useState({})
-  const [visible, setVisible] = useState(true)
-
-  useEffect(() => {
-    // Busca partidas em andamento ou próximas que tenham imagem no Storage
-    // e não estejam encerradas — usa os ids das partidas como referência
-    supabase
-      .from('matches')
-      .select('id,team1,team2,score1,score2,is_finished,match_date')
-      .eq('is_finished', false)
-      .order('match_date')
-      .limit(5)
-      .then(({ data }) => {
-        if (!data) return
-        // Filtra só os que têm imagem disponível — tenta carregar e remove se 404
-        setBanners(data)
-      })
-  }, [])
-
-  // Troca de banner suave a cada 5s quando há mais de 1
-  useEffect(() => {
-    if (banners.length <= 1) return
-    const id = setInterval(() => {
-      setVisible(false)
-      setTimeout(() => {
-        setCurrent(i => (i + 1) % banners.length)
-        setVisible(true)
-      }, 300)
-    }, 5000)
-    return () => clearInterval(id)
-  }, [banners.length])
-
-  if (banners.length === 0) return null
-
-  const match = banners[current]
-  const imgUrl = `${SUPABASE_URL}/storage/v1/object/public/matches/match_${match.id}.png?v=2`
-
-  return (
-    <div style={{ margin:'14px 12px 0', position:'relative' }}>
-      {/* Card principal */}
-      <div
-        onClick={() => navigate('/palpites')}
-        style={{
-          borderRadius:16,
-          overflow:'hidden',
-          cursor:'pointer',
-          position:'relative',
-          boxShadow:'0 4px 24px rgba(0,40,85,0.13)',
-          border:'1px solid #E2EAF0',
-          transition:'opacity 0.3s ease',
-          opacity: visible ? 1 : 0,
-        }}
-      >
-        {/* Imagem do jogo */}
-        <img
-          src={imgUrl}
-          alt={`${match.team1} x ${match.team2}`}
-          onLoad={() => setLoaded(p => ({ ...p, [match.id]: true }))}
-          onError={() => setBanners(prev => prev.filter(b => b.id !== match.id))}
-          style={{
-            width:'100%',
-            display:'block',
-            aspectRatio:'16/6',
-            objectFit:'cover',
-            objectPosition:'center top',
-          }}
-        />
-
-        {/* Overlay gradiente suave no rodapé */}
-        <div style={{
-          position:'absolute', inset:0,
-          background:'linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 55%)',
-          pointerEvents:'none',
-        }}/>
-
-        {/* Badge "Ver na tabela" */}
-        <div style={{
-          position:'absolute', bottom:10, right:10,
-          background:'rgba(255,255,255,0.92)',
-          backdropFilter:'blur(6px)',
-          borderRadius:20,
-          padding:'4px 10px',
-          display:'flex', alignItems:'center', gap:4,
-        }}>
-          <span style={{ color:'#002855', fontSize:9, fontWeight:900, letterSpacing:.3 }}>VER NA TABELA</span>
-          <span style={{ color:'#009639', fontSize:11 }}>›</span>
-        </div>
-      </div>
-
-      {/* Indicadores de página — só se houver mais de 1 */}
-      {banners.length > 1 && (
-        <div style={{
-          display:'flex', justifyContent:'center', gap:5, marginTop:8,
-        }}>
-          {banners.map((_, i) => (
-            <div
-              key={i}
-              onClick={() => {
-                setVisible(false)
-                setTimeout(() => { setCurrent(i); setVisible(true) }, 300)
-              }}
-              style={{
-                width: i === current ? 20 : 6,
-                height: 6,
-                borderRadius: 3,
-                background: i === current ? '#002855' : '#C8D5E0',
-                cursor:'pointer',
-                transition:'all 0.3s ease',
-              }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ── DASHBOARD PRINCIPAL ───────────────────────────────────────────────────────
 export default function Dashboard({ participant, onLogout }) {
   const navigate = useNavigate()
@@ -817,8 +752,6 @@ export default function Dashboard({ participant, onLogout }) {
 
       <div style={{ paddingTop: openCount>0?96:58 }}>
         <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/grupos')}/>
-
-        <FeaturedBanner/>
 
         <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <TodayCarousel participant={participant} />
