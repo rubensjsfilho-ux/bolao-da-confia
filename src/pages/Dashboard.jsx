@@ -20,7 +20,8 @@ function useIsMobile() {
 // Banners: { desktop: id landscape, mobile: id portrait }
 // Adicione novos jogos aqui: { desktop: 20, mobile: 21 }
 const BANNERS = [
-  { desktop: 11, mobile: 10 },
+  { desktop: 11, mobile: 10, matchId: 10 }, // Holanda x Japão
+  { desktop: 21, mobile: 20, matchId: 13 }, // Espanha x Cabo Verde
 ]
 const BANNER_IDS = BANNERS.map(b => b.desktop) // usa desktop como id base
 
@@ -31,6 +32,7 @@ function Hero({ onPalpites, onJogos }) {
   const [slide, setSlide] = useState(0)       // slide atual
   const [fading, setFading] = useState(false) // controla fade
   const [validBanners, setValidBanners] = useState([]) // banners com imagem válida
+  const [startedMatches, setStartedMatches] = useState({}) // matchId -> true se já iniciou
 
   // Countdown
   useEffect(() => {
@@ -43,19 +45,73 @@ function Hero({ onPalpites, onJogos }) {
     tick(); const id = setInterval(tick,1000); return ()=>clearInterval(id)
   },[])
 
-  // Pré-carrega banners (testa a versão desktop) e filtra os válidos
+  // Pré-carrega banners e marca quais jogos já iniciaram
   useEffect(() => {
-    const valid = []
-    let checked = 0
-    if (BANNERS.length === 0) { setValidBanners([]); return }
-    BANNERS.forEach(b => {
-      const img = new Image()
-      // Testa a versão correta conforme dispositivo
-      const testId = window.innerWidth < 768 ? b.mobile : b.desktop
-      img.src = `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${testId}.png?v=2`
-      img.onload  = () => { valid.push(b.desktop); checked++; if (checked === BANNERS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
-      img.onerror = () => { checked++; if (checked === BANNERS.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
-    })
+    const loadBanners = async () => {
+      const matchIds = BANNERS.map(b => b.matchId)
+      const { data: matches } = await supabase
+        .from('matches')
+        .select('id,match_date')
+        .in('id', matchIds)
+
+      const now = new Date()
+      const started = {}
+      matches?.forEach(m => {
+        if (new Date(m.match_date) <= now) started[m.id] = true
+      })
+      setStartedMatches(started)
+
+      // Busca is_finished e verifica a cada minuto
+      const checkMatches = async () => {
+        const nowCheck = new Date()
+        const { data: fresh } = await supabase
+          .from('matches')
+          .select('id,match_date,is_finished')
+          .in('id', matchIds)
+
+        const newStarted = {}
+        const stillValid = []
+        fresh?.forEach(m => {
+          if (new Date(m.match_date) <= nowCheck) newStarted[m.id] = true
+        })
+        setStartedMatches(newStarted)
+
+        // Remove banners de jogos encerrados
+        BANNERS.forEach(b => {
+          const m = fresh?.find(m => m.id === b.matchId)
+          if (!m?.is_finished) stillValid.push(b.desktop)
+        })
+        setValidBanners(stillValid.sort((a,b) => a-b))
+      }
+
+      const interval = setInterval(checkMatches, 60000)
+
+      // Pré-carrega imagens filtrando encerrados
+      const { data: freshNow } = await supabase
+        .from('matches')
+        .select('id,is_finished')
+        .in('id', matchIds)
+
+      const valid = []
+      let checked = 0
+      const activeBanners = BANNERS.filter(b => {
+        const m = freshNow?.find(m => m.id === b.matchId)
+        return !m?.is_finished
+      })
+
+      if (activeBanners.length === 0) { setValidBanners([]); return }
+
+      activeBanners.forEach(b => {
+        const img = new Image()
+        const testId = window.innerWidth < 768 ? b.mobile : b.desktop
+        img.src = `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${testId}.png?v=2`
+        img.onload  = () => { valid.push(b.desktop); checked++; if (checked === activeBanners.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
+        img.onerror = () => { checked++; if (checked === activeBanners.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
+      })
+
+      return () => clearInterval(interval)
+    }
+    loadBanners()
   }, [])
 
   // total de slides = 1 hero + banners válidos
@@ -173,7 +229,12 @@ function Hero({ onPalpites, onJogos }) {
       {/* ── SLIDES 1+: Banners de jogos ── */}
       {isBannerSlide && bannerUrl && (
         <div key={`banner-${bannerId}`}
-          onClick={() => navigate('/palpites')}
+          onClick={() => {
+            const bannerConf = BANNERS.find(b => b.desktop === bannerId)
+            const matchStarted = bannerConf ? startedMatches[bannerConf.matchId] : false
+            if (matchStarted) navigate('/grupos')
+            else navigate(`/palpites?match=${bannerConf?.matchId || bannerId}`)
+          }}
           style={{ cursor:'pointer', opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none', position:'relative', minHeight:340, display:'flex', flexDirection:'column' }}>
           {/* Imagem de fundo full */}
           <img src={bannerUrl} alt="Jogo destaque"
@@ -184,7 +245,13 @@ function Hero({ onPalpites, onJogos }) {
           <div style={{ position:'absolute', bottom:20, left:16, zIndex:4 }}>
             <div style={{ background:'rgba(0,196,79,0.95)', backdropFilter:'blur(8px)', borderRadius:14, padding:'10px 20px', display:'flex', alignItems:'center', gap:8, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
               <span style={{ fontSize:16 }}>🎯</span>
-              <span style={{ color:'#fff', fontWeight:900, fontSize:14, letterSpacing:.5 }}>FAZER PALPITE</span>
+              <span style={{ color:'#fff', fontWeight:900, fontSize:14, letterSpacing:.5 }}>
+                {(() => {
+                  const bannerConf = BANNERS.find(b => b.desktop === bannerId)
+                  const matchStarted = bannerConf ? startedMatches[bannerConf.matchId] : false
+                  return matchStarted ? '📺 VER AO VIVO' : '🎯 FAZER PALPITE'
+                })()}
+              </span>
             </div>
           </div>
         </div>
