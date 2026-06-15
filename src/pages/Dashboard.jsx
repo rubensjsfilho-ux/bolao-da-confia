@@ -992,3 +992,4 @@ export default function Dashboard({ participant, onLogout }) {
     </div>
   )
 }
+
