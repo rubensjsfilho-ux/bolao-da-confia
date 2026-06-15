@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
@@ -20,17 +20,19 @@ function useIsMobile() {
 // Banners: { desktop: id landscape, mobile: id portrait }
 // Adicione novos jogos aqui: { desktop: 20, mobile: 21 }
 // Banners carregados dinamicamente do Supabase (tabela banners)
-const BANNERS = [] // será populado via loadBanners()
+const BANNERS_EMPTY = [] // fallback
 
 function Hero({ onPalpites, onJogos }) {
   const isMobile = useIsMobile()
   const navigate = useNavigate()
   const [t, setT] = useState({ d:0, h:0, m:0, s:0 })
-  const [slide, setSlide] = useState(0)       // slide atual
-  const [fading, setFading] = useState(false) // controla fade
-  const [validBanners, setValidBanners] = useState([]) // banners com imagem válida
-  const [startedMatches, setStartedMatches] = useState({}) // matchId -> true se já iniciou
-  const [countdown, setCountdown]           = useState({}) // matchId -> { h, m, s }
+  const [slide, setSlide] = useState(0)
+  const [fading, setFading] = useState(false)
+  const [validBanners, setValidBanners]   = useState([])
+  const [bannersData, setBannersData]     = useState([])
+  const [startedMatches, setStartedMatches] = useState({})
+  const [countdown, setCountdown]           = useState({})
+  const touchStartX = useRef(null)
 
   // Countdown
   useEffect(() => {
@@ -91,13 +93,13 @@ function Hero({ onPalpites, onJogos }) {
       })
       setStartedMatches(started)
 
-      // Popula BANNERS global para countdown e navigate
-      BANNERS.length = 0
-      active.forEach(b => BANNERS.push({
+      // Salva banners no estado do componente
+      const bannersList = active.map(b => ({
         desktop: b.img_desktop,
         mobile:  b.img_mobile,
         matchId: b.match_id,
       }))
+      setBannersData(bannersList)
 
       // Pré-carrega imagens
       const valid = []
@@ -120,16 +122,14 @@ function Hero({ onPalpites, onJogos }) {
     return () => { if (interval) clearInterval(interval) }
   }, [])
 
-  // Countdown para cada banner
+  // Countdown — roda sempre que bannersData muda (carregamento ou remontagem)
   useEffect(() => {
-    if (BANNERS.length === 0) return
+    if (bannersData.length === 0) return
     const tick = () => {
       const now = new Date()
       const newCountdown = {}
-      BANNERS.forEach(b => {
-        // Busca match_date do banco — usa dados já carregados via startedMatches
-        // O tempo é calculado direto pelo matches.js
-        const match = GROUP_MATCHES.find(m => m.id === b.matchId)
+      bannersData.forEach(b => {
+        const match = GROUP_MATCHES.find(m => m.id === Number(b.matchId))
         if (!match) return
         const diff = new Date(match.date) - now
         if (diff <= 0) { newCountdown[b.matchId] = null; return }
@@ -144,7 +144,7 @@ function Hero({ onPalpites, onJogos }) {
     tick()
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
-  }, [])
+  }, [bannersData])
 
   // total de slides = 1 hero + banners válidos
   const totalSlides = 1 + validBanners.length
@@ -166,12 +166,25 @@ function Hero({ onPalpites, onJogos }) {
   const isBannerSlide = slide > 0
   const bannerId = isBannerSlide ? validBanners[slide - 1] : null
   // Mobile usa banner_11 (portrait), desktop usa banner_10 (landscape)
-  const bannerConfig = bannerId ? BANNERS.find(b => b.desktop === bannerId) : null
+  const bannerConfig = bannerId ? bannersData.find(b => b.desktop === bannerId) : null
   const bannerFile = bannerConfig ? (isMobile ? bannerConfig.mobile : bannerConfig.desktop) : bannerId
   const bannerUrl = bannerId ? `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${bannerFile}.png?v=2` : null
 
+  const handleTouchStart = (e) => { touchStartX.current = e.touches[0].clientX }
+  const handleTouchEnd   = (e) => {
+    if (touchStartX.current === null) return
+    const diff = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(diff) < 40) return // movimento muito pequeno
+    if (diff < 0) goTo((slide + 1) % totalSlides)        // swipe left → próximo
+    else          goTo((slide - 1 + totalSlides) % totalSlides) // swipe right → anterior
+    touchStartX.current = null
+  }
+
   return (
-    <div style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
       <style>{`
         @keyframes heroFadeIn {
           from { opacity:0; transform:scale(1.03); }
@@ -262,7 +275,7 @@ function Hero({ onPalpites, onJogos }) {
       {isBannerSlide && bannerUrl && (
         <div key={`banner-${bannerId}`}
           onClick={() => {
-            const bannerConf = BANNERS.find(b => b.desktop === bannerId)
+            const bannerConf = bannersData.find(b => b.desktop === bannerId)
             const matchStarted = bannerConf ? startedMatches[bannerConf.matchId] : false
             if (matchStarted) navigate(`/grupos?match=${bannerConf?.matchId}`)
             else navigate(`/palpites?match=${bannerConf?.matchId || bannerId}`)
@@ -275,7 +288,7 @@ function Hero({ onPalpites, onJogos }) {
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)', pointerEvents:'none' }}/>
           {/* CTA canto inferior esquerdo */}
           {(() => {
-            const bannerConf  = BANNERS.find(b => b.desktop === bannerId)
+            const bannerConf  = bannersData.find(b => b.desktop === bannerId)
             const matchId     = bannerConf?.matchId
             const started     = matchId ? startedMatches[matchId] : false
             const cd          = matchId ? countdown[matchId] : null
