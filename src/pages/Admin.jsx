@@ -563,6 +563,128 @@ function KnockoutTab() {
   )
 }
 
+
+// ── ABA BANNERS ───────────────────────────────────────────────────────────────
+function BannersTab() {
+  const [banners, setBanners]   = useState([])
+  const [matches, setMatches]   = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [saving,  setSaving]    = useState(false)
+  const [msg,     setMsg]       = useState('')
+  const [form,    setForm]      = useState({ match_id:'', img_mobile:'', img_desktop:'' })
+
+  const load = async () => {
+    setLoading(true)
+    const [{ data: b }, { data: m }] = await Promise.all([
+      supabase.from('banners').select('id,match_id,img_mobile,img_desktop,matches(team1,team2)').order('id'),
+      supabase.from('matches').select('id,team1,team2,match_date,is_finished').eq('is_finished',false).order('match_date').limit(30),
+    ])
+    setBanners(b || [])
+    setMatches(m || [])
+    setLoading(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  const add = async () => {
+    if (!form.match_id || !form.img_mobile || !form.img_desktop) {
+      setMsg('❌ Preencha todos os campos'); setTimeout(()=>setMsg(''),3000); return
+    }
+    setSaving(true)
+    const { error } = await supabase.from('banners').insert([{
+      match_id:    parseInt(form.match_id),
+      img_mobile:  parseInt(form.img_mobile),
+      img_desktop: parseInt(form.img_desktop),
+    }])
+    if (error) { setMsg('❌ Erro: '+error.message) }
+    else { setMsg('✅ Banner adicionado!'); setForm({ match_id:'', img_mobile:'', img_desktop:'' }); load() }
+    setSaving(false)
+    setTimeout(()=>setMsg(''),3000)
+  }
+
+  const remove = async (id) => {
+    await supabase.from('banners').delete().eq('id', id)
+    load()
+  }
+
+  const formatDate = (d) => new Date(d).toLocaleDateString('pt-BR',{ day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo' })
+
+  return (
+    <div>
+      {msg && <div style={{ background: msg.startsWith('✅')?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)', border:`1px solid ${msg.startsWith('✅')?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'}`, borderRadius:10, padding:'10px 14px', marginBottom:12, color: msg.startsWith('✅')?C.green:C.red, fontSize:12 }}>{msg}</div>}
+
+      {/* Formulário para adicionar */}
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'14px', marginBottom:16 }}>
+        <div style={{ color:C.gold, fontWeight:800, fontSize:12, marginBottom:12 }}>➕ Novo Banner</div>
+
+        <div style={{ marginBottom:8 }}>
+          <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>PARTIDA</label>
+          <select value={form.match_id} onChange={e=>setForm(f=>({...f,match_id:e.target.value}))}
+            style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:form.match_id?C.text:C.textMuted, fontSize:12, outline:'none' }}>
+            <option value="">Selecionar jogo...</option>
+            {matches.map(m=>(
+              <option key={m.id} value={m.id} style={{background:'#011901'}}>
+                {m.team1} x {m.team2} — {formatDate(m.match_date)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:12 }}>
+          <div>
+            <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Nº IMG MOBILE</label>
+            <input type="number" placeholder="ex: 30" value={form.img_mobile}
+              onChange={e=>setForm(f=>({...f,img_mobile:e.target.value}))}
+              style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:12, outline:'none', boxSizing:'border-box' }}/>
+            <div style={{ color:C.textMuted, fontSize:9, marginTop:3 }}>banner_30.png</div>
+          </div>
+          <div>
+            <label style={{ color:C.textMuted, fontSize:10, fontWeight:700, display:'block', marginBottom:4 }}>Nº IMG DESKTOP</label>
+            <input type="number" placeholder="ex: 31" value={form.img_desktop}
+              onChange={e=>setForm(f=>({...f,img_desktop:e.target.value}))}
+              style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color:C.text, fontSize:12, outline:'none', boxSizing:'border-box' }}/>
+            <div style={{ color:C.textMuted, fontSize:9, marginTop:3 }}>banner_31.png</div>
+          </div>
+        </div>
+
+        <button onClick={add} disabled={saving}
+          style={{ width:'100%', padding:'10px', background:C.gold, color:'#000', border:'none', borderRadius:8, fontWeight:900, fontSize:12, cursor:'pointer' }}>
+          {saving ? 'Salvando...' : '✓ Adicionar Banner'}
+        </button>
+      </div>
+
+      {/* Lista de banners ativos */}
+      <div style={{ color:C.textMuted, fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>
+        Banners Ativos ({banners.length})
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign:'center', padding:40, color:C.textMuted }}>Carregando...</div>
+      ) : banners.length === 0 ? (
+        <div style={{ textAlign:'center', padding:32, color:C.textMuted }}>
+          <div style={{ fontSize:32, marginBottom:8 }}>🖼️</div>
+          <p>Nenhum banner cadastrado.</p>
+        </div>
+      ) : banners.map(b => (
+        <div key={b.id} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:8, display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ flex:1 }}>
+            <div style={{ color:C.text, fontWeight:800, fontSize:13 }}>
+              {b.matches?.team1} x {b.matches?.team2}
+            </div>
+            <div style={{ color:C.textMuted, fontSize:10, marginTop:3 }}>
+              📱 banner_{b.img_mobile}.png · 🖥️ banner_{b.img_desktop}.png
+            </div>
+          </div>
+          <button onClick={()=>remove(b.id)}
+            style={{ background:'rgba(248,113,113,0.1)', border:'1px solid rgba(248,113,113,0.2)', borderRadius:8, padding:'8px', cursor:'pointer', flexShrink:0 }}>
+            🗑️
+          </button>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ── ADMIN PRINCIPAL ────────────────────────────────────────────────────  ──────
 export default function Admin(){
   const [authed,setAuthed]=useState(false)
@@ -714,7 +836,7 @@ export default function Admin(){
 
       <main style={{ paddingTop:64, paddingBottom:32, padding:'72px 16px 32px', maxWidth:520, margin:'0 auto' }}>
         <div style={{ display:'flex', background:'rgba(255,255,255,0.05)', borderRadius:12, padding:4, marginBottom:20, gap:3, overflowX:'auto' }}>
-          {[{id:'results',label:'🎯 Grupos'},{id:'knockout',label:'⚔️ Mata-Mata'},{id:'participants',label:'👥 Participantes'}].map(t=>(
+          {[{id:'results',label:'🎯 Grupos'},{id:'knockout',label:'⚔️ Mata-Mata'},{id:'participants',label:'👥 Participantes'},{id:'banners',label:'🖼️ Banners'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{
               flex:1, padding:'9px 6px', border: tab===t.id?`1px solid rgba(245,166,35,0.3)`:'1px solid transparent',
               borderRadius:10, fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif',
@@ -726,6 +848,7 @@ export default function Admin(){
         {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult} onFinish={finishMatch} onReset={resetMatch} onSaveStream={saveStreamUrl}/>}
         {tab==='knockout'&&<KnockoutTab/>}
         {tab==='participants'&&<ParticipantsTab/>}
+        {tab==='banners'&&<BannersTab/>}
       </main>
     </div>
   )
