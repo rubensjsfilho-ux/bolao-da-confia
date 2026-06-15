@@ -306,45 +306,65 @@ function Hero({ onPalpites, onJogos }) {
               pulse = false
             }
 
+                        // Cores do contorno por estado
+            const borderColor = started ? 'rgba(239,68,68,0.8)' : cd && cd.diff < 3600000 ? 'rgba(251,146,60,0.8)' : 'rgba(0,196,79,0.7)'
+            const glowColor   = started ? 'rgba(239,68,68,0.4)' : cd && cd.diff < 3600000 ? 'rgba(251,146,60,0.35)' : 'rgba(0,196,79,0.3)'
+            const accentColor = started ? '#ef4444' : cd && cd.diff < 3600000 ? '#fb923c' : '#00c44f'
+
             return (
-              <div style={{ position:'absolute', bottom:20, left:16, zIndex:4 }}>
+              <>
                 <style>{`
-                  @keyframes ctaPulse {
-                    0%,100% { box-shadow: 0 4px 20px rgba(220,38,38,0.5), 0 0 0 0 rgba(220,38,38,0.4); }
-                    50%     { box-shadow: 0 4px 20px rgba(220,38,38,0.5), 0 0 0 8px rgba(220,38,38,0); }
+                  @keyframes borderShimmer {
+                    0%   { background-position: 0% 50%; }
+                    50%  { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
                   }
-                  @keyframes ctaGlow {
-                    0%,100% { box-shadow: 0 4px 20px rgba(0,196,79,0.5), 0 0 0 0 rgba(0,196,79,0.3); }
-                    50%     { box-shadow: 0 4px 20px rgba(0,196,79,0.5), 0 0 0 8px rgba(0,196,79,0); }
+                  @keyframes glowPulse {
+                    0%,100% { box-shadow: 0 0 12px ${glowColor}, 0 4px 24px rgba(0,0,0,0.4); }
+                    50%     { box-shadow: 0 0 28px ${glowColor}, 0 4px 24px rgba(0,0,0,0.4); }
                   }
+                  @keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:.2} }
                 `}</style>
                 <div style={{
-                  background: bg,
-                  backdropFilter:'blur(8px)',
-                  borderRadius: 14,
-                  padding: sublabel ? '8px 18px 6px' : '10px 20px',
-                  display:'flex', flexDirection: sublabel ? 'column' : 'row',
-                  alignItems: sublabel ? 'flex-start' : 'center',
-                  gap: sublabel ? 2 : 8,
-                  animation: pulse ? (started ? 'ctaPulse 1.5s infinite' : 'ctaGlow 1.5s infinite') : 'none',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                  position:'absolute', bottom:22, zIndex:4,
+                  ...(isMobile ? { left:'50%', transform:'translateX(-50%)' } : { left:18 })
                 }}>
-                  {sublabel ? (
-                    <>
-                      <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                        <span style={{ fontSize:14 }}>{icon}</span>
-                        <span style={{ color:'#fff', fontWeight:900, fontSize:15, letterSpacing:.5 }}>{label}</span>
-                      </div>
-                      <span style={{ color:'rgba(255,255,255,0.85)', fontWeight:700, fontSize:10, letterSpacing:1, textTransform:'uppercase' }}>{sublabel}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span style={{ fontSize:16 }}>{icon}</span>
-                      <span style={{ color:'#fff', fontWeight:900, fontSize:14, letterSpacing:.5 }}>{label}</span>
-                    </>
-                  )}
+                  <div style={{
+                    padding: 1.5, borderRadius: 16,
+                    background: `linear-gradient(135deg, ${accentColor}, rgba(255,255,255,0.25), ${accentColor})`,
+                    backgroundSize: '200% 200%',
+                    animation: pulse ? 'borderShimmer 2s ease infinite' : 'none',
+                  }}>
+                    <div style={{
+                      background: 'rgba(0,0,0,0.42)',
+                      backdropFilter: 'blur(18px)',
+                      WebkitBackdropFilter: 'blur(18px)',
+                      borderRadius: 15,
+                      padding: sublabel ? '9px 22px 7px' : '10px 24px',
+                      display:'flex', flexDirection: sublabel ? 'column' : 'row',
+                      alignItems:'center', gap: sublabel ? 3 : 8,
+                      animation: pulse ? 'glowPulse 1.8s ease infinite' : 'none',
+                      whiteSpace:'nowrap',
+                    }}>
+                      {sublabel ? (
+                        <>
+                          <div style={{ display:'flex', alignItems:'center', gap:7 }}>
+                            <div style={{ width:7, height:7, borderRadius:'50%', background:accentColor, animation:'dotBlink 1.2s infinite', boxShadow:`0 0 6px ${accentColor}`, flexShrink:0 }}/>
+                            <span style={{ color:'#fff', fontWeight:900, fontSize:15, letterSpacing:.3, textShadow:'0 1px 6px rgba(0,0,0,0.7)' }}>{label}</span>
+                          </div>
+                          <span style={{ color:accentColor, fontWeight:800, fontSize:10, letterSpacing:1.5, textTransform:'uppercase', textAlign:'center', width:'100%' }}>{sublabel}</span>
+                        </>
+                      ) : (
+                        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                          {started && <div style={{ width:7, height:7, borderRadius:'50%', background:'#ef4444', animation:'dotBlink 1s infinite', boxShadow:'0 0 6px #ef4444', flexShrink:0 }}/>}
+                          <span style={{ fontSize:15 }}>{icon}</span>
+                          <span style={{ color:'#fff', fontWeight:900, fontSize:14, letterSpacing:.3, textShadow:'0 1px 6px rgba(0,0,0,0.7)' }}>{label}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </>
             )
           })()}
         </div>
