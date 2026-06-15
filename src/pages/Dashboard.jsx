@@ -19,11 +19,8 @@ function useIsMobile() {
 // IDs dos banners de jogos destaque no Storage (banner_XX.png)
 // Banners: { desktop: id landscape, mobile: id portrait }
 // Adicione novos jogos aqui: { desktop: 20, mobile: 21 }
-const BANNERS = [
-  { desktop: 11, mobile: 10, matchId: 10 }, // Holanda x Japão
-  { desktop: 21, mobile: 20, matchId: 13 }, // Espanha x Cabo Verde
-]
-const BANNER_IDS = BANNERS.map(b => b.desktop) // usa desktop como id base
+// Banners carregados dinamicamente do Supabase (tabela banners)
+const BANNERS = [] // será populado via loadBanners()
 
 function Hero({ onPalpites, onJogos }) {
   const isMobile = useIsMobile()
@@ -33,6 +30,7 @@ function Hero({ onPalpites, onJogos }) {
   const [fading, setFading] = useState(false) // controla fade
   const [validBanners, setValidBanners] = useState([]) // banners com imagem válida
   const [startedMatches, setStartedMatches] = useState({}) // matchId -> true se já iniciou
+  const [countdown, setCountdown]           = useState({}) // matchId -> { h, m, s }
 
   // Countdown
   useEffect(() => {
@@ -45,73 +43,107 @@ function Hero({ onPalpites, onJogos }) {
     tick(); const id = setInterval(tick,1000); return ()=>clearInterval(id)
   },[])
 
-  // Pré-carrega banners e marca quais jogos já iniciaram
+  // Carrega banners do Supabase e monitora encerramento
   useEffect(() => {
+    let interval = null
+    let liveBanners = []
+
+    const checkAndUpdate = async () => {
+      if (liveBanners.length === 0) return
+      const matchIds = liveBanners.map(b => b.match_id)
+      const nowCheck = new Date()
+      const { data: fresh } = await supabase
+        .from('matches').select('id,match_date,is_finished').in('id', matchIds)
+
+      const newStarted = {}
+      fresh?.forEach(m => {
+        if (new Date(m.match_date) <= nowCheck) newStarted[m.id] = true
+      })
+      setStartedMatches(newStarted)
+
+      // Remove banners de jogos encerrados
+      const stillValid = liveBanners
+        .filter(b => !fresh?.find(m => m.id === b.match_id)?.is_finished)
+        .map(b => b.img_desktop)
+      setValidBanners(stillValid)
+    }
+
     const loadBanners = async () => {
-      const matchIds = BANNERS.map(b => b.matchId)
-      const { data: matches } = await supabase
-        .from('matches')
-        .select('id,match_date')
-        .in('id', matchIds)
+      // Busca banners do Supabase junto com dados da partida
+      const { data: bannerRows } = await supabase
+        .from('banners')
+        .select('id,match_id,img_mobile,img_desktop,matches(match_date,is_finished)')
+        .order('id')
+
+      if (!bannerRows || bannerRows.length === 0) { setValidBanners([]); return }
 
       const now = new Date()
+
+      // Filtra banners de jogos já encerrados
+      const active = bannerRows.filter(b => !b.matches?.is_finished)
+      liveBanners = active
+
+      // Marca jogos já iniciados
       const started = {}
-      matches?.forEach(m => {
-        if (new Date(m.match_date) <= now) started[m.id] = true
+      active.forEach(b => {
+        if (b.matches?.match_date && new Date(b.matches.match_date) <= now)
+          started[b.match_id] = true
       })
       setStartedMatches(started)
 
-      // Busca is_finished e verifica a cada minuto
-      const checkMatches = async () => {
-        const nowCheck = new Date()
-        const { data: fresh } = await supabase
-          .from('matches')
-          .select('id,match_date,is_finished')
-          .in('id', matchIds)
+      // Popula BANNERS global para countdown e navigate
+      BANNERS.length = 0
+      active.forEach(b => BANNERS.push({
+        desktop: b.img_desktop,
+        mobile:  b.img_mobile,
+        matchId: b.match_id,
+      }))
 
-        const newStarted = {}
-        const stillValid = []
-        fresh?.forEach(m => {
-          if (new Date(m.match_date) <= nowCheck) newStarted[m.id] = true
-        })
-        setStartedMatches(newStarted)
-
-        // Remove banners de jogos encerrados
-        BANNERS.forEach(b => {
-          const m = fresh?.find(m => m.id === b.matchId)
-          if (!m?.is_finished) stillValid.push(b.desktop)
-        })
-        setValidBanners(stillValid.sort((a,b) => a-b))
-      }
-
-      const interval = setInterval(checkMatches, 60000)
-
-      // Pré-carrega imagens filtrando encerrados
-      const { data: freshNow } = await supabase
-        .from('matches')
-        .select('id,is_finished')
-        .in('id', matchIds)
-
+      // Pré-carrega imagens
       const valid = []
       let checked = 0
-      const activeBanners = BANNERS.filter(b => {
-        const m = freshNow?.find(m => m.id === b.matchId)
-        return !m?.is_finished
-      })
+      if (active.length === 0) { setValidBanners([]); return }
 
-      if (activeBanners.length === 0) { setValidBanners([]); return }
-
-      activeBanners.forEach(b => {
+      active.forEach(b => {
         const img = new Image()
-        const testId = window.innerWidth < 768 ? b.mobile : b.desktop
+        const testId = window.innerWidth < 768 ? b.img_mobile : b.img_desktop
         img.src = `${SUPABASE_URL}/storage/v1/object/public/matches/banner_${testId}.png?v=2`
-        img.onload  = () => { valid.push(b.desktop); checked++; if (checked === activeBanners.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
-        img.onerror = () => { checked++; if (checked === activeBanners.length) setValidBanners([...valid].sort((a,b)=>a-b)) }
+        img.onload  = () => { valid.push(b.img_desktop); checked++; if (checked === active.length) setValidBanners([...valid]) }
+        img.onerror = () => { checked++; if (checked === active.length) setValidBanners([...valid]) }
       })
 
-      return () => clearInterval(interval)
+      // Verifica a cada minuto
+      interval = setInterval(checkAndUpdate, 60000)
     }
+
     loadBanners()
+    return () => { if (interval) clearInterval(interval) }
+  }, [])
+
+  // Countdown para cada banner
+  useEffect(() => {
+    if (BANNERS.length === 0) return
+    const tick = () => {
+      const now = new Date()
+      const newCountdown = {}
+      BANNERS.forEach(b => {
+        // Busca match_date do banco — usa dados já carregados via startedMatches
+        // O tempo é calculado direto pelo matches.js
+        const match = GROUP_MATCHES.find(m => m.id === b.matchId)
+        if (!match) return
+        const diff = new Date(match.date) - now
+        if (diff <= 0) { newCountdown[b.matchId] = null; return }
+        const totalMin = Math.floor(diff / 60000)
+        const h = Math.floor(totalMin / 60)
+        const m = totalMin % 60
+        const s = Math.floor((diff % 60000) / 1000)
+        newCountdown[b.matchId] = { h, m, s, diff }
+      })
+      setCountdown(newCountdown)
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
   }, [])
 
   // total de slides = 1 hero + banners válidos
@@ -232,7 +264,7 @@ function Hero({ onPalpites, onJogos }) {
           onClick={() => {
             const bannerConf = BANNERS.find(b => b.desktop === bannerId)
             const matchStarted = bannerConf ? startedMatches[bannerConf.matchId] : false
-            if (matchStarted) navigate('/grupos')
+            if (matchStarted) navigate(`/grupos?match=${bannerConf?.matchId}`)
             else navigate(`/palpites?match=${bannerConf?.matchId || bannerId}`)
           }}
           style={{ cursor:'pointer', opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none', position:'relative', minHeight:340, display:'flex', flexDirection:'column' }}>
@@ -242,18 +274,79 @@ function Hero({ onPalpites, onJogos }) {
           {/* Overlay escuro suave */}
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)', pointerEvents:'none' }}/>
           {/* CTA canto inferior esquerdo */}
-          <div style={{ position:'absolute', bottom:20, left:16, zIndex:4 }}>
-            <div style={{ background:'rgba(0,196,79,0.95)', backdropFilter:'blur(8px)', borderRadius:14, padding:'10px 20px', display:'flex', alignItems:'center', gap:8, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
-              <span style={{ fontSize:16 }}>🎯</span>
-              <span style={{ color:'#fff', fontWeight:900, fontSize:14, letterSpacing:.5 }}>
-                {(() => {
-                  const bannerConf = BANNERS.find(b => b.desktop === bannerId)
-                  const matchStarted = bannerConf ? startedMatches[bannerConf.matchId] : false
-                  return matchStarted ? '📺 VER AO VIVO' : '🎯 FAZER PALPITE'
-                })()}
-              </span>
-            </div>
-          </div>
+          {(() => {
+            const bannerConf  = BANNERS.find(b => b.desktop === bannerId)
+            const matchId     = bannerConf?.matchId
+            const started     = matchId ? startedMatches[matchId] : false
+            const cd          = matchId ? countdown[matchId] : null
+
+            // Texto e visual dinâmico
+            let icon, label, sublabel, bg, pulse
+            if (started) {
+              icon = '📺'; label = 'VER AO VIVO'; sublabel = null
+              bg = 'linear-gradient(90deg, #dc2626, #ef4444)'
+              pulse = true
+            } else if (cd && cd.diff < 3600000) {
+              // menos de 1 hora — urgente
+              icon = '🔥'
+              label = `FALTA${cd.m !== 1 ? 'M' : ''} ${cd.h > 0 ? `${cd.h}h ` : ''}${cd.m}min`
+              sublabel = 'FAÇA SEU PALPITE!'
+              bg = 'linear-gradient(90deg, #ea580c, #f97316)'
+              pulse = true
+            } else if (cd) {
+              // mais de 1 hora
+              icon = '⚡'
+              label = `FALTAM ${cd.h}h ${cd.m}min`
+              sublabel = 'FAÇA SEU PALPITE!'
+              bg = 'linear-gradient(90deg, #009639, #00c44f)'
+              pulse = false
+            } else {
+              icon = '🎯'; label = 'FAZER PALPITE'; sublabel = null
+              bg = 'linear-gradient(90deg, #009639, #00c44f)'
+              pulse = false
+            }
+
+            return (
+              <div style={{ position:'absolute', bottom:20, left:16, zIndex:4 }}>
+                <style>{`
+                  @keyframes ctaPulse {
+                    0%,100% { box-shadow: 0 4px 20px rgba(220,38,38,0.5), 0 0 0 0 rgba(220,38,38,0.4); }
+                    50%     { box-shadow: 0 4px 20px rgba(220,38,38,0.5), 0 0 0 8px rgba(220,38,38,0); }
+                  }
+                  @keyframes ctaGlow {
+                    0%,100% { box-shadow: 0 4px 20px rgba(0,196,79,0.5), 0 0 0 0 rgba(0,196,79,0.3); }
+                    50%     { box-shadow: 0 4px 20px rgba(0,196,79,0.5), 0 0 0 8px rgba(0,196,79,0); }
+                  }
+                `}</style>
+                <div style={{
+                  background: bg,
+                  backdropFilter:'blur(8px)',
+                  borderRadius: 14,
+                  padding: sublabel ? '8px 18px 6px' : '10px 20px',
+                  display:'flex', flexDirection: sublabel ? 'column' : 'row',
+                  alignItems: sublabel ? 'flex-start' : 'center',
+                  gap: sublabel ? 2 : 8,
+                  animation: pulse ? (started ? 'ctaPulse 1.5s infinite' : 'ctaGlow 1.5s infinite') : 'none',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                }}>
+                  {sublabel ? (
+                    <>
+                      <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                        <span style={{ fontSize:14 }}>{icon}</span>
+                        <span style={{ color:'#fff', fontWeight:900, fontSize:15, letterSpacing:.5 }}>{label}</span>
+                      </div>
+                      <span style={{ color:'rgba(255,255,255,0.85)', fontWeight:700, fontSize:10, letterSpacing:1, textTransform:'uppercase' }}>{sublabel}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize:16 }}>{icon}</span>
+                      <span style={{ color:'#fff', fontWeight:900, fontSize:14, letterSpacing:.5 }}>{label}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )
+          })()}
         </div>
       )}
 
