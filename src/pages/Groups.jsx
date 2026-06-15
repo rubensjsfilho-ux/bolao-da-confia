@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
 import { GROUP_MATCHES, getFlag } from '../data/matches'
@@ -282,7 +283,13 @@ function GroupTable({ letter, results }) {
         </div>
       </div>
 
-
+      {/* Partidas */}
+      <div style={{ padding:'12px 12px 8px' }}>
+        <div style={{ fontSize:11, fontWeight:900, color:'#002855', textTransform:'uppercase', letterSpacing:1, marginBottom:10 }}>
+          Partidas do Grupo {letter}
+        </div>
+        {groupMatches.map(m => <MatchRow key={m.id} match={m} result={results[m.id]}/>)}
+      </div>
     </div>
   )
 }
@@ -359,13 +366,15 @@ function KnockoutTab({ koMatches }) {
 }
 
 // ── Todas as partidas em ordem cronológica ────────────────────────────────────
-function AllMatchesChronological({ results }) {
+function AllMatchesChronological({ results, matchRefs }) {
+  // Ordenar todos os jogos por data
   const sorted = [...GROUP_MATCHES].sort((a, b) => new Date(a.date) - new Date(b.date))
 
+  // Agrupar por data (dia)
   const byDate = {}
   sorted.forEach(m => {
-    const d   = new Date(m.date)
-    const key = d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', timeZone:'America/Sao_Paulo' })
+    const d    = new Date(m.date)
+    const key  = d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long', timeZone:'America/Sao_Paulo' })
     if (!byDate[key]) byDate[key] = []
     byDate[key].push(m)
   })
@@ -389,62 +398,48 @@ function AllMatchesChronological({ results }) {
             const res        = results[m.id]
             const hasScore   = res && res.score1 !== null && res.score1 !== undefined
             const isFinished = res?.is_finished
-            const isLive     = hasScore && !isFinished
             const d          = new Date(m.date)
             const timeStr    = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo' })
 
             return (
-              <div key={m.id} style={{ background:'#fff', borderRadius:12, border:'1px solid #E8EDF2', marginBottom:8, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
+              <div key={m.id} ref={el => matchRefs && (matchRefs.current[m.id] = el)} style={{ display:'flex', alignItems:'center', background:'#fff', borderRadius:12, border:'1px solid #E8EDF2', marginBottom:8, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
 
-                {/* Linha dos times */}
-                <div style={{ display:'flex', alignItems:'center' }}>
-                  {/* Barra lateral colorida */}
-                  <div style={{ width:4, alignSelf:'stretch', flexShrink:0, background: isFinished?'#009639':isLive?'#F5A623':'#1A73E8' }}/>
+                {/* Barra lateral colorida */}
+                <div style={{ width:4, alignSelf:'stretch', flexShrink:0, background: isFinished?'#009639':hasScore?'#F5A623':'#1A73E8' }}/>
 
-                  {/* Grupo + horário */}
-                  <div style={{ padding:'10px 8px', textAlign:'center', minWidth:52, flexShrink:0 }}>
-                    <div style={{ background:'#F0F4F8', borderRadius:6, padding:'2px 6px', marginBottom:4, display:'inline-block' }}>
-                      <span style={{ fontSize:9, fontWeight:900, color:'#002855', letterSpacing:.5 }}>GRP {m.group}</span>
-                    </div>
-                    <div style={{ fontSize:11, fontWeight:800, color:'#002855' }}>{timeStr}</div>
-                    {m.city && <div style={{ fontSize:8, color:'#C8D5E0', marginTop:1, maxWidth:48, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.city.split('/')[0]}</div>}
+                {/* Grupo + horário */}
+                <div style={{ padding:'10px 8px', textAlign:'center', minWidth:52, flexShrink:0 }}>
+                  <div style={{ background:'#F0F4F8', borderRadius:6, padding:'2px 6px', marginBottom:4, display:'inline-block' }}>
+                    <span style={{ fontSize:9, fontWeight:900, color:'#002855', letterSpacing:.5 }}>GRP {m.group}</span>
                   </div>
-
-                  {/* Time 1 */}
-                  <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
-                    <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team1}</span>
-                    <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team1)}</span>
-                  </div>
-
-                  {/* Placar / VS */}
-                  <div style={{ minWidth:58, textAlign:'center', flexShrink:0 }}>
-                    {hasScore ? (
-                      <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
-                        <span style={{ fontSize:14, fontWeight:900, color:'#fff', letterSpacing:1 }}>{res.score1}×{res.score2}</span>
-                      </div>
-                    ) : (
-                      <div style={{ background:'#1A73E8', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
-                        <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Time 2 */}
-                  <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
-                    <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team2)}</span>
-                    <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team2}</span>
-                  </div>
+                  <div style={{ fontSize:11, fontWeight:800, color:'#002855' }}>{timeStr}</div>
+                  {m.city && <div style={{ fontSize:8, color:'#C8D5E0', marginTop:1, maxWidth:48, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.city.split('/')[0]}</div>}
                 </div>
 
-                {/* Botão CazéTV — só quando em andamento */}
-                {isLive && (
-                  <a href={res?.stream_url||'https://www.youtube.com/@CazéTV/live'} target="_blank" rel="noopener noreferrer"
-                    style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none' }}>
-                    <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>
-                    <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>AO VIVO — Assistir na CazéTV</span>
-                    <span style={{ fontSize:12 }}>📺</span>
-                  </a>
-                )}
+                {/* Time 1 */}
+                <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'0 6px', minWidth:0 }}>
+                  <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team1}</span>
+                  <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team1)}</span>
+                </div>
+
+                {/* Placar / VS */}
+                <div style={{ minWidth:58, textAlign:'center', flexShrink:0 }}>
+                  {hasScore ? (
+                    <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
+                      <span style={{ fontSize:14, fontWeight:900, color:'#fff', letterSpacing:1 }}>{res.score1}×{res.score2}</span>
+                    </div>
+                  ) : (
+                    <div style={{ background:'#1A73E8', borderRadius:8, padding:'5px 8px', display:'inline-block' }}>
+                      <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Time 2 */}
+                <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'0 6px', minWidth:0 }}>
+                  <span style={{ fontSize:22, flexShrink:0 }}>{getFlag(m.team2)}</span>
+                  <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{m.team2}</span>
+                </div>
               </div>
             )
           })}
@@ -454,14 +449,30 @@ function AllMatchesChronological({ results }) {
   )
 }
 
-
 export default function Groups({ participant, onLogout }) {
+  const [searchParams] = useSearchParams()
   const [tab,         setTab]         = useState('groups')
   const [activeGroup, setActiveGroup] = useState('A')
   const [viewAll,     setViewAll]     = useState(false)
   const [results,     setResults]     = useState({})
   const [koMatches,   setKoMatches]   = useState({})
   const [loading,     setLoading]     = useState(true)
+  const matchRefs = useRef({})
+
+  // Scroll para jogo específico se vier ?match=ID na URL
+  useEffect(() => {
+    const matchId = parseInt(searchParams.get('match'))
+    if (!matchId || loading) return
+    const match = GROUP_MATCHES.find(m => m.id === matchId)
+    if (!match) return
+    setTab('groups')
+    setActiveGroup(match.group)
+    setViewAll(false)
+    setTimeout(() => {
+      const el = matchRefs.current[matchId]
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
+    }, 500)
+  }, [searchParams, loading])
 
   useEffect(() => {
     supabase.from('matches').select('id,team1,team2,score1,score2,is_finished,match_date,city,stream_url')
@@ -476,7 +487,7 @@ export default function Groups({ participant, onLogout }) {
 
   useEffect(() => {
     const ch = supabase.channel('groups-rt')
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'matches'},(p)=>{ setResults(prev=>({...prev,[p.new.id]:{...prev[p.new.id],...p.new}})) })
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'matches'},(p)=>{ setResults(prev=>({...prev,[p.new.id]:p.new})) })
       .subscribe()
     return ()=>supabase.removeChannel(ch)
   }, [])
@@ -555,7 +566,7 @@ export default function Groups({ participant, onLogout }) {
             {GROUPS.map(g=><GroupTable key={g} letter={g} results={results}/>)}
           </div>
         ) : (
-          <AllMatchesChronological results={results}/>
+          <AllMatchesChronological results={results} matchRefs={matchRefs}/>
         )}
       </main>
       <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
