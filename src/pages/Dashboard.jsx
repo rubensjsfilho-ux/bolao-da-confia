@@ -181,74 +181,76 @@ function Hero({ onPalpites, onJogos }) {
   }
 
   return (
-    <div
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      style={{ position:'relative', overflow:'hidden', background:'#050e05', minHeight:340 }}>
-      <style>{`
-        @keyframes heroFadeIn {
-          from { opacity:0; transform:scale(1.03); }
-          to   { opacity:1; transform:scale(1); }
-        }
-      `}</style>
+    <>
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        style={{ position:'relative', overflow:'hidden', background:'#050e05' }}>
+        <style>{`
+          @keyframes heroFadeIn {
+            from { opacity:0; transform:scale(1.03); }
+            to   { opacity:1; transform:scale(1); }
+          }
+        `}</style>
 
-      {/* ── SLIDE 0: Hero original ── */}
-      {!isBannerSlide && (
-        <div key="hero" style={{ opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none' }}>
-
-          {/* Fundo — imagens do Supabase Storage */}
-          <img
-            src={`https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/matches/${isMobile ? 'hero_mobile.png' : 'hero_desktop.png'}`}
-            alt="Hero banner"
-            style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition: isMobile ? 'center center' : 'center center', zIndex:0 }}
-            onError={e=>{ e.target.style.display='none' }}
-          />
-          {/* Overlay escuro para legibilidade */}
-          <div style={{ position:'absolute', inset:0, background: isMobile
-            ? 'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)'
-            : 'linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
-            zIndex:1 }}/>
-          <div style={{ position:'absolute', bottom:0, left:0, right:0, height:80, background:'linear-gradient(to top, rgba(0,0,0,0.6), transparent)', zIndex:1 }}/>
-
-          {/* Botões compactos lado a lado — parte inferior da imagem */}
-          <div style={{
-            position:'absolute', zIndex:2,
-            bottom: isMobile ? 12 : 20,
-            left: isMobile ? 12 : 32,
-            right: isMobile ? 12 : 'auto',
-            display:'flex', flexDirection:'row', gap:8,
-            width: isMobile ? 'calc(100% - 24px)' : '42%',
-          }}>
-            <button onClick={onPalpites} style={{
-              flex:1,
-              background:'linear-gradient(135deg, #009639 0%, #00c44f 100%)',
-              color:'#fff', border:'none', borderRadius:10,
-              padding: isMobile ? '9px 10px' : '11px 16px',
-              fontWeight:900, fontSize: isMobile ? 11 : 13,
-              cursor:'pointer', fontFamily:'Nunito,sans-serif',
-              display:'flex', alignItems:'center', justifyContent:'center', gap:5,
-              boxShadow:'0 4px 16px rgba(0,150,57,0.5)',
-              letterSpacing:.3, textTransform:'uppercase',
+        {/* ── SLIDE 0: Hero original ── */}
+        {!isBannerSlide && (
+          <div key="hero"
+            style={{
+              position:'relative',
+              height: isMobile ? 320 : 420,
+              opacity: fading?0:1,
+              transition:'opacity 0.32s ease',
+              animation: !fading ? 'heroFadeIn 0.4s ease' : 'none',
             }}>
-              <span style={{ fontSize:13 }}>🎯</span> PALPITES
-            </button>
-            <button onClick={onJogos} style={{
-              flex:1,
-              background:'rgba(255,255,255,0.12)',
-              color:'#ffffff', borderRadius:10,
-              border:'1.5px solid rgba(255,255,255,0.3)',
-              padding: isMobile ? '9px 10px' : '11px 16px',
-              fontWeight:800, fontSize: isMobile ? 11 : 13,
-              cursor:'pointer', fontFamily:'Nunito,sans-serif',
-              backdropFilter:'blur(10px)',
-              display:'flex', alignItems:'center', justifyContent:'center', gap:5,
-              letterSpacing:.3, textTransform:'uppercase',
+
+            {/* Fundo — imagens do Supabase Storage */}
+            <img
+              src={`https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/matches/${isMobile ? 'hero_mobile.png' : 'hero_desktop.png'}`}
+              alt="Hero banner"
+              style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
+              onError={e=>{ e.target.style.display='none' }}
+            />
+            {/* Overlay escuro */}
+            <div style={{ position:'absolute', inset:0, background: isMobile
+              ? 'linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)'
+              : 'linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 50%, transparent 100%)',
+              zIndex:1 }}/>
+            {/* Gradiente inferior para botões */}
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:100, background:'linear-gradient(to top, rgba(0,0,0,0.75), transparent)', zIndex:1 }}/>
+
+            {/* Botões lado a lado — fundo da imagem */}
+            <div style={{
+              position:'absolute', zIndex:2,
+              bottom:14, left:12, right:12,
+              display:'flex', gap:8,
             }}>
-              <span style={{ fontSize:13 }}>📅</span> VER JOGOS
-            </button>
+              <button onClick={onPalpites} style={{
+                flex:1, background:'linear-gradient(135deg,#009639,#00c44f)',
+                color:'#fff', border:'none', borderRadius:10,
+                padding:'10px 8px', fontWeight:900, fontSize:12,
+                cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:5,
+                boxShadow:'0 4px 16px rgba(0,150,57,0.5)',
+                letterSpacing:.3, textTransform:'uppercase',
+              }}>
+                <span style={{ fontSize:13 }}>🎯</span> PALPITES
+              </button>
+              <button onClick={onJogos} style={{
+                flex:1, background:'rgba(255,255,255,0.13)',
+                color:'#fff', borderRadius:10,
+                border:'1.5px solid rgba(255,255,255,0.35)',
+                padding:'10px 8px', fontWeight:800, fontSize:12,
+                cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                backdropFilter:'blur(10px)',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:5,
+                letterSpacing:.3, textTransform:'uppercase',
+              }}>
+                <span style={{ fontSize:13 }}>📅</span> VER JOGOS
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* ── SLIDES 1+: Banners de jogos ── */}
       {isBannerSlide && bannerUrl && (
@@ -364,17 +366,18 @@ function Hero({ onPalpites, onJogos }) {
 
       {/* ── Indicadores ── */}
       {totalSlides > 1 && (
-        <div style={{ position:'absolute', bottom: isBannerSlide ? 24 : 0, left:0, right:0, display:'flex', justifyContent:'center', gap:6, zIndex:10, paddingBottom: isBannerSlide ? 0 : 8, pointerEvents:'none' }}>
+        <div style={{ position:'absolute', bottom: isBannerSlide ? 24 : 14, left:0, right:0, display:'flex', justifyContent:'center', gap:6, zIndex:10, pointerEvents:'none' }}>
           {Array.from({ length: totalSlides }).map((_, i) => (
             <div key={i} onClick={(e)=>{ e.stopPropagation(); goTo(i) }}
               style={{ width: i===slide ? 20 : 6, height:6, borderRadius:3, background: i===slide ? '#fff' : 'rgba(255,255,255,0.35)', transition:'all 0.3s ease', cursor:'pointer', pointerEvents:'all' }}/>
           ))}
         </div>
       )}
+      </div>
 
-      {/* Features strip — sempre visível no slide 0 */}
+      {/* Features strip — FORA da imagem, abaixo do hero */}
       {!isBannerSlide && (
-        <div style={{ position:'relative', zIndex:3, display:'grid', gridTemplateColumns:'repeat(4,1fr)', borderTop:'1px solid rgba(255,255,255,0.07)', background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', borderTop:'1px solid rgba(255,255,255,0.07)', background:'rgba(5,14,5,0.97)' }}>
           {[
             ['🏆','Prêmios','Exclusivos'],
             ['📊','Ranking','Tempo real'],
@@ -389,7 +392,7 @@ function Hero({ onPalpites, onJogos }) {
           ))}
         </div>
       )}
-    </div>
+    </>
   )
 }
 
