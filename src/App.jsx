@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabase'
 import { getFlag } from './data/matches'
@@ -15,6 +15,13 @@ import KnockoutPredictions from './pages/KnockoutPredictions'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
 import Rules from './pages/Rules'
+
+// ── Scroll to top on route change (but pages handle their own smart scroll)
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
 
 // ── Confetti particle
 function Particle({ x, color, delay }) {
@@ -330,6 +337,7 @@ function App() {
 
   return (
     <>
+      <ScrollToTop/>
       <GoalPopup event={goalEvent} onClose={() => setGoalEvent(null)} />
       <Routes>
         <Route path="/"            element={!participant ? <Login onLogin={setParticipant}/> : <Navigate to="/dashboard" replace/>} />
