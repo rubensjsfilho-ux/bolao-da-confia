@@ -829,7 +829,7 @@ function NewsWidget() {
 
 
 // ── TOP 5 ─────────────────────────────────────────────────────────────────────
-function Top5({ participant, ranking, myRank }) {
+function Top5({ participant, ranking, myRank, myPoints }) {
   const navigate = useNavigate()
   const isInTop5 = ranking.some(p => p.id === participant.id)
   return (
@@ -870,7 +870,7 @@ function Top5({ participant, ranking, myRank }) {
                 : participant.avatar || participant.avatar_emoji}
             </div>
             <span style={{ flex:1, color:'#009639', fontWeight:800, fontSize:11, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{participant.name} (você)</span>
-            <span style={{ color:'#009639', fontWeight:900, fontSize:11 }}>{(participant.total_points||0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
+            <span style={{ color:'#009639', fontWeight:900, fontSize:11 }}>{(myPoints ?? participant.total_points ?? 0).toLocaleString()} <span style={{ fontSize:9 }}>pts</span></span>
           </div>
         </div>
       )}
@@ -949,7 +949,7 @@ export default function Dashboard({ participant, onLogout }) {
           <StatsStrip stats={stats} totalParts={totalParts} myRank={myRank}/>
 
           <NewsWidget/>
-          <Top5 participant={participant} ranking={ranking} myRank={myRank}/>
+          <Top5 participant={participant} ranking={ranking} myRank={myRank} myPoints={stats.points}/>
 
           {/* Banners */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
