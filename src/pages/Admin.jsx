@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-import { GROUP_MATCHES, getFlag, formatDate } from '../data/matches'
+import { GROUP_MATCHES, BRACKET_MATCHES, getFlag, formatDate, isMatchOpen } from '../data/matches'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123'
 
@@ -73,8 +73,9 @@ function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
     setResetting(false)
   }
 
+  const isOpen = isMatchOpen(match) && !match.is_finished
   return(
-    <div style={{ background:C.card, border:`1px solid ${match.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
+    <div data-match-open={isOpen?'true':'false'} style={{ background:C.card, border:`1px solid ${match.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
       {/* Cabeçalho */}
       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
         <span style={{ color:C.textMuted, fontSize:10 }}>Grupo {match.group} · {formatDate(match.date)}</span>
@@ -584,7 +585,15 @@ function BannersTab() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load().then(() => {
+      // Auto-scroll to first non-finished match
+      setTimeout(() => {
+        const firstOpen = document.querySelector('[data-match-open="true"]')
+        if (firstOpen) firstOpen.scrollIntoView({ behavior:'smooth', block:'center' })
+      }, 500)
+    })
+  }, [])
 
   const add = async () => {
     if (!form.match_id || !form.img_mobile || !form.img_desktop) {
