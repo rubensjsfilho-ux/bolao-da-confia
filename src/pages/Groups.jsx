@@ -488,7 +488,22 @@ export default function Groups({ participant, onLogout }) {
 
   useEffect(() => {
     supabase.from('matches').select('id,team1,team2,score1,score2,is_finished,match_date,city,stream_url')
-      .then(({ data }) => { const map={}; data?.forEach(m=>{map[m.id]=m}); setResults(map); setLoading(false) })
+      .then(({ data }) => {
+        const map={}; data?.forEach(m=>{map[m.id]=m}); setResults(map); setLoading(false)
+        // Auto-scroll to first open match (only if no ?match= param)
+        const matchId = parseInt(new URLSearchParams(window.location.search).get('match'))
+        if (!matchId) {
+          setTimeout(() => {
+            const firstOpen = GROUP_MATCHES.find(m => {
+              const res = map[m.id]
+              return !res?.is_finished && new Date() < new Date(m.date)
+            })
+            if (firstOpen && matchRefs.current[firstOpen.id]) {
+              matchRefs.current[firstOpen.id].scrollIntoView({ behavior:'smooth', block:'center' })
+            }
+          }, 500)
+        }
+      })
       .catch(()=>setLoading(false))
   }, [])
 
