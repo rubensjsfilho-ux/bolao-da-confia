@@ -211,43 +211,14 @@ function Hero({ onPalpites, onJogos }) {
           {/* Overlay inferior para degradê suave */}
           <div style={{ position:'absolute', bottom:0, left:0, right:0, height:80, background:'linear-gradient(to top, rgba(0,0,0,0.5), transparent)', zIndex:1 }}/>
 
-          {/* Conteúdo esquerda */}
-          <div style={{ position:'relative', zIndex:2, padding:'28px 16px 24px', width: isMobile ? '65%' : '52%' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
-              <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
-              <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
-            </div>
-            <div style={{ marginBottom:12 }}>
-              <div style={{ color:'#ffffff', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1, textShadow:'0 1px 8px rgba(0,0,0,0.6)' }}>COPA DO MUNDO</div>
-              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:2 }}>
-                <div style={{ color:'#00c44f', fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 22 : 42, letterSpacing:.5, textTransform:'uppercase', lineHeight:1.1 }}>FIFA</div>
-                <div style={{ flex:1, height:2, background:'linear-gradient(to right,rgba(0,196,79,0.4),transparent)', borderRadius:2 }}/>
-              </div>
-              <span style={{ fontFamily:'Arial Black, Impact, sans-serif', fontWeight:900, fontSize: isMobile ? 62 : 110, lineHeight:.85, letterSpacing:-4, background:'linear-gradient(135deg, #F5A623 0%, #FFD700 45%, #F5A623 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', display:'inline-block', filter:'drop-shadow(0 2px 10px rgba(245,166,35,0.55))' }}>2026</span>
-            </div>
-            <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:16 }}>
-              {[['🇺🇸','EUA'],['🇨🇦','CAN'],['🇲🇽','MEX']].map(([flag,name],i)=>(
-                <span key={name} style={{ display:'flex', alignItems:'center', gap:3, color:'rgba(255,255,255,0.5)', fontSize:10, fontWeight:700 }}>
-                  {i>0 && <span style={{ color:'rgba(255,255,255,0.2)', marginRight:2 }}>·</span>}
-                  <span>{flag}</span><span>{name}</span>
-                </span>
-              ))}
-            </div>
-            {!started ? (
-              <div style={{ display:'flex', gap:5, marginBottom:18 }}>
-                {[['D',t.d],['H',t.h],['M',t.m],['S',t.s]].map(([l,v])=>(
-                  <div key={l} style={{ textAlign:'center', background:'rgba(255,255,255,0.07)', backdropFilter:'blur(8px)', borderRadius:8, padding:'6px 7px', minWidth:38, border:'1px solid rgba(255,255,255,0.10)' }}>
-                    <div style={{ color:'#F5A623', fontWeight:900, fontSize:17, lineHeight:1, fontFamily:'Arial Black, sans-serif' }}>{String(v).padStart(2,'0')}</div>
-                    <div style={{ color:'rgba(255,255,255,0.35)', fontSize:8, letterSpacing:1.5, marginTop:2 }}>{l}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(0,196,79,0.18)', borderRadius:20, padding:'5px 12px', marginBottom:18, border:'1px solid rgba(0,196,79,0.4)' }}>
-                <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f', boxShadow:'0 0 6px #00c44f' }}/>
-                <span style={{ color:'#00c44f', fontWeight:800, fontSize:11 }}>Torneio em andamento!</span>
-              </div>
-            )}
+          {/* Botões sobrepostos — texto já está na imagem */}
+          <div style={{
+            position:'absolute', zIndex:2,
+            bottom: isMobile ? 24 : 32,
+            left: isMobile ? 16 : 32,
+            display:'flex', flexDirection:'column', gap:10,
+            width: isMobile ? '55%' : '36%',
+          }}>
             <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
               <button onClick={onPalpites} style={{
                 background:'linear-gradient(135deg, #009639 0%, #00c44f 100%)',
