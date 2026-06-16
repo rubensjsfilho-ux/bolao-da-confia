@@ -208,44 +208,43 @@ function Hero({ onPalpites, onJogos }) {
             ? 'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)'
             : 'linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
             zIndex:1 }}/>
-          <div style={{ position:'absolute', bottom:0, left:0, right:0, height:80, background:'linear-gradient(to top, rgba(0,0,0,0.5), transparent)', zIndex:1 }}/>
-        </div>
-      )}
+          <div style={{ position:'absolute', bottom:0, left:0, right:0, height:80, background:'linear-gradient(to top, rgba(0,0,0,0.6), transparent)', zIndex:1 }}/>
 
-      {/* Botões abaixo do hero — fora da imagem para não sobrepor */}
-      {!isBannerSlide && (
-        <div style={{
-          position:'relative', zIndex:10,
-          background:'linear-gradient(to bottom, rgba(5,14,5,0.95), #050e05)',
-          padding: isMobile ? '12px 16px 16px' : '14px 32px 18px',
-          display:'flex', flexDirection:'column', gap:8,
-        }}>
-          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {/* Botões compactos lado a lado — parte inferior da imagem */}
+          <div style={{
+            position:'absolute', zIndex:2,
+            bottom: isMobile ? 12 : 20,
+            left: isMobile ? 12 : 32,
+            right: isMobile ? 12 : 'auto',
+            display:'flex', flexDirection:'row', gap:8,
+            width: isMobile ? 'calc(100% - 24px)' : '42%',
+          }}>
             <button onClick={onPalpites} style={{
+              flex:1,
               background:'linear-gradient(135deg, #009639 0%, #00c44f 100%)',
-              color:'#fff', border:'none', borderRadius:12,
-              padding: isMobile ? '13px 18px' : '14px 22px',
-              fontWeight:900, fontSize: isMobile ? 13 : 14,
+              color:'#fff', border:'none', borderRadius:10,
+              padding: isMobile ? '9px 10px' : '11px 16px',
+              fontWeight:900, fontSize: isMobile ? 11 : 13,
               cursor:'pointer', fontFamily:'Nunito,sans-serif',
-              display:'flex', alignItems:'center', gap:8,
-              boxShadow:'0 6px 24px rgba(0,150,57,0.55), 0 2px 8px rgba(0,0,0,0.3)',
-              letterSpacing:.5, textTransform:'uppercase',
+              display:'flex', alignItems:'center', justifyContent:'center', gap:5,
+              boxShadow:'0 4px 16px rgba(0,150,57,0.5)',
+              letterSpacing:.3, textTransform:'uppercase',
             }}>
-              <span style={{ fontSize:16 }}>🎯</span> FAZER PALPITES
+              <span style={{ fontSize:13 }}>🎯</span> PALPITES
             </button>
             <button onClick={onJogos} style={{
-              background:'rgba(255,255,255,0.10)',
-              color:'#ffffff', borderRadius:12,
-              border:'1.5px solid rgba(255,255,255,0.25)',
-              padding: isMobile ? '11px 18px' : '12px 22px',
-              fontWeight:800, fontSize: isMobile ? 13 : 14,
+              flex:1,
+              background:'rgba(255,255,255,0.12)',
+              color:'#ffffff', borderRadius:10,
+              border:'1.5px solid rgba(255,255,255,0.3)',
+              padding: isMobile ? '9px 10px' : '11px 16px',
+              fontWeight:800, fontSize: isMobile ? 11 : 13,
               cursor:'pointer', fontFamily:'Nunito,sans-serif',
-              backdropFilter:'blur(12px)',
-              display:'flex', alignItems:'center', gap:8,
-              boxShadow:'0 4px 16px rgba(0,0,0,0.25)',
-              letterSpacing:.5, textTransform:'uppercase',
+              backdropFilter:'blur(10px)',
+              display:'flex', alignItems:'center', justifyContent:'center', gap:5,
+              letterSpacing:.3, textTransform:'uppercase',
             }}>
-              <span style={{ fontSize:16 }}>📅</span> VER JOGOS
+              <span style={{ fontSize:13 }}>📅</span> VER JOGOS
             </button>
           </div>
         </div>
