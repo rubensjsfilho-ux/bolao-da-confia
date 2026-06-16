@@ -201,17 +201,23 @@ export default function Predictions({ participant, onLogout }) {
   },[])
 
   useEffect(()=>{
-    Promise.all([fetchPreds(),fetchResults()]).then(()=>{
+    Promise.all([fetchPreds(),fetchResults()]).then(([,results])=>{
       setLoading(false)
-      // Scroll to match if ?match=ID in URL
       const params = new URLSearchParams(location.search)
       const targetId = parseInt(params.get('match'))
-      if (targetId) {
-        setTimeout(()=>{
+
+      setTimeout(()=>{
+        if (targetId) {
+          // Scroll to specific match from URL param
           const el = matchRefs.current[targetId]
-          if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
-        }, 400)
-      }
+          if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); return }
+        }
+        // Auto-scroll to first open match
+        const firstOpen = GROUP_MATCHES.find(m => isMatchOpen(m) && !m.is_finished)
+        if (firstOpen && matchRefs.current[firstOpen.id]) {
+          matchRefs.current[firstOpen.id].scrollIntoView({ behavior:'smooth', block:'center' })
+        }
+      }, 400)
     })
   },[fetchPreds,fetchResults])
 
