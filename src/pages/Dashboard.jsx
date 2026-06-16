@@ -196,34 +196,23 @@ function Hero({ onPalpites, onJogos }) {
       {!isBannerSlide && (
         <div key="hero" style={{ opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none' }}>
 
-          {/* Fundo */}
-          <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 30% 60%, rgba(0,100,40,0.35) 0%, transparent 65%), linear-gradient(135deg, #0a1a0a 0%, #050e05 50%, #000 100%)' }}/>
-          <div style={{ position:'absolute', left:0, top:0, bottom:0, width:4, background:'linear-gradient(to bottom, #00c44f, #F5A623, #009639)' }}/>
-
-          {/* Imagem direita */}
-          <div style={{ position:'absolute', right:0, top:0, bottom:0, width: isMobile ? '52%' : '60%', zIndex:1 }}>
-            {isMobile ? (
-              <>
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 45%)', zIndex:2 }}/>
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, #050e05 0%, transparent 30%)', zIndex:2 }}/>
-                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/IMG_9719.jpeg"
-                  alt="Taça Copa 2026"
-                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', opacity:.95, filter:'drop-shadow(-8px 0 30px rgba(245,166,35,0.6))' }}
-                  onError={e=>{ e.target.style.display='none' }}/>
-              </>
-            ) : (
-              <>
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, #050e05 0%, transparent 20%)', zIndex:2 }}/>
-                <img src="https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/avatars/D50C0E83-B5D5-4658-A67B-B1F0546DCCE2.png"
-                  alt="Bolão da Confia 2026"
-                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', opacity:1 }}
-                  onError={e=>{ e.target.style.display='none' }}/>
-              </>
-            )}
-          </div>
+          {/* Fundo — imagens do Supabase Storage */}
+          <img
+            src={`https://nkbumxaksiibljgpmgak.supabase.co/storage/v1/object/public/matches/${isMobile ? 'hero_mobile.png' : 'hero_desktop.png'}`}
+            alt="Hero banner"
+            style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition: isMobile ? 'center center' : 'center center', zIndex:0 }}
+            onError={e=>{ e.target.style.display='none' }}
+          />
+          {/* Overlay escuro para os botões ficarem legíveis */}
+          <div style={{ position:'absolute', inset:0, background: isMobile
+            ? 'linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)'
+            : 'linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 50%, transparent 100%)',
+            zIndex:1 }}/>
+          {/* Overlay inferior para degradê suave */}
+          <div style={{ position:'absolute', bottom:0, left:0, right:0, height:80, background:'linear-gradient(to top, rgba(0,0,0,0.5), transparent)', zIndex:1 }}/>
 
           {/* Conteúdo esquerda */}
-          <div style={{ position:'relative', zIndex:3, padding:'28px 16px 24px', width: isMobile ? '62%' : '70%' }}>
+          <div style={{ position:'relative', zIndex:2, padding:'28px 16px 24px', width: isMobile ? '65%' : '52%' }}>
             <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:14 }}>
               <div style={{ width:6, height:6, borderRadius:'50%', background:'#00c44f' }}/>
               <span style={{ color:'rgba(255,255,255,0.45)', fontWeight:800, fontSize:9, letterSpacing:3, textTransform:'uppercase' }}>BOLÃO DA CONFIA</span>
@@ -260,11 +249,32 @@ function Hero({ onPalpites, onJogos }) {
               </div>
             )}
             <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-              <button onClick={onPalpites} style={{ background:'linear-gradient(90deg,#009639,#00c44f)', color:'#fff', border:'none', borderRadius:10, padding:'12px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', display:'flex', alignItems:'center', gap:6, boxShadow:'0 4px 20px rgba(0,150,57,0.5)' }}>
-                🎯 FAZER PALPITES
+              <button onClick={onPalpites} style={{
+                background:'linear-gradient(135deg, #009639 0%, #00c44f 100%)',
+                color:'#fff', border:'none', borderRadius:12,
+                padding: isMobile ? '13px 18px' : '14px 22px',
+                fontWeight:900, fontSize: isMobile ? 13 : 14,
+                cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                display:'flex', alignItems:'center', gap:8,
+                boxShadow:'0 6px 24px rgba(0,150,57,0.55), 0 2px 8px rgba(0,0,0,0.3)',
+                letterSpacing:.5, textTransform:'uppercase',
+                backdropFilter:'blur(4px)',
+              }}>
+                <span style={{ fontSize:16 }}>🎯</span> FAZER PALPITES
               </button>
-              <button onClick={onJogos} style={{ background:'rgba(255,255,255,0.07)', color:'#e0e0e0', border:'1px solid rgba(255,255,255,0.13)', borderRadius:10, padding:'10px 14px', fontWeight:800, fontSize:12, cursor:'pointer', fontFamily:'Nunito,sans-serif', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', gap:6 }}>
-                📅 VER JOGOS
+              <button onClick={onJogos} style={{
+                background:'rgba(255,255,255,0.10)',
+                color:'#ffffff', borderRadius:12,
+                border:'1.5px solid rgba(255,255,255,0.25)',
+                padding: isMobile ? '11px 18px' : '12px 22px',
+                fontWeight:800, fontSize: isMobile ? 13 : 14,
+                cursor:'pointer', fontFamily:'Nunito,sans-serif',
+                backdropFilter:'blur(12px)',
+                display:'flex', alignItems:'center', gap:8,
+                boxShadow:'0 4px 16px rgba(0,0,0,0.25)',
+                letterSpacing:.5, textTransform:'uppercase',
+              }}>
+                <span style={{ fontSize:16 }}>📅</span> VER JOGOS
               </button>
             </div>
           </div>
