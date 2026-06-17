@@ -142,7 +142,7 @@ export default function MatchChat({ participant }) {
         event: 'INSERT', schema: 'public', table: 'match_chat',
         filter: `match_id=eq.${mId}`
       }, payload => {
-        setMessages(prev => [...prev, payload.new])
+        setMessages(prev => prev.some(m => m.id === payload.new.id) ? prev : [...prev, payload.new])
       })
       .subscribe()
     return () => supabase.removeChannel(channel)
@@ -158,13 +158,24 @@ export default function MatchChat({ participant }) {
     if (!msg || sending || !participant) return
     setSending(true)
     setText('')
-    await supabase.from('match_chat').insert([{
+
+    const { data, error } = await supabase.from('match_chat').insert([{
       match_id:          mId,
       participant_id:    participant.id,
       participant_name:  participant.name,
       participant_avatar: participant.photoUrl || participant.avatar_url || null,
       message:           msg,
-    }])
+    }]).select().single()
+
+    if (!error && data) {
+      // Mostra a mensagem na hora, sem depender do realtime
+      setMessages(prev => prev.some(m => m.id === data.id) ? prev : [...prev, data])
+    } else if (error) {
+      // Falhou — devolve o texto pro usuário tentar de novo
+      setText(msg)
+      console.error('Erro ao enviar mensagem:', error)
+    }
+
     setSending(false)
     inputRef.current?.focus()
   }
