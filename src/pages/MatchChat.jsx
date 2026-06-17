@@ -41,8 +41,51 @@ function formatDate(dateStr) {
   })
 }
 
+// Detecta URLs no texto e renderiza como link clicável,
+// validando o protocolo (só http/https) pra evitar links perigosos (javascript:, data:, etc.)
+const URL_SPLIT_REGEX = /((?:https?:\/\/|www\.)[^\s<>"']+)/gi
+const URL_TEST_REGEX = /^(?:https?:\/\/|www\.)[^\s<>"']+$/i
+
+function renderMessageWithLinks(text) {
+  return text.split(URL_SPLIT_REGEX).map((part, i) => {
+    if (!part) return null
+    if (!URL_TEST_REGEX.test(part)) return <span key={i}>{part}</span>
+
+    // separa pontuação de fim de frase que às vezes cola na URL (. , ! ? ) etc.)
+    const trailingMatch = part.match(/[).,!?;:]+$/)
+    const trailing = trailingMatch ? trailingMatch[0] : ''
+    const cleanUrl = trailing ? part.slice(0, -trailing.length) : part
+    const href = cleanUrl.startsWith('www.') ? `https://${cleanUrl}` : cleanUrl
+
+    let isSafe = false
+    try {
+      const parsed = new URL(href)
+      isSafe = parsed.protocol === 'http:' || parsed.protocol === 'https:'
+    } catch {
+      isSafe = false
+    }
+
+    if (!isSafe) return <span key={i}>{part}</span>
+
+    return (
+      <span key={i}>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={e => e.stopPropagation()}
+          style={{ color:'#7CD9FF', textDecoration:'underline', wordBreak:'break-all' }}
+        >
+          {cleanUrl}
+        </a>
+        {trailing}
+      </span>
+    )
+  })
+}
+
 // Bubble de mensagem
-function MessageBubble({ msg, isMe }) {
+function MessageBubble({ msg, isMe, canDelete, expanded, onToggle, onReply, onDelete }) {
   return (
     <div style={{
       display:'flex', flexDirection: isMe ? 'row-reverse' : 'row',
@@ -67,20 +110,62 @@ function MessageBubble({ msg, isMe }) {
             {msg.participant_name}
           </span>
         )}
-        <div style={{
-          background: isMe ? 'rgba(0,150,57,0.85)' : 'rgba(255,255,255,0.12)',
-          backdropFilter:'blur(10px)',
-          borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-          padding:'10px 14px',
-          border: isMe ? '1px solid rgba(0,200,80,0.3)' : '1px solid rgba(255,255,255,0.1)',
-        }}>
+        <div
+          onClick={onToggle}
+          style={{
+            background: isMe ? 'rgba(0,150,57,0.85)' : 'rgba(255,255,255,0.12)',
+            backdropFilter:'blur(10px)',
+            borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+            padding:'10px 14px',
+            border: isMe ? '1px solid rgba(0,200,80,0.3)' : '1px solid rgba(255,255,255,0.1)',
+            cursor:'pointer',
+          }}>
+          {msg.reply_to_id && (
+            <div style={{
+              borderLeft:'3px solid rgba(255,255,255,0.45)', paddingLeft:8,
+              marginBottom:6, opacity:0.8,
+            }}>
+              <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.85)' }}>
+                {msg.reply_to_name}
+              </div>
+              <div style={{
+                fontSize:11, color:'rgba(255,255,255,0.6)',
+                overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
+              }}>
+                {msg.reply_to_message}
+              </div>
+            </div>
+          )}
           <p style={{ color:'#fff', fontSize:13, lineHeight:1.5, margin:0, wordBreak:'break-word' }}>
-            {msg.message}
+            {renderMessageWithLinks(msg.message)}
           </p>
         </div>
         <span style={{ color:'rgba(255,255,255,0.35)', fontSize:9, marginTop:3, marginLeft:4, marginRight:4 }}>
           {formatTime(msg.created_at)}
         </span>
+
+        {expanded && (
+          <div style={{ display:'flex', gap:6, marginTop:4 }}>
+            <button
+              onClick={() => onReply(msg)}
+              style={{
+                background:'rgba(255,255,255,0.1)', border:'none', borderRadius:12,
+                padding:'5px 11px', fontSize:11, fontWeight:700, color:'#fff', cursor:'pointer',
+              }}>
+              ↩ Responder
+            </button>
+            {canDelete && (
+              <button
+                onClick={() => onDelete(msg.id)}
+                style={{
+                  background:'rgba(239,68,68,0.15)', border:'none', borderRadius:12,
+                  padding:'5px 11px', fontSize:11, fontWeight:700, color:'#ff8080', cursor:'pointer',
+                }}>
+                🗑 Apagar
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -95,6 +180,8 @@ export default function MatchChat({ participant }) {
   const [match, setMatch] = useState(null)
   const [dbMatch, setDbMatch] = useState(null)
   const [bannerUrl, setBannerUrl] = useState(null)
+  const [replyingTo, setReplyingTo] = useState(null)
+  const [activeMsgId, setActiveMsgId] = useState(null)
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -142,7 +229,7 @@ export default function MatchChat({ participant }) {
 
   useEffect(() => { loadMessages() }, [loadMessages])
 
-  // Realtime — escuta novas mensagens
+  // Realtime — escuta novas mensagens e mensagens apagadas
   useEffect(() => {
     const channel = supabase.channel(`chat-${mId}`)
       .on('postgres_changes', {
@@ -150,6 +237,11 @@ export default function MatchChat({ participant }) {
         filter: `match_id=eq.${mId}`
       }, payload => {
         setMessages(prev => prev.some(m => m.id === payload.new.id) ? prev : [...prev, payload.new])
+      })
+      .on('postgres_changes', {
+        event: 'DELETE', schema: 'public', table: 'match_chat'
+      }, payload => {
+        setMessages(prev => prev.filter(m => m.id !== payload.old.id))
       })
       .subscribe()
     return () => supabase.removeChannel(channel)
@@ -185,26 +277,52 @@ export default function MatchChat({ participant }) {
     if (!msg || sending || !participant) return
     setSending(true)
     setText('')
+    const replySnapshot = replyingTo
+    setReplyingTo(null)
 
     const { data, error } = await supabase.from('match_chat').insert([{
-      match_id:          mId,
-      participant_id:    participant.id,
-      participant_name:  participant.name,
+      match_id:           mId,
+      participant_id:     participant.id,
+      participant_name:   participant.name,
       participant_avatar: participant.photoUrl || participant.avatar_url || null,
-      message:           msg,
+      message:            msg,
+      reply_to_id:        replySnapshot?.id || null,
+      reply_to_name:      replySnapshot?.name || null,
+      reply_to_message:   replySnapshot ? replySnapshot.message.slice(0, 140) : null,
     }]).select().single()
 
     if (!error && data) {
       // Mostra a mensagem na hora, sem depender do realtime
       setMessages(prev => prev.some(m => m.id === data.id) ? prev : [...prev, data])
     } else if (error) {
-      // Falhou — devolve o texto pro usuário tentar de novo
+      // Falhou — devolve o texto e a resposta pro usuário tentar de novo
       setText(msg)
+      setReplyingTo(replySnapshot)
       console.error('Erro ao enviar mensagem:', error)
     }
 
     setSending(false)
     inputRef.current?.focus()
+  }
+
+  const startReply = (msg) => {
+    setReplyingTo({ id: msg.id, name: msg.participant_name, message: msg.message })
+    setActiveMsgId(null)
+    inputRef.current?.focus()
+  }
+
+  const cancelReply = () => setReplyingTo(null)
+
+  const deleteMessage = async (id) => {
+    if (!window.confirm('Apagar esta mensagem?')) return
+    setActiveMsgId(null)
+    // Remove na hora da tela do próprio usuário
+    setMessages(prev => prev.filter(m => m.id !== id))
+    const { error } = await supabase.from('match_chat').delete().eq('id', id)
+    if (error) {
+      console.error('Erro ao apagar mensagem:', error)
+      loadMessages() // restaura caso a exclusão tenha falhado
+    }
   }
 
   const handleKey = (e) => {
@@ -301,6 +419,11 @@ export default function MatchChat({ participant }) {
               key={msg.id}
               msg={msg}
               isMe={msg.participant_id === participant?.id}
+              canDelete={msg.participant_id === participant?.id || !!participant?.isAdmin}
+              expanded={activeMsgId === msg.id}
+              onToggle={() => setActiveMsgId(prev => prev === msg.id ? null : msg.id)}
+              onReply={startReply}
+              onDelete={deleteMessage}
             />
           ))
         )}
@@ -312,9 +435,34 @@ export default function MatchChat({ participant }) {
         position:'relative', zIndex:50, flexShrink:0,
         background:'rgba(0,0,0,0.75)', backdropFilter:'blur(20px)',
         borderTop:'1px solid rgba(255,255,255,0.1)',
-        padding:'12px 14px calc(12px + env(safe-area-inset-bottom))',
-        display:'flex', gap:10, alignItems:'flex-end',
+        display:'flex', flexDirection:'column',
       }}>
+        {replyingTo && (
+          <div style={{
+            display:'flex', alignItems:'center', justifyContent:'space-between',
+            gap:8, padding:'8px 14px 0',
+          }}>
+            <div style={{ borderLeft:'3px solid #00c44f', paddingLeft:8, overflow:'hidden', minWidth:0 }}>
+              <div style={{ fontSize:10, fontWeight:800, color:'rgba(255,255,255,0.85)' }}>
+                Respondendo {replyingTo.name}
+              </div>
+              <div style={{
+                fontSize:11, color:'rgba(255,255,255,0.55)',
+                whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
+              }}>
+                {replyingTo.message}
+              </div>
+            </div>
+            <button onClick={cancelReply} style={{
+              background:'none', border:'none', color:'rgba(255,255,255,0.6)',
+              fontSize:16, cursor:'pointer', padding:'4px 8px', flexShrink:0,
+            }}>✕</button>
+          </div>
+        )}
+        <div style={{
+          padding:'12px 14px calc(12px + env(safe-area-inset-bottom))',
+          display:'flex', gap:10, alignItems:'flex-end',
+        }}>
         {/* Avatar do usuário */}
         <div style={{ width:36, height:36, borderRadius:'50%', flexShrink:0, overflow:'hidden', background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, border:'2px solid rgba(255,255,255,0.2)' }}>
           {participant?.photoUrl || participant?.avatar_url
@@ -358,6 +506,7 @@ export default function MatchChat({ participant }) {
           }}>
           <span style={{ color: text.trim() ? '#fff' : 'rgba(255,255,255,0.3)' }}>➤</span>
         </button>
+        </div>
       </div>
 
       <style>{`
