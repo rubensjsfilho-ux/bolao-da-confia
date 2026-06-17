@@ -217,8 +217,8 @@ export default function MatchChat({ participant }) {
   const isLive = dbMatch && !dbMatch.is_finished && dbMatch.score1 !== null
 
   return (
-    <div style={{
-      minHeight:'100vh', display:'flex', flexDirection:'column',
+    <div className="match-chat-page" style={{
+      height:'100dvh', display:'flex', flexDirection:'column',
       background:`linear-gradient(160deg, ${c1[0]} 0%, #0a0a0a 45%, ${c2[0]} 100%)`,
       position:'relative', overflow:'hidden',
     }}>
@@ -233,7 +233,7 @@ export default function MatchChat({ participant }) {
 
       {/* Header */}
       <div style={{
-        position:'fixed', top:0, left:0, right:0, zIndex:50,
+        position:'relative', zIndex:50, flexShrink:0,
         background:'rgba(0,0,0,0.7)', backdropFilter:'blur(20px)',
         borderBottom:'1px solid rgba(255,255,255,0.1)',
         padding:'12px 16px',
@@ -287,7 +287,7 @@ export default function MatchChat({ participant }) {
       {/* Lista de mensagens */}
       <div style={{
         flex:1, overflowY:'auto', position:'relative', zIndex:1,
-        padding:'80px 14px 80px',
+        padding:'14px 14px 8px', minHeight:0,
       }}>
         {messages.length === 0 ? (
           <div style={{ textAlign:'center', marginTop:60 }}>
@@ -309,10 +309,10 @@ export default function MatchChat({ participant }) {
 
       {/* Input de mensagem */}
       <div style={{
-        position:'fixed', bottom:0, left:0, right:0, zIndex:50,
+        position:'relative', zIndex:50, flexShrink:0,
         background:'rgba(0,0,0,0.75)', backdropFilter:'blur(20px)',
         borderTop:'1px solid rgba(255,255,255,0.1)',
-        padding:'12px 14px 24px',
+        padding:'12px 14px calc(12px + env(safe-area-inset-bottom))',
         display:'flex', gap:10, alignItems:'flex-end',
       }}>
         {/* Avatar do usuário */}
@@ -364,6 +364,10 @@ export default function MatchChat({ participant }) {
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
         textarea::placeholder { color: rgba(255,255,255,0.35); }
         ::-webkit-scrollbar { width: 0; }
+        .match-chat-page { height: 100vh; }
+        @supports (height: 100dvh) {
+          .match-chat-page { height: 100dvh; }
+        }
       `}</style>
     </div>
   )
