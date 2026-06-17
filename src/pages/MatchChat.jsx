@@ -130,7 +130,14 @@ export default function MatchChat({ participant }) {
       .eq('match_id', mId)
       .order('created_at', { ascending: true })
       .limit(200)
-    if (data) setMessages(data)
+    if (!data) return
+    setMessages(prev => {
+      const sameLength = prev.length === data.length
+      const sameLast = sameLength && prev.length > 0
+        ? prev[prev.length - 1].id === data[data.length - 1].id
+        : sameLength
+      return sameLast ? prev : data
+    })
   }, [mId])
 
   useEffect(() => { loadMessages() }, [loadMessages])
@@ -147,6 +154,26 @@ export default function MatchChat({ participant }) {
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [mId])
+
+  // Rede de segurança: se o realtime cair silenciosamente (comum no mobile —
+  // app em 2º plano, troca de rede, etc.), garante que o chat sincroniza sozinho
+  useEffect(() => {
+    const interval = setInterval(() => { loadMessages() }, 5000)
+    return () => clearInterval(interval)
+  }, [loadMessages])
+
+  // Atualiza assim que o usuário volta pro app/aba (ex: trocou de app e voltou)
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') loadMessages()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', onVisible)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
+    }
+  }, [loadMessages])
 
   // Scroll automático ao receber mensagem
   useEffect(() => {
