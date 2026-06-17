@@ -15,6 +15,7 @@ import KnockoutPredictions from './pages/KnockoutPredictions'
 import MatchChat from './pages/MatchChat'
 import ResetPassword from './pages/ResetPassword'
 import Rules from './pages/Rules'
+import Profile from './pages/Profile'
 
 // ── Scroll to top on route change (but pages handle their own smart scroll)
 function ScrollToTop() {
