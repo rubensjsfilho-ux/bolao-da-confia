@@ -12,7 +12,7 @@ import Admin from './pages/Admin'
 import Bracket from './pages/Bracket'
 import Groups from './pages/Groups'
 import KnockoutPredictions from './pages/KnockoutPredictions'
-import Profile from './pages/Profile'
+import MatchChat from './pages/MatchChat'
 import ResetPassword from './pages/ResetPassword'
 import Rules from './pages/Rules'
 
@@ -351,6 +351,7 @@ function App() {
         <Route path="/chaveamento" element={participant ? <Bracket     {...props}/> : <Navigate to="/" replace/>} />
         <Route path="/grupos"      element={participant ? <Groups      {...props}/> : <Navigate to="/" replace/>} />
         <Route path="/mata-mata"   element={participant ? <KnockoutPredictions {...props}/> : <Navigate to="/" replace/>} />
+        <Route path="/chat/:matchId" element={participant ? <MatchChat participant={participant}/> : <Navigate to="/" replace/>} />
         <Route path="/perfil"      element={participant ? <Profile participant={participant} onUpdate={updateParticipant}/> : <Navigate to="/" replace/>} />
         <Route path="/admin"       element={!participant ? <Navigate to="/" replace/> : participant.isAdmin ? <Admin /> : <Navigate to="/dashboard" replace/>} />
         <Route path="*"            element={<Navigate to="/" replace/>} />
