@@ -258,7 +258,7 @@ function Hero({ onPalpites, onJogos }) {
           onClick={() => {
             const bannerConf = bannersData.find(b => b.desktop === bannerId)
             const matchStarted = bannerConf ? startedMatches[bannerConf.matchId] : false
-            if (matchStarted) navigate(`/grupos?match=${bannerConf?.matchId}`)
+            if (matchStarted) navigate(`/chat/${bannerConf?.matchId}`)
             else navigate(`/palpites?match=${bannerConf?.matchId || bannerId}`)
           }}
           style={{ cursor:'pointer', opacity: fading?0:1, transition:'opacity 0.32s ease', animation: !fading ? 'heroFadeIn 0.4s ease' : 'none', position:'relative', minHeight:340, display:'flex', flexDirection:'column' }}>
@@ -277,8 +277,8 @@ function Hero({ onPalpites, onJogos }) {
             // Texto e visual dinâmico
             let icon, label, sublabel, bg, pulse
             if (started) {
-              icon = '📺'; label = 'VER AO VIVO'; sublabel = null
-              bg = 'linear-gradient(90deg, #dc2626, #ef4444)'
+              icon = '💬'; label = 'BATE-PAPO'; sublabel = 'Comente ao vivo!'
+              bg = 'linear-gradient(90deg, #7B2FBE, #9b4de0)'
               pulse = true
             } else if (cd && cd.diff < 3600000) {
               // menos de 1 hora — urgente
