@@ -109,9 +109,9 @@ export function MatchBreakdownList({ participantId, type }) {
         }}>
           <div style={{ flex:1, minWidth:0 }}>
             <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:12, fontWeight:700, color:'#002855', flexWrap:'wrap' }}>
-              {getFlag(m.team1, 15)} <span>{m.team1}</span>
+              {getFlag(m.team1, 20)} <span>{m.team1}</span>
               <span style={{ color:'#C8D5E0', fontWeight:400 }}>x</span>
-              {getFlag(m.team2, 15)} <span>{m.team2}</span>
+              {getFlag(m.team2, 20)} <span>{m.team2}</span>
             </div>
             <div style={{ color:'#9BABB8', fontSize:10, marginTop:3 }}>
               {m.label}{m.date ? ` · ${formatDate(m.date)}` : ''}
