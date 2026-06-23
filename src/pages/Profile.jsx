@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { Logo } from '../components/Header'
+import MatchBreakdownSheet from '../components/MatchBreakdown'
 import { Loader2, ArrowLeft, Camera, Check, Zap, Target, Trophy } from 'lucide-react'
 
 const AVATARS = ['⚽','🏆','🌟','🦁','🔥','⚡','🎯','👑','🐆','🦅']
@@ -19,6 +20,7 @@ export default function Profile({ participant, onUpdate }) {
   const [error,   setError]   = useState('')
   const [stats,   setStats]   = useState(null)
   const [myRank,  setMyRank]  = useState(null)
+  const [drill,   setDrill]   = useState(null) // null | 'exact' | 'result'
 
   const inp = { width:'100%', background:'#F4F6F9', border:'1.5px solid #E2EAF0', borderRadius:12, padding:'12px 14px', color:'#002855', fontSize:14, outline:'none', boxSizing:'border-box', fontFamily:'inherit' }
 
@@ -113,10 +115,14 @@ export default function Profile({ participant, onUpdate }) {
             {[
               { icon:'🏆', value: myRank ? `${myRank}º` : '-', label:'Posição' },
               { icon:'⭐', value: stats.total_points||0, label:'Pontos' },
-              { icon:'🎯', value: stats.exact_hits||0, label:'Exatos' },
-              { icon:'✅', value: stats.result_hits||0, label:'Result.' },
-            ].map(({ icon, value, label }) => (
-              <div key={label} style={{ background:'rgba(255,255,255,0.12)', borderRadius:12, padding:'10px 6px', textAlign:'center' }}>
+              { icon:'🎯', value: stats.exact_hits||0, label:'Exatos', type:'exact' },
+              { icon:'✅', value: stats.result_hits||0, label:'Result.', type:'result' },
+            ].map(({ icon, value, label, type }) => (
+              <div
+                key={label}
+                onClick={type ? () => setDrill(type) : undefined}
+                style={{ background:'rgba(255,255,255,0.12)', borderRadius:12, padding:'10px 6px', textAlign:'center', cursor: type?'pointer':'default' }}
+              >
                 <div style={{ fontSize:16, marginBottom:2 }}>{icon}</div>
                 <div style={{ fontWeight:900, fontSize:18, lineHeight:1 }}>{value}</div>
                 <div style={{ fontSize:9, opacity:.7, marginTop:3, textTransform:'uppercase', letterSpacing:.5 }}>{label}</div>
@@ -203,6 +209,8 @@ export default function Profile({ participant, onUpdate }) {
           {loading ? <><Loader2 size={16}/>Salvando...</> : 'Salvar alterações'}
         </button>
       </div>
+
+      <MatchBreakdownSheet type={drill} participantId={participant.id} onClose={()=>setDrill(null)}/>
     </div>
   )
 }
