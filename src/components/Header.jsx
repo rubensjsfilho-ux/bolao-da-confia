@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Home, Target, BarChart3, ShieldCheck, Users, Zap, LogOut, X, Trophy, Star, Zap as ZapIcon, ArrowLeft } from 'lucide-react'
+import { Home, Target, BarChart3, ShieldCheck, Users, Zap, LogOut, X, Trophy, Star, Zap as ZapIcon } from 'lucide-react'
 import { supabase } from '../supabase'
-import { MatchBreakdownList } from './MatchBreakdown'
 
 const NAV = [
   { to:'/dashboard', label:'Início',       Icon:Home },
@@ -52,9 +51,6 @@ export function ParticipantModal({ participant: p, onClose }) {
   const [stats, setStats] = useState(null)
   const [rank,  setRank]  = useState(null)
   const [total, setTotal] = useState(0)
-  const [drill, setDrill] = useState(null) // null | 'exact' | 'result'
-
-  useEffect(() => { setDrill(null) }, [p?.id])
 
   useEffect(() => {
     if (!p) return
@@ -104,43 +100,25 @@ export function ParticipantModal({ participant: p, onClose }) {
           <button onClick={onClose} style={{ position:'absolute', top:14, right:14, background:'rgba(255,255,255,0.15)', border:'none', borderRadius:'50%', width:32, height:32, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
             <X size={16} color="#fff"/>
           </button>
-          {drill ? (
-            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-              <button onClick={()=>setDrill(null)} style={{ background:'rgba(255,255,255,0.15)', border:'none', borderRadius:'50%', width:32, height:32, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
-                <ArrowLeft size={16} color="#fff"/>
-              </button>
-              <div>
-                <div style={{ color:'#fff', fontWeight:900, fontSize:18 }}>
-                  {drill==='exact' ? '⚡ Placares exatos' : '🎯 Resultados certos'}
-                </div>
-                <div style={{ color:'rgba(255,255,255,0.7)', fontSize:12, marginTop:2 }}>{p.name}</div>
-              </div>
+          <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+            <div style={{ width:64, height:64, borderRadius:'50%', overflow:'hidden', border:'3px solid rgba(255,255,255,0.3)', background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, flexShrink:0 }}>
+              {p.avatar_url
+                ? <img src={p.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
+                : p.avatar_emoji || '⚽'
+              }
             </div>
-          ) : (
-            <div style={{ display:'flex', alignItems:'center', gap:14 }}>
-              <div style={{ width:64, height:64, borderRadius:'50%', overflow:'hidden', border:'3px solid rgba(255,255,255,0.3)', background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, flexShrink:0 }}>
-                {p.avatar_url
-                  ? <img src={p.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/>
-                  : p.avatar_emoji || '⚽'
-                }
-              </div>
-              <div>
-                <div style={{ color:'#fff', fontWeight:900, fontSize:20 }}>{p.name}</div>
-                {rank && <div style={{ color:'rgba(255,255,255,0.7)', fontSize:13, marginTop:2 }}>
-                  {rank}º lugar de {total} participantes
-                </div>}
-              </div>
+            <div>
+              <div style={{ color:'#fff', fontWeight:900, fontSize:20 }}>{p.name}</div>
+              {rank && <div style={{ color:'rgba(255,255,255,0.7)', fontSize:13, marginTop:2 }}>
+                {rank}º lugar de {total} participantes
+              </div>}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Stats */}
         {!stats ? (
           <div style={{ padding:32, textAlign:'center', color:'#9BABB8' }}>Carregando...</div>
-        ) : drill ? (
-          <div style={{ maxHeight:'50vh', overflowY:'auto' }}>
-            <MatchBreakdownList participantId={p.id} type={drill}/>
-          </div>
         ) : (
           <div style={{ padding:'0 16px' }}>
             {/* Grid de métricas */}
@@ -148,21 +126,14 @@ export function ParticipantModal({ participant: p, onClose }) {
               {[
                 { icon:'🏆', label:'Posição',    value: rank ? `${rank}º` : '—',  sub: rank ? `de ${total}` : '—',       color:'#D4890A' },
                 { icon:'⭐', label:'Pontos',     value: stats.total_points||0,     sub:'total',                           color:'#009639' },
-                { icon:'⚡', label:'Exatos',     value: stats.exact_hits||0,       sub:'+3 pts cada',                     color:'#F5A623', type:'exact' },
-                { icon:'🎯', label:'Resultados', value: stats.result_hits||0,      sub:'+1 pt cada',                      color:'#1A73E8', type:'result' },
-              ].map(({ icon, label, value, sub, color, type }) => (
-                <div
-                  key={label}
-                  onClick={type ? () => setDrill(type) : undefined}
-                  style={{ background:'#fff', padding:'16px 14px', cursor: type?'pointer':'default', position:'relative', transition:'background .15s' }}
-                  onMouseEnter={type ? e=>{e.currentTarget.style.background='#F8FAFC'} : undefined}
-                  onMouseLeave={type ? e=>{e.currentTarget.style.background='#fff'} : undefined}
-                >
+                { icon:'⚡', label:'Exatos',     value: stats.exact_hits||0,       sub:'+3 pts cada',                     color:'#F5A623' },
+                { icon:'🎯', label:'Resultados', value: stats.result_hits||0,      sub:'+1 pt cada',                      color:'#1A73E8' },
+              ].map(({ icon, label, value, sub, color }) => (
+                <div key={label} style={{ background:'#fff', padding:'16px 14px' }}>
                   <div style={{ fontSize:20, marginBottom:6 }}>{icon}</div>
                   <div style={{ color:'#9BABB8', fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:.5, marginBottom:4 }}>{label}</div>
                   <div style={{ color:'#002855', fontWeight:900, fontSize:26, lineHeight:1 }}>{value}</div>
                   <div style={{ color, fontSize:10, fontWeight:700, marginTop:3 }}>{sub}</div>
-                  {type && <span style={{ position:'absolute', top:14, right:12, color:'#C8D5E0', fontSize:15 }}>›</span>}
                 </div>
               ))}
             </div>
