@@ -22,42 +22,46 @@ function calcPoints(p1,p2,r1,r2){
   return 0
 }
 
-// ── Mapa do chaveamento: quem ganha qual jogo vai para qual slot ──────────────
-// Formato: 'r2_1': { next: 'r16_1', slot: 'team1' }
-// "slot" indica se o vencedor vai como team1 ou team2 do próximo jogo
+// ── Mapa do chaveamento oficial FIFA 2026 ─────────────────────────────────────
+// r2_N → IDs dos seus jogos na ordem do staticInfo (M73–M88 da FIFA)
+// r2_1=M73, r2_2=M75, r2_3=M74, r2_4=M76, r2_5=M78, r2_6=M77
+// r2_7=M79, r2_8=M80, r2_9=M82, r2_10=M81, r2_11=M84, r2_12=M83
+// r2_13=M85, r2_14=M88, r2_15=M86, r2_16=M87
+// Oitavas (FIFA): r16_1=W74×W77, r16_2=W73×W75, r16_3=W76×W78, r16_4=W79×W80
+//                 r16_5=W83×W84, r16_6=W81×W82, r16_7=W86×W88, r16_8=W85×W87
 const BRACKET_ADVANCEMENT = {
-  // 2ª Fase → Oitavas
-  'r2_1':  { next: 'r16_1', slot: 'team1' },
-  'r2_2':  { next: 'r16_1', slot: 'team2' },
-  'r2_3':  { next: 'r16_2', slot: 'team1' },
-  'r2_4':  { next: 'r16_2', slot: 'team2' },
-  'r2_5':  { next: 'r16_3', slot: 'team1' },
-  'r2_6':  { next: 'r16_3', slot: 'team2' },
-  'r2_7':  { next: 'r16_4', slot: 'team1' },
-  'r2_8':  { next: 'r16_4', slot: 'team2' },
-  'r2_9':  { next: 'r16_5', slot: 'team1' },
-  'r2_10': { next: 'r16_5', slot: 'team2' },
-  'r2_11': { next: 'r16_6', slot: 'team1' },
-  'r2_12': { next: 'r16_6', slot: 'team2' },
-  'r2_13': { next: 'r16_7', slot: 'team1' },
-  'r2_14': { next: 'r16_7', slot: 'team2' },
-  'r2_15': { next: 'r16_8', slot: 'team1' },
-  'r2_16': { next: 'r16_8', slot: 'team2' },
-  // Oitavas → Quartas
-  'r16_1': { next: 'qf_1', slot: 'team1' },
-  'r16_2': { next: 'qf_1', slot: 'team2' },
-  'r16_3': { next: 'qf_2', slot: 'team1' },
-  'r16_4': { next: 'qf_2', slot: 'team2' },
-  'r16_5': { next: 'qf_3', slot: 'team1' },
-  'r16_6': { next: 'qf_3', slot: 'team2' },
-  'r16_7': { next: 'qf_4', slot: 'team1' },
-  'r16_8': { next: 'qf_4', slot: 'team2' },
-  // Quartas → Semis
+  // 2ª Fase → Oitavas (chaveamento oficial FIFA)
+  'r2_3':  { next: 'r16_1', slot: 'team1' }, // W74 → Filadélfia team1
+  'r2_6':  { next: 'r16_1', slot: 'team2' }, // W77 → Filadélfia team2
+  'r2_1':  { next: 'r16_2', slot: 'team1' }, // W73 → Cidade do México team1
+  'r2_2':  { next: 'r16_2', slot: 'team2' }, // W75 → Cidade do México team2
+  'r2_4':  { next: 'r16_3', slot: 'team1' }, // W76 → Nova Jersey team1
+  'r2_5':  { next: 'r16_3', slot: 'team2' }, // W78 → Nova Jersey team2
+  'r2_7':  { next: 'r16_4', slot: 'team1' }, // W79 → Seattle team1
+  'r2_8':  { next: 'r16_4', slot: 'team2' }, // W80 → Seattle team2
+  'r2_12': { next: 'r16_5', slot: 'team1' }, // W83 → Dallas team1
+  'r2_11': { next: 'r16_5', slot: 'team2' }, // W84 → Dallas team2
+  'r2_10': { next: 'r16_6', slot: 'team1' }, // W81 → Seattle team1
+  'r2_9':  { next: 'r16_6', slot: 'team2' }, // W82 → Seattle team2
+  'r2_15': { next: 'r16_7', slot: 'team1' }, // W86 → Atlanta team1
+  'r2_14': { next: 'r16_7', slot: 'team2' }, // W88 → Atlanta team2
+  'r2_13': { next: 'r16_8', slot: 'team1' }, // W85 → Vancouver team1
+  'r2_16': { next: 'r16_8', slot: 'team2' }, // W87 → Vancouver team2
+  // Oitavas → Quartas (pelos prints do chaveamento)
+  'r16_1': { next: 'qf_1', slot: 'team1' }, // W89 → Los Angeles team1
+  'r16_2': { next: 'qf_1', slot: 'team2' }, // W90 → Los Angeles team2
+  'r16_3': { next: 'qf_2', slot: 'team1' }, // W91 → Boston team1
+  'r16_4': { next: 'qf_2', slot: 'team2' }, // W92 → Boston team2
+  'r16_5': { next: 'qf_3', slot: 'team1' }, // W93 → Miami team1
+  'r16_6': { next: 'qf_3', slot: 'team2' }, // W94 → Miami team2
+  'r16_7': { next: 'qf_4', slot: 'team1' }, // W95 → Kansas City team1
+  'r16_8': { next: 'qf_4', slot: 'team2' }, // W96 → Kansas City team2
+  // Quartas → Semis (pelos prints: QF1+QF2 → SF1, QF3+QF4 → SF2)
   'qf_1':  { next: 'sf_1', slot: 'team1' },
   'qf_2':  { next: 'sf_1', slot: 'team2' },
   'qf_3':  { next: 'sf_2', slot: 'team1' },
   'qf_4':  { next: 'sf_2', slot: 'team2' },
-  // Semis → Final
+  // Semis → Final (f_2)
   'sf_1':  { next: 'f_2', slot: 'team1' },
   'sf_2':  { next: 'f_2', slot: 'team2' },
 }
@@ -536,43 +540,39 @@ function KnockoutTab() {
     }
   }
 
-  // ── Avança o vencedor automaticamente para o próximo jogo ──────────────────
-  const advanceWinner = async (matchId, score1, score2, team1, team2, currentMatches) => {
-    const advancement = BRACKET_ADVANCEMENT[matchId]
-    if (!advancement) return // Final e 3º lugar não avançam
-
-    const winner = score1 > score2 ? team1 : team2
-    const { next, slot } = advancement
-
-    // Busca o jogo destino no estado local ou no banco
-    const existing = currentMatches[next]
-    const payload = {
-      [slot]: winner,
-      updated_at: new Date().toISOString(),
-    }
-
-    if (existing) {
-      await supabase.from('bracket_matches').update(payload).eq('id', next)
+  // ── Avança time para um slot do bracket ─────────────────────────────────────
+  const advanceTeam = async (nextId, slot, team, currentMatches) => {
+    const payload = { [slot]: team, updated_at: new Date().toISOString() }
+    if (currentMatches[nextId]) {
+      await supabase.from('bracket_matches').update(payload).eq('id', nextId)
     } else {
-      const round = next.split('_')[0]
-      const position = parseInt(next.split('_')[1])
+      const round = nextId.split('_')[0]
+      const position = parseInt(nextId.split('_')[1])
       await supabase.from('bracket_matches').insert([{
-        id: next, round, position,
-        team1: slot === 'team1' ? winner : null,
-        team2: slot === 'team2' ? winner : null,
+        id: nextId, round, position,
+        team1: slot === 'team1' ? team : null,
+        team2: slot === 'team2' ? team : null,
         score1: null, score2: null, is_finished: false,
         updated_at: new Date().toISOString(),
       }])
     }
+    setMatches(m => ({ ...m, [nextId]: { ...(m[nextId] || { id: nextId }), [slot]: team } }))
+  }
 
-    // Atualiza estado local
-    setMatches(m => ({
-      ...m,
-      [next]: {
-        ...(m[next] || { id: next }),
-        [slot]: winner,
-      }
-    }))
+  // ── Avança vencedor (e perdedor nas semis → 3º lugar) ────────────────────
+  const advanceWinner = async (matchId, score1, score2, team1, team2, currentMatches) => {
+    const advancement = BRACKET_ADVANCEMENT[matchId]
+    const winner = score1 > score2 ? team1 : team2
+    const loser  = score1 > score2 ? team2 : team1
+
+    // Avança o vencedor para a próxima fase
+    if (advancement) {
+      await advanceTeam(advancement.next, advancement.slot, winner, currentMatches)
+    }
+
+    // Semis: perdedor vai para o 3º lugar
+    if (matchId === 'sf_1') await advanceTeam('f_1', 'team1', loser, currentMatches)
+    if (matchId === 'sf_2') await advanceTeam('f_1', 'team2', loser, currentMatches)
   }
 
   const saveMatch = async (id, team1, team2, score1, score2) => {
