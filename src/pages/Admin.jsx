@@ -22,6 +22,46 @@ function calcPoints(p1,p2,r1,r2){
   return 0
 }
 
+// ── Mapa do chaveamento: quem ganha qual jogo vai para qual slot ──────────────
+// Formato: 'r2_1': { next: 'r16_1', slot: 'team1' }
+// "slot" indica se o vencedor vai como team1 ou team2 do próximo jogo
+const BRACKET_ADVANCEMENT = {
+  // 2ª Fase → Oitavas
+  'r2_1':  { next: 'r16_1', slot: 'team1' },
+  'r2_2':  { next: 'r16_1', slot: 'team2' },
+  'r2_3':  { next: 'r16_2', slot: 'team1' },
+  'r2_4':  { next: 'r16_2', slot: 'team2' },
+  'r2_5':  { next: 'r16_3', slot: 'team1' },
+  'r2_6':  { next: 'r16_3', slot: 'team2' },
+  'r2_7':  { next: 'r16_4', slot: 'team1' },
+  'r2_8':  { next: 'r16_4', slot: 'team2' },
+  'r2_9':  { next: 'r16_5', slot: 'team1' },
+  'r2_10': { next: 'r16_5', slot: 'team2' },
+  'r2_11': { next: 'r16_6', slot: 'team1' },
+  'r2_12': { next: 'r16_6', slot: 'team2' },
+  'r2_13': { next: 'r16_7', slot: 'team1' },
+  'r2_14': { next: 'r16_7', slot: 'team2' },
+  'r2_15': { next: 'r16_8', slot: 'team1' },
+  'r2_16': { next: 'r16_8', slot: 'team2' },
+  // Oitavas → Quartas
+  'r16_1': { next: 'qf_1', slot: 'team1' },
+  'r16_2': { next: 'qf_1', slot: 'team2' },
+  'r16_3': { next: 'qf_2', slot: 'team1' },
+  'r16_4': { next: 'qf_2', slot: 'team2' },
+  'r16_5': { next: 'qf_3', slot: 'team1' },
+  'r16_6': { next: 'qf_3', slot: 'team2' },
+  'r16_7': { next: 'qf_4', slot: 'team1' },
+  'r16_8': { next: 'qf_4', slot: 'team2' },
+  // Quartas → Semis
+  'qf_1':  { next: 'sf_1', slot: 'team1' },
+  'qf_2':  { next: 'sf_1', slot: 'team2' },
+  'qf_3':  { next: 'sf_2', slot: 'team1' },
+  'qf_4':  { next: 'sf_2', slot: 'team2' },
+  // Semis → Final
+  'sf_1':  { next: 'f_2', slot: 'team1' },
+  'sf_2':  { next: 'f_2', slot: 'team2' },
+}
+
 // ── Card de resultado ─────────────────────────────────────────────────────────
 function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
   const [s1,setS1]=useState(match.score1??'')
@@ -35,8 +75,6 @@ function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
   const [confirmReset,setConfirmReset]=useState(false)
   const [confirmFinish,setConfirmFinish]=useState(false)
 
-  // Só sincroniza quando a partida for resetada (score volta a null)
-  // Não sincroniza ao salvar parcial, para não zerar o que o admin está digitando
   useEffect(()=>{
     if(match.score1===null||match.score1===undefined){
       setS1('')
@@ -76,7 +114,6 @@ function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
   const isOpen = isMatchOpen(match) && !match.is_finished
   return(
     <div data-match-open={isOpen?'true':'false'} style={{ background:C.card, border:`1px solid ${match.is_finished?C.green:C.border}`, borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
-      {/* Cabeçalho */}
       <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
         <span style={{ color:C.textMuted, fontSize:10 }}>Grupo {match.group} · {formatDate(match.date)}</span>
         {match.is_finished
@@ -87,7 +124,6 @@ function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
         }
       </div>
 
-      {/* Times e placar */}
       <div style={{ display:'flex', alignItems:'center', gap:8 }}>
         <span style={{ fontSize:20 }}>{getFlag(match.team1)}</span>
         <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700 }}>{match.team1}</span>
@@ -112,7 +148,6 @@ function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
         <span style={{ fontSize:20 }}>{getFlag(match.team2)}</span>
       </div>
 
-      {/* Botões */}
       <div style={{ display:'flex', justifyContent:'flex-end', gap:6, marginTop:10 }}>
         {match.is_finished ? (
           confirmReset ? (
@@ -160,7 +195,6 @@ function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
           </>
         )}
       </div>
-      {/* Link da transmissão ao vivo */}
       <div style={{ marginTop:10, display:'flex', gap:6, alignItems:'center' }}>
         <input
           type="text"
@@ -181,7 +215,7 @@ function MatchRow({ match, onSave, onFinish, onReset, onSaveStream }){
 // ── Aba de resultados ─────────────────────────────────────────────────────────
 function ResultsTab({ matches, loading, onSave, onFinish, onReset, onSaveStream }){
   const [group,setGroup]=useState('all')
-  const [showDone,setShowDone]=useState(true) // ← padrão true para ver encerrados
+  const [showDone,setShowDone]=useState(true)
   const groups=['all','A','B','C','D','E','F','G','H','I','J','K','L']
 
   const enriched = GROUP_MATCHES.map(gm=>{
@@ -387,7 +421,6 @@ function KOMatchRow({ matchId, label, db, onSave, onFinish, onReset }) {
         }
       </div>
 
-      {/* Seleção de times */}
       <div style={{ display:'flex', gap:8, marginBottom:10 }}>
         <select value={db.team1||''} disabled={db.is_finished}
           onChange={e => onSave(matchId, e.target.value, db.team2||'', db.score1??null, db.score2??null)}
@@ -403,7 +436,6 @@ function KOMatchRow({ matchId, label, db, onSave, onFinish, onReset }) {
         </select>
       </div>
 
-      {/* Placar */}
       {hasTeams && (
         <>
           <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
@@ -426,7 +458,6 @@ function KOMatchRow({ matchId, label, db, onSave, onFinish, onReset }) {
             <span style={{ flex:1, color:C.text, fontSize:12, fontWeight:700, textAlign:'right' }}>{db.team2}</span>
           </div>
 
-          {/* Botões */}
           <div style={{ display:'flex', justifyContent:'flex-end', gap:6 }}>
             {db.is_finished ? (
               confirmReset ? (
@@ -505,6 +536,45 @@ function KnockoutTab() {
     }
   }
 
+  // ── Avança o vencedor automaticamente para o próximo jogo ──────────────────
+  const advanceWinner = async (matchId, score1, score2, team1, team2, currentMatches) => {
+    const advancement = BRACKET_ADVANCEMENT[matchId]
+    if (!advancement) return // Final e 3º lugar não avançam
+
+    const winner = score1 > score2 ? team1 : team2
+    const { next, slot } = advancement
+
+    // Busca o jogo destino no estado local ou no banco
+    const existing = currentMatches[next]
+    const payload = {
+      [slot]: winner,
+      updated_at: new Date().toISOString(),
+    }
+
+    if (existing) {
+      await supabase.from('bracket_matches').update(payload).eq('id', next)
+    } else {
+      const round = next.split('_')[0]
+      const position = parseInt(next.split('_')[1])
+      await supabase.from('bracket_matches').insert([{
+        id: next, round, position,
+        team1: slot === 'team1' ? winner : null,
+        team2: slot === 'team2' ? winner : null,
+        score1: null, score2: null, is_finished: false,
+        updated_at: new Date().toISOString(),
+      }])
+    }
+
+    // Atualiza estado local
+    setMatches(m => ({
+      ...m,
+      [next]: {
+        ...(m[next] || { id: next }),
+        [slot]: winner,
+      }
+    }))
+  }
+
   const saveMatch = async (id, team1, team2, score1, score2) => {
     const payload = { team1, team2, score1:score1??null, score2:score2??null, updated_at:new Date().toISOString() }
     if (matches[id]) {
@@ -518,13 +588,18 @@ function KnockoutTab() {
   const finishMatch = async (id, team1, team2, score1, score2) => {
     await supabase.from('bracket_matches').update({ team1, team2, score1, score2, is_finished:true, updated_at:new Date().toISOString() }).eq('id',id)
     setMatches(m => ({ ...m, [id]: { ...(m[id]||{}), team1, team2, score1, score2, is_finished:true } }))
+
+    // ── Avança o vencedor automaticamente ────────────────────────────────────
+    await advanceWinner(id, score1, score2, team1, team2, matches)
+
+    // Calcula pontos dos palpites
     const { data: preds } = await supabase.from('knockout_predictions').select('id,score1,score2,participant_id').eq('match_id',id)
     for (const p of preds||[]) {
       const pts = calcPoints(p.score1,p.score2,score1,score2)
       await supabase.from('knockout_predictions').update({ points:pts }).eq('id',p.id)
     }
     await recalcTotals()
-    setMsg('✅ Encerrado e pontos calculados!')
+    setMsg('✅ Encerrado, vencedor avançado e pontos calculados!')
     setTimeout(()=>setMsg(''),3000)
   }
 
@@ -543,7 +618,7 @@ function KnockoutTab() {
   return (
     <div>
       {msg && <div style={{ background:'rgba(74,222,128,0.1)', border:'1px solid rgba(74,222,128,0.3)', borderRadius:10, padding:'10px 14px', marginBottom:12, color:C.green, fontSize:12 }}>{msg}</div>}
-      <p style={{ color:C.textMuted, fontSize:11, marginBottom:12 }}>Selecione os times, salve o placar parcial e encerre quando terminar.</p>
+      <p style={{ color:C.textMuted, fontSize:11, marginBottom:12 }}>Selecione os times, salve o placar parcial e encerre quando terminar. O vencedor avança automaticamente!</p>
       <div style={{ display:'flex', gap:5, marginBottom:14, overflowX:'auto' }}>
         {KO_ROUNDS.map(r => (
           <button key={r.id} onClick={()=>setActiveRound(r.id)} style={{
@@ -587,7 +662,6 @@ function BannersTab() {
 
   useEffect(() => {
     load().then(() => {
-      // Auto-scroll to first non-finished match
       setTimeout(() => {
         const firstOpen = document.querySelector('[data-match-open="true"]')
         if (firstOpen) firstOpen.scrollIntoView({ behavior:'smooth', block:'center' })
@@ -622,7 +696,6 @@ function BannersTab() {
     <div>
       {msg && <div style={{ background: msg.startsWith('✅')?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)', border:`1px solid ${msg.startsWith('✅')?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'}`, borderRadius:10, padding:'10px 14px', marginBottom:12, color: msg.startsWith('✅')?C.green:C.red, fontSize:12 }}>{msg}</div>}
 
-      {/* Formulário para adicionar */}
       <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'14px', marginBottom:16 }}>
         <div style={{ color:C.gold, fontWeight:800, fontSize:12, marginBottom:12 }}>➕ Novo Banner</div>
 
@@ -662,7 +735,6 @@ function BannersTab() {
         </button>
       </div>
 
-      {/* Lista de banners ativos */}
       <div style={{ color:C.textMuted, fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:1, marginBottom:8 }}>
         Banners Ativos ({banners.length})
       </div>
@@ -694,7 +766,7 @@ function BannersTab() {
   )
 }
 
-// ── ADMIN PRINCIPAL ────────────────────────────────────────────────────  ──────
+// ── ADMIN PRINCIPAL ───────────────────────────────────────────────────────────
 export default function Admin(){
   const [authed,setAuthed]=useState(false)
   const [pwd,setPwd]=useState('')
@@ -707,21 +779,20 @@ export default function Admin(){
   const [zeroing,setZeroing]=useState(false)
 
   const zeroAll = async() => {
-  setZeroing(true); setConfirmZero(false)
-  // ✅ .not('id','is',null) funciona para qualquer tipo de id
-  await supabase.from('predictions').update({points:null}).not('id','is',null)
-  await supabase.from('knockout_predictions').update({points:null}).not('id','is',null)
-  await supabase.from('participants').update({
-    total_points:0, exact_hits:0, result_hits:0, predictions_count:0
-  }).not('id','is',null)
-  await supabase.from('matches').update({
-    score1:null, score2:null, is_finished:false
-  }).not('id','is',null)
-  setMatches(prev=>prev.map(m=>({...m,score1:null,score2:null,is_finished:false})))
-  setZeroing(false)
-  setRecalcMsg('✅ Tudo zerado!')
-  setTimeout(()=>setRecalcMsg(''),3000)
-}
+    setZeroing(true); setConfirmZero(false)
+    await supabase.from('predictions').update({points:null}).not('id','is',null)
+    await supabase.from('knockout_predictions').update({points:null}).not('id','is',null)
+    await supabase.from('participants').update({
+      total_points:0, exact_hits:0, result_hits:0, predictions_count:0
+    }).not('id','is',null)
+    await supabase.from('matches').update({
+      score1:null, score2:null, is_finished:false
+    }).not('id','is',null)
+    setMatches(prev=>prev.map(m=>({...m,score1:null,score2:null,is_finished:false})))
+    setZeroing(false)
+    setRecalcMsg('✅ Tudo zerado!')
+    setTimeout(()=>setRecalcMsg(''),3000)
+  }
 
   const auth=(e)=>{
     e.preventDefault()
@@ -749,7 +820,6 @@ export default function Admin(){
       await supabase.from('predictions').update({points:calcPoints(p.score1,p.score2,score1,score2)}).eq('id',p.id)
     }
     await recalcTotals()
-    // Reload para garantir sincronismo com o banco
     await loadMatches()
   }
 
@@ -862,4 +932,3 @@ export default function Admin(){
     </div>
   )
 }
-
