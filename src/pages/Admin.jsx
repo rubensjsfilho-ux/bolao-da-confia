@@ -22,39 +22,10 @@ function calcPoints(p1,p2,r1,r2){
   return 0
 }
 
-// ── Mapa do chaveamento oficial FIFA 2026 ─────────────────────────────────────
-// r2_N → IDs dos seus jogos na ordem do staticInfo (M73–M88 da FIFA)
-// r2_1=M73, r2_2=M75, r2_3=M74, r2_4=M76, r2_5=M78, r2_6=M77
-// r2_7=M79, r2_8=M80, r2_9=M82, r2_10=M81, r2_11=M84, r2_12=M83
-// r2_13=M85, r2_14=M88, r2_15=M86, r2_16=M87
-// Oitavas (FIFA): r16_1=W74×W77, r16_2=W73×W75, r16_3=W76×W78, r16_4=W79×W80
-//                 r16_5=W83×W84, r16_6=W81×W82, r16_7=W86×W88, r16_8=W85×W87
+// ── Mapa do chaveamento — automação a partir das Oitavas ─────────────────────
+// A 2ª Fase é preenchida manualmente pelo admin.
+// A partir das Oitavas, o vencedor avança automaticamente.
 const BRACKET_ADVANCEMENT = {
-  // 2ª Fase → Oitavas (baseado no chaveamento Google/FIFA)
-  // Oitavas 1 (Sáb 04/07): África do Sul/Canadá + Alemanha/Paraguai
-  'r2_1':  { next: 'r16_1', slot: 'team1' }, // África do Sul × Canadá
-  'r2_3':  { next: 'r16_1', slot: 'team2' }, // Alemanha × Paraguai
-  // Oitavas 2 (Sáb 04/07): França/Suécia + Países Baixos/Marrocos
-  'r2_6':  { next: 'r16_2', slot: 'team1' }, // França × Suécia
-  'r2_4':  { next: 'r16_2', slot: 'team2' }, // Holanda × Marrocos
-  // Oitavas 3 (Seg 06/07): Bélgica + EUA/Bósnia
-  'r2_9':  { next: 'r16_3', slot: 'team1' }, // Bélgica × (3º)
-  'r2_10': { next: 'r16_3', slot: 'team2' }, // EUA × Bósnia
-  // Oitavas 4 (Seg 06/07): Espanha + (A definir)
-  'r2_11': { next: 'r16_4', slot: 'team1' }, // Espanha × (2ºJ)
-  'r2_12': { next: 'r16_4', slot: 'team2' }, // 2ºK × 2ºL
-  // Oitavas 5 (Dom 05/07): Brasil/Japão + Costa do Marfim/Noruega
-  'r2_2':  { next: 'r16_5', slot: 'team1' }, // Brasil × Japão
-  'r2_5':  { next: 'r16_5', slot: 'team2' }, // Costa do Marfim × Noruega
-  // Oitavas 6 (Dom 05/07): México + (A definir)
-  'r2_7':  { next: 'r16_6', slot: 'team1' }, // México × (3º)
-  'r2_8':  { next: 'r16_6', slot: 'team2' }, // 1ºL × (3º)
-  // Oitavas 7 (Ter 07/07): Suíça + (A definir)
-  'r2_13': { next: 'r16_7', slot: 'team1' }, // Suíça × (3º)
-  'r2_16': { next: 'r16_7', slot: 'team2' }, // 1ºK × (3º)
-  // Oitavas 8 (Ter 07/07): Austrália/Egito + Argentina/Cabo Verde
-  'r2_14': { next: 'r16_8', slot: 'team1' }, // Austrália × Egito
-  'r2_15': { next: 'r16_8', slot: 'team2' }, // Argentina × Cabo Verde
   // Oitavas → Quartas (pelos prints do chaveamento)
   'r16_1': { next: 'qf_1', slot: 'team1' }, // W89 → Los Angeles team1
   'r16_2': { next: 'qf_1', slot: 'team2' }, // W90 → Los Angeles team2
