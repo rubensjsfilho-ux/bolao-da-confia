@@ -37,35 +37,35 @@ const ROUNDS = [
   {
     id: 'r2', label: 'Segunda Fase', short: '2ª Fase',
     matches: [
-      { id:'r2_1',  pos:1,  label:'2ª Fase 1',  date:'2026-06-28T19:00:00Z', city:'Los Angeles',      venue:'SoFi Stadium',            info:'1º A × 2º B' },
-      { id:'r2_2',  pos:2,  label:'2ª Fase 2',  date:'2026-06-28T22:00:00Z', city:'Kansas City',      venue:'Arrowhead Stadium',       info:'1º C × 2º D' },
-      { id:'r2_3',  pos:3,  label:'2ª Fase 3',  date:'2026-06-29T17:30:00Z', city:'Boston',           venue:'Gillette Stadium',        info:'1º E × 3º ABCDF' },
-      { id:'r2_4',  pos:4,  label:'2ª Fase 4',  date:'2026-06-29T22:00:00Z', city:'Monterrey',        venue:'El Gigante de Acero',     info:'1º F × 2º C' },
-      { id:'r2_5',  pos:5,  label:'2ª Fase 5',  date:'2026-06-30T16:00:00Z', city:'Dallas',           venue:'AT&T Stadium',            info:'2º D × 3º ABCEG' },
-      { id:'r2_6',  pos:6,  label:'2ª Fase 6',  date:'2026-06-30T18:00:00Z', city:'Nova York/NJ',     venue:'MetLife Stadium',         info:'1º I × 3º CDFGH' },
-      { id:'r2_7',  pos:7,  label:'2ª Fase 7',  date:'2026-07-01T16:00:00Z', city:'Seattle',          venue:'Lumen Field',             info:'1º G × 3º ABCIJ' },
-      { id:'r2_8',  pos:8,  label:'2ª Fase 8',  date:'2026-07-01T19:00:00Z', city:'Guadalajara',      venue:'Estadio Jalisco',         info:'1º H × 2º E' },
-      { id:'r2_9',  pos:9,  label:'2ª Fase 9',  date:'2026-07-01T22:00:00Z', city:'Vancouver',        venue:'BC Place',                info:'2º I × 3º DFGHJ' },
-      { id:'r2_10', pos:10, label:'2ª Fase 10', date:'2026-07-02T16:00:00Z', city:'Filadélfia',       venue:'Lincoln Financial Field', info:'1º B × 2º A' },
-      { id:'r2_11', pos:11, label:'2ª Fase 11', date:'2026-07-02T19:00:00Z', city:'Miami',            venue:'Hard Rock Stadium',       info:'1º J × 2º F' },
-      { id:'r2_12', pos:12, label:'2ª Fase 12', date:'2026-07-02T22:00:00Z', city:'Cidade do México', venue:'Estádio Azteca',          info:'2º G × 3º EGHIKL' },
-      { id:'r2_13', pos:13, label:'2ª Fase 13', date:'2026-07-03T16:00:00Z', city:'Atlanta',          venue:'Mercedes-Benz Stadium',   info:'1º K × 2º J' },
-      { id:'r2_14', pos:14, label:'2ª Fase 14', date:'2026-07-03T19:00:00Z', city:'Houston',          venue:'NRG Stadium',             info:'2º H × 3º BCDIL' },
-      { id:'r2_15', pos:15, label:'2ª Fase 15', date:'2026-07-03T22:00:00Z', city:'Toronto',          venue:'BMO Field',               info:'1º D × 2º K' },
-      { id:'r2_16', pos:16, label:'2ª Fase 16', date:'2026-07-04T16:00:00Z', city:'San Francisco',    venue:"Levi's Stadium",          info:'2º L × 1º L' },
+      { id:'r2_1',  pos:1,  label:'2ª Fase 1',  date:'2026-06-28T19:00:00Z', city:'Los Angeles',       venue:'SoFi Stadium',            info:'1º A × 2º B' },
+      { id:'r2_2',  pos:2,  label:'2ª Fase 2',  date:'2026-06-29T17:00:00Z', city:'Houston',           venue:'NRG Stadium',             info:'1º C × 2º F' },
+      { id:'r2_3',  pos:3,  label:'2ª Fase 3',  date:'2026-06-29T20:30:00Z', city:'Boston',            venue:'Gillette Stadium',        info:'1º E × 3º ABCDF' },
+      { id:'r2_4',  pos:4,  label:'2ª Fase 4',  date:'2026-06-30T01:00:00Z', city:'Monterrey',         venue:'El Gigante de Acero',     info:'1º F × 2º C' },
+      { id:'r2_5',  pos:5,  label:'2ª Fase 5',  date:'2026-06-30T17:00:00Z', city:'Dallas',            venue:'AT&T Stadium',            info:'2º E × 2º I' },
+      { id:'r2_6',  pos:6,  label:'2ª Fase 6',  date:'2026-06-30T21:00:00Z', city:'Nova Jersey',       venue:'MetLife Stadium',         info:'1º I × 3º CDFGH' },
+      { id:'r2_7',  pos:7,  label:'2ª Fase 7',  date:'2026-07-01T01:00:00Z', city:'Cidade do México',  venue:'Estádio Azteca',          info:'México × 3º CEFHI' },
+      { id:'r2_8',  pos:8,  label:'2ª Fase 8',  date:'2026-07-01T16:00:00Z', city:'Atlanta',           venue:'Mercedes-Benz Stadium',   info:'1º L × 3º EHIJK' },
+      { id:'r2_9',  pos:9,  label:'2ª Fase 9',  date:'2026-07-01T20:00:00Z', city:'Seattle',           venue:'Lumen Field',             info:'1º G × 3º AEHIJ' },
+      { id:'r2_10', pos:10, label:'2ª Fase 10', date:'2026-07-02T00:00:00Z', city:'Santa Clara',       venue:"Levi's Stadium",          info:'EUA × 3º BEFIJ' },
+      { id:'r2_11', pos:11, label:'2ª Fase 11', date:'2026-07-02T19:00:00Z', city:'Los Angeles',       venue:'SoFi Stadium',            info:'1º H × 2º J' },
+      { id:'r2_12', pos:12, label:'2ª Fase 12', date:'2026-07-02T23:00:00Z', city:'Toronto',           venue:'BMO Field',               info:'2º K × 2º L' },
+      { id:'r2_13', pos:13, label:'2ª Fase 13', date:'2026-07-03T03:00:00Z', city:'Vancouver',         venue:'BC Place',                info:'Suíça × 3º EFGIJ' },
+      { id:'r2_14', pos:14, label:'2ª Fase 14', date:'2026-07-03T18:00:00Z', city:'Dallas',            venue:'AT&T Stadium',            info:'2º D × 2º G' },
+      { id:'r2_15', pos:15, label:'2ª Fase 15', date:'2026-07-03T22:00:00Z', city:'Miami',             venue:'Hard Rock Stadium',       info:'Argentina × 2º H' },
+      { id:'r2_16', pos:16, label:'2ª Fase 16', date:'2026-07-04T01:30:00Z', city:'Kansas City',       venue:'Arrowhead Stadium',       info:'1º K × 3º DEIJL' },
     ]
   },
   {
     id: 'r16', label: 'Oitavas de Final', short: 'Oitavas',
     matches: [
-      { id:'r16_1', pos:1, label:'Oitavas 1', date:'2026-07-04T21:00:00Z', city:'Filadélfia',   venue:'Lincoln Financial Field', info:'Venc. 2ª Fase 1 × Venc. 2ª Fase 2' },
-      { id:'r16_2', pos:2, label:'Oitavas 2', date:'2026-07-04T17:00:00Z', city:'Houston',      venue:'NRG Stadium',             info:'Venc. 2ª Fase 3 × Venc. 2ª Fase 4' },
-      { id:'r16_3', pos:3, label:'Oitavas 3', date:'2026-07-05T17:00:00Z', city:'Nova York/NJ', venue:'MetLife Stadium',         info:'Venc. 2ª Fase 5 × Venc. 2ª Fase 6' },
-      { id:'r16_4', pos:4, label:'Oitavas 4', date:'2026-07-05T21:00:00Z', city:'Seattle',      venue:'Lumen Field',             info:'Venc. 2ª Fase 7 × Venc. 2ª Fase 8' },
-      { id:'r16_5', pos:5, label:'Oitavas 5', date:'2026-07-06T16:00:00Z', city:'Dallas',       venue:'AT&T Stadium',            info:'Venc. 2ª Fase 9 × Venc. 2ª Fase 10' },
-      { id:'r16_6', pos:6, label:'Oitavas 6', date:'2026-07-06T21:00:00Z', city:'Los Angeles',  venue:'SoFi Stadium',            info:'Venc. 2ª Fase 11 × Venc. 2ª Fase 12' },
-      { id:'r16_7', pos:7, label:'Oitavas 7', date:'2026-07-07T16:00:00Z', city:'Vancouver',    venue:'BC Place',                info:'Venc. 2ª Fase 13 × Venc. 2ª Fase 14' },
-      { id:'r16_8', pos:8, label:'Oitavas 8', date:'2026-07-07T21:00:00Z', city:'Kansas City',  venue:'Arrowhead Stadium',       info:'Venc. 2ª Fase 15 × Venc. 2ª Fase 16' },
+      { id:'r16_1', pos:1, label:'Oitavas 1', date:'2026-07-04T21:00:00Z', city:'Filadélfia',       venue:'Lincoln Financial Field', info:'Venc. 2ª Fase 1 × Venc. 2ª Fase 2' },
+      { id:'r16_2', pos:2, label:'Oitavas 2', date:'2026-07-05T00:00:00Z', city:'Cidade do México', venue:'Estádio Azteca',          info:'Venc. 2ª Fase 3 × Venc. 2ª Fase 4' },
+      { id:'r16_3', pos:3, label:'Oitavas 3', date:'2026-07-05T17:00:00Z', city:'Nova Jersey',      venue:'MetLife Stadium',         info:'Venc. 2ª Fase 5 × Venc. 2ª Fase 6' },
+      { id:'r16_4', pos:4, label:'Oitavas 4', date:'2026-07-05T21:00:00Z', city:'Seattle',          venue:'Lumen Field',             info:'Venc. 2ª Fase 7 × Venc. 2ª Fase 8' },
+      { id:'r16_5', pos:5, label:'Oitavas 5', date:'2026-07-06T18:00:00Z', city:'Dallas',           venue:'AT&T Stadium',            info:'Venc. 2ª Fase 9 × Venc. 2ª Fase 10' },
+      { id:'r16_6', pos:6, label:'Oitavas 6', date:'2026-07-06T23:00:00Z', city:'Seattle',          venue:'Lumen Field',             info:'Venc. 2ª Fase 11 × Venc. 2ª Fase 12' },
+      { id:'r16_7', pos:7, label:'Oitavas 7', date:'2026-07-07T16:00:00Z', city:'Atlanta',          venue:'Mercedes-Benz Stadium',   info:'Venc. 2ª Fase 13 × Venc. 2ª Fase 14' },
+      { id:'r16_8', pos:8, label:'Oitavas 8', date:'2026-07-07T20:00:00Z', city:'Vancouver',        venue:'BC Place',                info:'Venc. 2ª Fase 15 × Venc. 2ª Fase 16' },
     ]
   },
   {
@@ -80,15 +80,15 @@ const ROUNDS = [
   {
     id: 'sf', label: 'Semifinais', short: 'Semis',
     matches: [
-      { id:'sf_1', pos:1, label:'Semifinal 1', date:'2026-07-14T20:00:00Z', city:'Dallas',   venue:'AT&T Stadium',          info:'Venc. Quartas 1 × Venc. Quartas 2' },
-      { id:'sf_2', pos:2, label:'Semifinal 2', date:'2026-07-15T20:00:00Z', city:'Atlanta',  venue:'Mercedes-Benz Stadium', info:'Venc. Quartas 3 × Venc. Quartas 4' },
+      { id:'sf_1', pos:1, label:'Semifinal 1', date:'2026-07-14T19:00:00Z', city:'Dallas',   venue:'AT&T Stadium',          info:'Venc. Quartas 1 × Venc. Quartas 2' },
+      { id:'sf_2', pos:2, label:'Semifinal 2', date:'2026-07-15T19:00:00Z', city:'Dallas',   venue:'AT&T Stadium',          info:'Venc. Quartas 3 × Venc. Quartas 4' },
     ]
   },
   {
     id: 'f', label: 'Final', short: 'Final',
     matches: [
       { id:'f_3',  pos:1, label:'🥉 3º Lugar', date:'2026-07-18T21:00:00Z', city:'Miami',        venue:'Hard Rock Stadium', info:'Perd. Semifinal 1 × Perd. Semifinal 2' },
-      { id:'f_1',  pos:2, label:'🏆 FINAL',    date:'2026-07-19T20:00:00Z', city:'Nova Jersey',  venue:'MetLife Stadium',   info:'Venc. Semifinal 1 × Venc. Semifinal 2' },
+      { id:'f_1',  pos:2, label:'🏆 FINAL',    date:'2026-07-19T19:00:00Z', city:'Nova Jersey',  venue:'MetLife Stadium',   info:'Venc. Semifinal 1 × Venc. Semifinal 2' },
     ]
   },
 ]
