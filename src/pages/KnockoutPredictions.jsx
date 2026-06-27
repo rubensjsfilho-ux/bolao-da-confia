@@ -1,35 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../supabase'
 import Header from '../components/Header'
+import { getFlag } from '../data/matches'
 import { Check, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
-
-// ── FLAGS (flagcdn.com — funciona em todos os sistemas, incluindo Windows) ─────
-const FLAG_CODES = {
-  'México':'mx',         'África do Sul':'za',    'Coreia do Sul':'kr',   'República Tcheca':'cz',
-  'Canadá':'ca',         'Bósnia e Herz.':'ba',   'Catar':'qa',           'Suíça':'ch',
-  'Brasil':'br',         'Marrocos':'ma',          'Haiti':'ht',           'Escócia':'gb-sct',
-  'Estados Unidos':'us', 'Paraguai':'py',          'Austrália':'au',       'Turquia':'tr',
-  'Alemanha':'de',       'Curaçao':'cw',           'Costa do Marfim':'ci', 'Equador':'ec',
-  'Holanda':'nl',        'Japão':'jp',             'Suécia':'se',          'Tunísia':'tn',
-  'Bélgica':'be',        'Egito':'eg',             'Irã':'ir',             'Nova Zelândia':'nz',
-  'Espanha':'es',        'Cabo Verde':'cv',        'Arábia Saudita':'sa',  'Uruguai':'uy',
-  'França':'fr',         'Senegal':'sn',           'Noruega':'no',         'Iraque':'iq',
-  'Argentina':'ar',      'Argélia':'dz',           'Áustria':'at',         'Jordânia':'jo',
-  'Portugal':'pt',       'RD Congo':'cd',          'Uzbequistão':'uz',     'Colômbia':'co',
-  'Inglaterra':'gb-eng', 'Croácia':'hr',           'Gana':'gh',            'Panamá':'pa',
-}
-function getFlag(team, size = 22) {
-  const code = FLAG_CODES[team]
-  if (!code) return <span style={{ fontSize: size * 0.9, lineHeight: 1 }}>🏳️</span>
-  return (
-    <img
-      src={`https://flagcdn.com/w${size * 2}/${code}.png`}
-      alt={team}
-      style={{ width: size, height: Math.round(size * 0.67), objectFit: 'cover', borderRadius: 2, display: 'inline-block', verticalAlign: 'middle' }}
-      onError={e => { e.target.style.display = 'none' }}
-    />
-  )
-}
 
 const ROUNDS = [
   { id:'r2',  label:'2ª Fase',         short:'2ª Fase',  matchCount:16 },
@@ -87,14 +60,18 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
           {isFinal && <div style={{ fontSize:9, fontWeight:900, color:'#F5A623', letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>{match.label}</div>}
           {/* Time 1 */}
           <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6 }}>
-            <span style={{ display:'inline-flex', alignItems:'center', width:28, height:20 }}>{team1?getFlag(team1):<span style={{fontSize:20}}>🏳️</span>}</span>
+            <span style={{ display:'inline-flex', alignItems:'center', width:28, height:20 }}>
+              {team1 ? getFlag(team1) : <span style={{fontSize:20}}>🏳️</span>}
+            </span>
             <span style={{ fontSize:13, fontWeight:800, color:team1?'#002855':'#9BABB8', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
               {team1||(match.info?.split(' × ')[0]||'A definir')}
             </span>
           </div>
           {/* Time 2 */}
           <div style={{ display:'flex', alignItems:'center', gap:7 }}>
-            <span style={{ display:'inline-flex', alignItems:'center', width:28, height:20 }}>{team2?getFlag(team2):<span style={{fontSize:20}}>🏳️</span>}</span>
+            <span style={{ display:'inline-flex', alignItems:'center', width:28, height:20 }}>
+              {team2 ? getFlag(team2) : <span style={{fontSize:20}}>🏳️</span>}
+            </span>
             <span style={{ fontSize:13, fontWeight:800, color:team2?'#002855':'#9BABB8', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
               {team2||(match.info?.split(' × ')[1]||'A definir')}
             </span>
