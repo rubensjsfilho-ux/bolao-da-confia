@@ -597,6 +597,15 @@ function TodayCarousel({ participant }) {
         data?.forEach(m => { map[m.id] = m })
         setMatchResults(map)
       })
+    // Also load bracket scores for live detection
+    supabase.from('bracket_matches').select('id,score1,score2,is_finished,stream_url')
+      .then(({ data }) => {
+        setMatchResults(prev => {
+          const map = { ...prev }
+          data?.forEach(m => { map[m.id] = m })
+          return map
+        })
+      })
   }, [participant?.id])
 
   if (displayMatches.length === 0) return null
@@ -649,15 +658,11 @@ function TodayCarousel({ participant }) {
             <MatchCard key={match.id} match={match}
               hasPred={!!predictions[match.id]}
               locked={isLocked(match.date)}
-              isLive={match.date && isLocked(match.date) && (
-                match.isBracket
-                  ? false  // bracket live handled via stream button separately
-                  : !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== undefined
-              )}
+              isLive={match.date && isLocked(match.date) && !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== null && matchResults[match.id]?.score1 !== undefined}
               today={dl.isToday}
               dateLabel={dl.label}
               formatTime={formatTime}
-              streamUrl={match.isBracket ? match.stream_url : dbMatches[match.id]?.stream_url}
+              streamUrl={match.isBracket ? (matchResults[match.id]?.stream_url || match.stream_url) : dbMatches[match.id]?.stream_url}
               onTap={()=>{
                 if (isLocked(match.date)) return
                 if (match.isBracket) navigate('/mata-mata')
