@@ -621,7 +621,11 @@ function TodayCarousel({ participant }) {
     })
   }
 
-  const isLocked = (date) => !date || new Date() >= new Date(date)
+  const isLocked = (date) => {
+    if (!date) return true
+    const cutoff = new Date(new Date(date).getTime() - 1 * 60 * 1000)
+    return new Date() >= cutoff
+  }
 
   return (
     <div style={{ marginBottom:14 }}>
@@ -632,7 +636,7 @@ function TodayCarousel({ participant }) {
             {todayMatches.length > 0 ? 'Jogos de Hoje e Amanhã' : groupPhaseOver ? 'Próximos Jogos — 2ª Fase' : 'Próximos Jogos'}
           </span>
         </div>
-        <button onClick={()=> navigate('/grupos')}
+        <button onClick={()=> navigate('/grupos?tab=knockout')}
           style={{ color:'#009639', fontSize:10, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>
           Ver tabela →
         </button>
@@ -645,7 +649,11 @@ function TodayCarousel({ participant }) {
             <MatchCard key={match.id} match={match}
               hasPred={!!predictions[match.id]}
               locked={isLocked(match.date)}
-              isLive={match.date && isLocked(match.date) && !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== undefined}
+              isLive={match.date && isLocked(match.date) && (
+                match.isBracket
+                  ? false  // bracket live handled via stream button separately
+                  : !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== undefined
+              )}
               today={dl.isToday}
               dateLabel={dl.label}
               formatTime={formatTime}
@@ -739,12 +747,18 @@ function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTim
             <div style={{ flex:1, background:'rgba(220,38,38,0.08)', borderRadius:8, padding:'5px', textAlign:'center', border:'1px solid rgba(220,38,38,0.2)' }}>
               <span style={{ color:'#dc2626', fontWeight:900, fontSize:10 }}>🔴 Ao vivo</span>
             </div>
-            <a href={streamUrl||"https://www.youtube.com/@CazéTV/live"} target="_blank" rel="noopener noreferrer"
+            <a href={streamUrl||"https://www.youtube.com/@CazeTV/live"} target="_blank" rel="noopener noreferrer"
               onClick={e=>e.stopPropagation()}
               style={{ flex:1, background:'#dc2626', borderRadius:8, padding:'5px', textAlign:'center', textDecoration:'none', display:'block' }}>
               <span style={{ color:'#fff', fontWeight:900, fontSize:10 }}>▶ Assistir</span>
             </a>
           </div>
+        ) : locked && match.isBracket && streamUrl ? (
+          <a href={streamUrl} target="_blank" rel="noopener noreferrer"
+            onClick={e=>e.stopPropagation()}
+            style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:5, background:'#dc2626', borderRadius:8, padding:'5px', textAlign:'center', textDecoration:'none' }}>
+            <span style={{ color:'#fff', fontWeight:900, fontSize:10 }}>🔴 Assistir — CazéTV</span>
+          </a>
         ) : (
           <div style={{ background:statusBg, borderRadius:8, padding:'5px', textAlign:'center' }}>
             <span style={{ color:statusColor, fontWeight:900, fontSize:10 }}>{statusText}</span>
@@ -979,7 +993,7 @@ export default function Dashboard({ participant, onLogout }) {
       )}
 
       <div style={{ paddingTop: openCount>0?96:58 }}>
-        <Hero onPalpites={()=>navigate('/mata-mata')} onJogos={()=>navigate('/grupos')}/>
+        <Hero onPalpites={()=>navigate('/mata-mata')} onJogos={()=>navigate('/grupos?tab=knockout')}/>
 
         <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <TodayCarousel participant={participant} />
