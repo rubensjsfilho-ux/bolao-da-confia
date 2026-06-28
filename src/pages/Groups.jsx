@@ -472,7 +472,7 @@ function AllMatchesChronological({ results, matchRefs }) {
 
 export default function Groups({ participant, onLogout }) {
   const [searchParams] = useSearchParams()
-  const [tab,         setTab]         = useState('groups')
+  const [tab,         setTab]         = useState(() => new URLSearchParams(window.location.search).get('tab') === 'knockout' ? 'knockout' : 'groups')
   const [activeGroup, setActiveGroup] = useState('A')
   const [viewAll,     setViewAll]     = useState(false)
   const [results,     setResults]     = useState({})
