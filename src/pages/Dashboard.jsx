@@ -536,19 +536,50 @@ function TodayCarousel({ participant }) {
   const [predictions, setPredictions] = useState({})
   const [dbMatches, setDbMatches] = useState({})
   const [matchResults, setMatchResults] = useState({})
+  const [bracketMatches, setBracketMatches] = useState([])
 
   const now = new Date()
   const tomorrowEnd = new Date(now)
   tomorrowEnd.setDate(tomorrowEnd.getDate()+1)
   tomorrowEnd.setHours(23,59,59,999)
 
-  const upcoming = GROUP_MATCHES.filter(m => new Date(m.date) > new Date(now.getTime()-3*3600000))
-  const todayMatches = upcoming.filter(m => new Date(m.date) <= tomorrowEnd).slice(0,8)
-  const displayMatches = todayMatches.length > 0 ? todayMatches : upcoming.slice(0,6)
+  // Fase de grupos ainda tem jogos futuros?
+  const upcomingGroup = GROUP_MATCHES.filter(m => new Date(m.date) > new Date(now.getTime()-3*3600000))
+  const groupPhaseOver = upcomingGroup.length === 0
+
+  // Monta lista de jogos do mata-mata para exibir
+  const upcomingBracket = bracketMatches
+    .filter(m => m.team1 && m.team2 && m.date && new Date(m.date) > new Date(now.getTime()-3*3600000))
+    .sort((a,b) => new Date(a.date) - new Date(b.date))
+
+  // Decide qual lista usar
+  const sourceMatches = groupPhaseOver ? upcomingBracket : upcomingGroup
+  const todayMatches = sourceMatches.filter(m => new Date(m.date) <= tomorrowEnd).slice(0,8)
+  const displayMatches = todayMatches.length > 0 ? todayMatches : sourceMatches.slice(0,6)
 
   useEffect(() => {
     supabase.from('matches').select('id,score1,score2,is_finished,stream_url')
       .then(({ data }) => { const map={}; data?.forEach(m=>{map[m.id]=m}); setDbMatches(map) })
+
+    // Busca jogos do mata-mata com times já definidos
+    supabase.from('bracket_matches').select('*').eq('round','r2')
+      .then(({ data }) => {
+        if (!data) return
+        // Mapeia para o mesmo formato dos jogos de grupo
+        const mapped = data
+          .filter(m => m.team1 && m.team2)
+          .map(m => ({
+            id: m.id,
+            team1: m.team1,
+            team2: m.team2,
+            date: m.date || null,
+            city: m.city || '',
+            venue: m.venue || '',
+            phase: '2ª Fase',
+            isBracket: true,
+          }))
+        setBracketMatches(mapped)
+      })
   }, [])
 
   useEffect(() => {
@@ -570,6 +601,7 @@ function TodayCarousel({ participant }) {
   if (displayMatches.length === 0) return null
 
   const getDateLabel = (date) => {
+    if (!date) return { label:'EM BREVE', isToday:false }
     const d = new Date(date)
     const now = new Date()
     const todayStart = new Date(now); todayStart.setHours(0,0,0,0)
@@ -581,11 +613,14 @@ function TodayCarousel({ participant }) {
     return { label: weekdays[d.getDay()] + ' ' + String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0'), isToday:false }
   }
 
-  const formatTime = (date) => new Date(date).toLocaleTimeString('pt-BR', {
-    hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo'
-  })
+  const formatTime = (date) => {
+    if (!date) return '--:--'
+    return new Date(date).toLocaleTimeString('pt-BR', {
+      hour:'2-digit', minute:'2-digit', timeZone:'America/Sao_Paulo'
+    })
+  }
 
-  const isLocked = (date) => new Date() >= new Date(date)
+  const isLocked = (date) => !date || new Date() >= new Date(date)
 
   return (
     <div style={{ marginBottom:14 }}>
@@ -593,10 +628,10 @@ function TodayCarousel({ participant }) {
         <div style={{ display:'flex', alignItems:'center', gap:6 }}>
           <div style={{ width:8, height:8, borderRadius:'50%', background:'#009639', animation:'pulse 1.5s infinite' }}/>
           <span style={{ color:'#002855', fontWeight:900, fontSize:13 }}>
-            {todayMatches.length > 0 ? 'Jogos de Hoje e Amanhã' : 'Próximos Jogos'}
+            {todayMatches.length > 0 ? 'Jogos de Hoje e Amanhã' : groupPhaseOver ? 'Próximos Jogos — 2ª Fase' : 'Próximos Jogos'}
           </span>
         </div>
-        <button onClick={()=>navigate('/palpites')}
+        <button onClick={()=>navigate('/chaveamento')}
           style={{ color:'#009639', fontSize:10, fontWeight:800, background:'none', border:'none', cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>
           Ver todos →
         </button>
@@ -609,12 +644,12 @@ function TodayCarousel({ participant }) {
             <MatchCard key={match.id} match={match}
               hasPred={!!predictions[match.id]}
               locked={isLocked(match.date)}
-              isLive={isLocked(match.date) && !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== undefined}
+              isLive={match.date && isLocked(match.date) && !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== undefined}
               today={dl.isToday}
               dateLabel={dl.label}
               formatTime={formatTime}
               streamUrl={dbMatches[match.id]?.stream_url}
-              onTap={()=>{ if(!isLocked(match.date)) navigate(`/palpites?match=${match.id}`) }}
+              onTap={()=>{ if(!isLocked(match.date) && !match.isBracket) navigate(`/palpites?match=${match.id}`) }}
             />
           )
         })}
