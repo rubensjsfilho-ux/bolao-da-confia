@@ -171,6 +171,15 @@ function MatchCard({ match, dbMatch, compact }) {
         <div style={{ marginTop:8, color:'rgba(255,255,255,0.25)', fontSize:9, letterSpacing:.5 }}>
           🏟️ {match.venue}
         </div>
+
+        {/* Botão assistir — quando jogo em andamento ou encerrado e tem link */}
+        {(hasScore || finished) && (
+          <a href={dbMatch?.stream_url||"https://www.youtube.com/@CazeTV/live"} target="_blank" rel="noopener noreferrer"
+            style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, marginTop:10, background:'#dc2626', borderRadius:8, padding:'8px', textDecoration:'none' }}>
+            {!finished && <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block' }}/>}
+            <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>{finished ? '📺 Assistir replay — CazéTV' : '🔴 AO VIVO — Assistir na CazéTV'}</span>
+          </a>
+        )}
       </div>
     </div>
   )
