@@ -22,7 +22,8 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
   const team1    = dbMatch?.team1
   const team2    = dbMatch?.team2
   const hasTeams = team1 && team2
-  const isLocked = dbMatch?.is_finished
+  const matchDate = dbMatch?.date || match.date
+  const isLocked = dbMatch?.is_finished || (matchDate && new Date() >= new Date(new Date(matchDate).getTime() - 60000))
   const hasPred  = prediction !== null && prediction !== undefined
   const isFinal  = match.label?.includes('FINAL') || match.label?.includes('3º')
 
@@ -91,6 +92,15 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
         </div>
       </div>
 
+      {isLocked&&hasTeams&&(
+        <div style={{ padding:'0 14px 12px' }}>
+          <a href={dbMatch?.stream_url||"https://www.youtube.com/@CazeTV/live"} target="_blank" rel="noopener noreferrer"
+            style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, background:'#dc2626', borderRadius:10, padding:'10px', textDecoration:'none' }}>
+            <span style={{ color:'#fff', fontWeight:900, fontSize:13 }}>🔴 Assistir ao vivo — CazéTV</span>
+            <span style={{ fontSize:14 }}>📺</span>
+          </a>
+        </div>
+      )}
       {open&&hasTeams&&!isLocked&&(
         <div style={{ borderTop:'1px solid #F0F4F8', padding:'14px', background:'#FAFBFC' }}>
           <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
