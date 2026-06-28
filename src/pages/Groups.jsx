@@ -99,7 +99,7 @@ function MatchRow({ match, result }) {
       </div>
       {/* Botão Assistir — só aparece quando o jogo está em andamento */}
       {isLive && (
-        <a href={streamUrl||'https://www.youtube.com/@CazéTV/live'} target="_blank" rel="noopener noreferrer"
+        <a href={streamUrl||'https://www.youtube.com/@CazeTV/live'} target="_blank" rel="noopener noreferrer"
           style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none', borderTop:'none' }}>
           <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>
           <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>AO VIVO — Assistir na CazéTV</span>
@@ -143,6 +143,14 @@ function KOMatchRow({ db }) {
         <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team2}</span>
       </div>
     </div>
+    {(hasScore) && (
+      <a href={db?.stream_url||'https://www.youtube.com/@CazeTV/live'} target="_blank" rel="noopener noreferrer"
+        style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none', borderTop:'none' }}>
+        {!isFinished && <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>}
+        <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>{isFinished ? '📺 Assistir — CazéTV' : '🔴 AO VIVO — Assistir na CazéTV'}</span>
+        <span style={{ fontSize:12 }}>📺</span>
+      </a>
+    )}
   )
 }
 
@@ -445,7 +453,7 @@ function AllMatchesChronological({ results, matchRefs }) {
 
                 {/* Botão CazéTV — só quando em andamento */}
                 {hasScore && !isFinished && (
-                  <a href={res?.stream_url||'https://www.youtube.com/@CazéTV/live'} target="_blank" rel="noopener noreferrer"
+                  <a href={res?.stream_url||'https://www.youtube.com/@CazeTV/live'} target="_blank" rel="noopener noreferrer"
                     style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none' }}>
                     <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>
                     <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>AO VIVO — Assistir na CazéTV</span>
