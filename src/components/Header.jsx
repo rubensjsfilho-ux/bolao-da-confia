@@ -8,7 +8,7 @@ const NAV = [
   { to:'/dashboard', label:'Início',       Icon:Home },
   { to:'/palpites',  label:'Palpite 1ª F', Icon:Target },
   { to:'/mata-mata', label:'Palpite 2ª F', Icon:Zap },
-  { to:'/grupos',    label:'Tabela',       Icon:Users },
+  { to:'/grupos?tab=knockout', label:'Tabela', Icon:Users },
   { to:'/ranking',   label:'Ranking',      Icon:BarChart3 },
 ]
 
@@ -239,7 +239,7 @@ export default function Header({ participant, onLogout }) {
       {participant && (
         <nav style={{ position:'fixed', bottom:0, left:0, right:0, zIndex:50, background:'#fff', borderTop:'1px solid #E2EAF0', padding:'6px 4px 10px', display:'flex', justifyContent:'space-around', boxShadow:'0 -2px 12px rgba(0,40,85,0.07)' }}>
           {NAV.map(({ to, label, Icon }) => {
-            const active = pathname === to
+            const active = pathname === to.split('?')[0] && (to === '/grupos?tab=knockout' ? true : !to.includes('?'))
             return (
               <Link key={to} to={to} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2, padding:'6px 10px', borderRadius:12, textDecoration:'none', background:active?'rgba(0,150,57,0.08)':'transparent' }}>
                 <Icon size={20} color={active?'#009639':'#9BABB8'} strokeWidth={active?2.5:1.8}/>
