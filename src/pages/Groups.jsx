@@ -362,7 +362,7 @@ function KnockoutTab({ koMatches }) {
           </div>
           <div style={{ padding:'12px 12px 8px' }}>
             {roundIds.map((id, i) => (
-              <div key={id}>
+              <div key={id} id={'ko-match-' + id}>
                 <div style={{ fontSize:9, fontWeight:800, color:'#9BABB8', textTransform:'uppercase', letterSpacing:.5, marginBottom:4, marginTop:i>0?8:0 }}>Jogo {i+1}</div>
                 <KOMatchRow db={koMatches[id]}/>
               </div>
@@ -518,7 +518,21 @@ export default function Groups({ participant, onLogout }) {
 
   useEffect(() => {
     supabase.from('bracket_matches').select('*')
-      .then(({ data }) => { const map={}; data?.forEach(m=>{map[m.id]=m}); setKoMatches(map) })
+      .then(({ data }) => {
+        const map={}; data?.forEach(m=>{map[m.id]=m}); setKoMatches(map)
+        // If on knockout tab, auto-scroll to first live or upcoming match
+        if (tab === 'knockout') {
+          setTimeout(() => {
+            const firstLive = data?.find(m => m.score1 !== null && !m.is_finished)
+            const firstUpcoming = data?.find(m => m.team1 && m.team2 && !m.is_finished)
+            const target = firstLive || firstUpcoming
+            if (target) {
+              const el = document.getElementById('ko-match-' + target.id)
+              if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
+            }
+          }, 600)
+        }
+      })
   }, [])
 
   useEffect(() => {
