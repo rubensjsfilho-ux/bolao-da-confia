@@ -121,36 +121,37 @@ function KOMatchRow({ db }) {
     </div>
   )
   return (
-    <div style={{ display:'flex', alignItems:'center', background:'#fff', borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
-      <div style={{ width:4, alignSelf:'stretch', background:isFinished?'#009639':hasScore?'#F5A623':'#1A73E8', flexShrink:0 }}/>
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'10px 6px', minWidth:0 }}>
-        <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team1}</span>
-        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(db.team1)}</span>
+    <div style={{ borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
+      <div style={{ display:'flex', alignItems:'center', background:'#fff' }}>
+        <div style={{ width:4, alignSelf:'stretch', background:isFinished?'#009639':hasScore?'#F5A623':'#1A73E8', flexShrink:0 }}/>
+        <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'10px 6px', minWidth:0 }}>
+          <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team1}</span>
+          <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(db.team1)}</span>
+        </div>
+        <div style={{ minWidth:56, textAlign:'center', flexShrink:0 }}>
+          {hasScore ? (
+            <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+              <span style={{ fontSize:13, fontWeight:900, color:'#fff', letterSpacing:1 }}>{db.score1} × {db.score2}</span>
+            </div>
+          ) : (
+            <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
+              <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
+            </div>
+          )}
+        </div>
+        <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'10px 6px', minWidth:0 }}>
+          <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(db.team2)}</span>
+          <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team2}</span>
+        </div>
       </div>
-      <div style={{ minWidth:56, textAlign:'center', flexShrink:0 }}>
-        {hasScore ? (
-          <div style={{ background:isFinished?'#009639':'#F5A623', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
-            <span style={{ fontSize:13, fontWeight:900, color:'#fff', letterSpacing:1 }}>{db.score1} × {db.score2}</span>
-          </div>
-        ) : (
-          <div style={{ background:'#1A73E8', borderRadius:6, padding:'4px 6px', display:'inline-block' }}>
-            <span style={{ fontSize:11, fontWeight:900, color:'#fff' }}>VS</span>
-          </div>
-        )}
-      </div>
-      <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, padding:'10px 6px', minWidth:0 }}>
-        <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(db.team2)}</span>
-        <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team2}</span>
-      </div>
+      {hasScore && (
+        <a href={db?.stream_url||'https://www.youtube.com/@CazeTV/live'} target="_blank" rel="noopener noreferrer"
+          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none' }}>
+          {!isFinished && <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>}
+          <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>{isFinished ? '📺 Assistir — CazéTV' : '🔴 AO VIVO — Assistir na CazéTV'}</span>
+        </a>
+      )}
     </div>
-    {(hasScore) && (
-      <a href={db?.stream_url||'https://www.youtube.com/@CazeTV/live'} target="_blank" rel="noopener noreferrer"
-        style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none', borderTop:'none' }}>
-        {!isFinished && <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>}
-        <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>{isFinished ? '📺 Assistir — CazéTV' : '🔴 AO VIVO — Assistir na CazéTV'}</span>
-        <span style={{ fontSize:12 }}>📺</span>
-      </a>
-    )}
   )
 }
 
