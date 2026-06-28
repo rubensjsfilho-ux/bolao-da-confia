@@ -355,15 +355,23 @@ const KO_ROUNDS = [
 ]
 const ALL_TEAMS = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Argélia','Austrália','Áustria','Bélgica','Bósnia e Herz.','Brasil','Cabo Verde','Canadá','Catar','Colômbia','Coreia do Sul','Costa do Marfim','Croácia','Curaçao','Egito','Equador','Escócia','Espanha','Estados Unidos','França','Gana','Haiti','Holanda','Inglaterra','Iraque','Irã','Japão','Jordânia','Marrocos','México','Nova Zelândia','Noruega','Panamá','Paraguai','Portugal','RD Congo','República Tcheca','Senegal','Suécia','Suíça','Tunísia','Turquia','Uruguai','Uzbequistão']
 
-function KOMatchRow({ matchId, label, db, onSave, onFinish, onReset }) {
+function KOMatchRow({ matchId, label, db, onSave, onFinish, onReset, onSaveStream }) {
   const [s1, setS1] = useState(db.score1 ?? '')
   const [s2, setS2] = useState(db.score2 ?? '')
+  const [streamUrl, setStreamUrl] = useState(db.stream_url || '')
+  const [streamSaved, setStreamSaved] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [finishing, setFinishing] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [confirmFinish, setConfirmFinish] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
+
+  const saveStream = async () => {
+    await onSaveStream(matchId, streamUrl.trim())
+    setStreamSaved(true)
+    setTimeout(() => setStreamSaved(false), 2500)
+  }
 
   useEffect(() => {
     if (db.score1 === null || db.score1 === undefined) { setS1(''); setS2('') }
@@ -488,6 +496,20 @@ function KOMatchRow({ matchId, label, db, onSave, onFinish, onReset }) {
               </>
             )}
           </div>
+          {/* Campo de link da transmissão */}
+          <div style={{ marginTop:10, display:'flex', gap:6, alignItems:'center' }}>
+            <input
+              type="text"
+              value={streamUrl}
+              onChange={e=>setStreamUrl(e.target.value)}
+              placeholder="🔴 Link YouTube do jogo (ex: youtube.com/watch?v=...)"
+              style={{ flex:1, background:'rgba(255,255,255,0.07)', border:`1px solid ${C.border}`, borderRadius:8, padding:'7px 10px', color:C.text, fontSize:11, fontFamily:'Nunito,sans-serif', outline:'none' }}
+            />
+            <button onClick={saveStream}
+              style={{ background:streamSaved?'rgba(0,150,57,0.2)':'rgba(255,255,255,0.1)', color:streamSaved?C.green:C.text, border:`1px solid ${streamSaved?C.green:C.border}`, borderRadius:8, padding:'7px 12px', fontWeight:900, fontSize:11, cursor:'pointer', whiteSpace:'nowrap', flexShrink:0 }}>
+              {streamSaved?'✓ Salvo!':'📡 Salvar link'}
+            </button>
+          </div>
         </>
       )}
     </div>
@@ -589,6 +611,11 @@ function KnockoutTab() {
     await recalcTotals()
   }
 
+  const saveStreamUrl = async (id, url) => {
+    await supabase.from('bracket_matches').update({ stream_url: url || null }).eq('id', id)
+    setMatches(m => ({ ...m, [id]: { ...(m[id]||{}), stream_url: url || null } }))
+  }
+
   const roundMatches = Array.from({ length: KO_ROUNDS.find(r=>r.id===activeRound)?.count||0 }, (_,i) => ({
     id: `${activeRound}_${i+1}`,
     label: `${KO_ROUNDS.find(r=>r.id===activeRound)?.label} · Jogo ${i+1}`,
@@ -611,7 +638,7 @@ function KnockoutTab() {
       {roundMatches.map(m => (
         <KOMatchRow key={m.id} matchId={m.id} label={m.label}
           db={matches[m.id]||{}}
-          onSave={saveMatch} onFinish={finishMatch} onReset={resetMatch}
+          onSave={saveMatch} onFinish={finishMatch} onReset={resetMatch} onSaveStream={saveStreamUrl}
         />
       ))}
     </div>
