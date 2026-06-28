@@ -621,11 +621,7 @@ function TodayCarousel({ participant }) {
     })
   }
 
-  const isLocked = (date) => {
-    if (!date) return true
-    const cutoff = new Date(new Date(date).getTime() - 1 * 60 * 1000)
-    return new Date() >= cutoff
-  }
+  const isLocked = (date) => !date || new Date() >= new Date(date)
 
   return (
     <div style={{ marginBottom:14 }}>
@@ -743,7 +739,7 @@ function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTim
             <div style={{ flex:1, background:'rgba(220,38,38,0.08)', borderRadius:8, padding:'5px', textAlign:'center', border:'1px solid rgba(220,38,38,0.2)' }}>
               <span style={{ color:'#dc2626', fontWeight:900, fontSize:10 }}>🔴 Ao vivo</span>
             </div>
-            <a href={streamUrl||"https://www.youtube.com/@CazeTV/live"} target="_blank" rel="noopener noreferrer"
+            <a href={streamUrl||"https://www.youtube.com/@CazéTV/live"} target="_blank" rel="noopener noreferrer"
               onClick={e=>e.stopPropagation()}
               style={{ flex:1, background:'#dc2626', borderRadius:8, padding:'5px', textAlign:'center', textDecoration:'none', display:'block' }}>
               <span style={{ color:'#fff', fontWeight:900, fontSize:10 }}>▶ Assistir</span>
@@ -978,12 +974,12 @@ export default function Dashboard({ participant, onLogout }) {
         <div style={{ position:'fixed', top:58, left:0, right:0, zIndex:40, background:'#F5A623', padding:'8px 16px', display:'flex', alignItems:'center', gap:8 }}>
           <AlertCircle size={14} color="#002855"/>
           <span style={{ color:'#002855', fontWeight:800, fontSize:12 }}>⚠️ {openCount} jogo{openCount!==1?'s':''} em aberto!</span>
-          <button onClick={()=>navigate('/palpites')} style={{ marginLeft:'auto', background:'#002855', color:'#fff', border:'none', borderRadius:8, padding:'4px 10px', fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>PALPITAR AGORA</button>
+          <button onClick={()=>navigate('/mata-mata')} style={{ marginLeft:'auto', background:'#002855', color:'#fff', border:'none', borderRadius:8, padding:'4px 10px', fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif' }}>PALPITAR AGORA</button>
         </div>
       )}
 
       <div style={{ paddingTop: openCount>0?96:58 }}>
-        <Hero onPalpites={()=>navigate('/palpites')} onJogos={()=>navigate('/grupos')}/>
+        <Hero onPalpites={()=>navigate('/mata-mata')} onJogos={()=>navigate('/grupos')}/>
 
         <div style={{ padding:'14px 12px 0', display:'flex', flexDirection:'column', gap:0, maxWidth:900, margin:'0 auto', width:'100%' }}>
           <TodayCarousel participant={participant} />
