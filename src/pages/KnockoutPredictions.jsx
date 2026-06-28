@@ -143,6 +143,17 @@ export default function KnockoutPredictions({ participant, onLogout }) {
     const mmap={}; matchRes.data?.forEach(m=>{mmap[m.id]=m}); setDbMatches(mmap)
     const pmap={}; predRes.data?.forEach(p=>{pmap[p.match_id]=p}); setPredictions(pmap)
     setLoading(false)
+    // Auto-scroll to first live or next upcoming match
+    setTimeout(() => {
+      const allR2 = matchRes.data?.filter(m => m.id?.startsWith('r2_')) || []
+      const live = allR2.find(m => m.score1 !== null && !m.is_finished)
+      const upcoming = allR2.find(m => m.team1 && m.team2 && !m.is_finished)
+      const target = live || upcoming
+      if (target) {
+        const el = document.getElementById('ko-pred-' + target.id)
+        if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
+      }
+    }, 600)
   }, [participant?.id])
 
   useEffect(()=>{ load() },[load])
@@ -252,7 +263,9 @@ export default function KnockoutPredictions({ participant, onLogout }) {
               </div>
             )}
             {roundMatches.map(m=>(
-              <KnockoutMatchCard key={m.id} match={m} dbMatch={dbMatches[m.id]} prediction={predictions[m.id]} participantId={participant?.id} onSave={load}/>
+              <div key={m.id} id={'ko-pred-' + m.id}>
+                <KnockoutMatchCard match={m} dbMatch={dbMatches[m.id]} prediction={predictions[m.id]} participantId={participant?.id} onSave={load}/>
+              </div>
             ))}
           </>
         )}
