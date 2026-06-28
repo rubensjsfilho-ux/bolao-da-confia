@@ -108,6 +108,7 @@ function MatchCard({ match, dbMatch, compact }) {
   const score1 = dbMatch?.score1
   const score2 = dbMatch?.score2
   const finished = dbMatch?.is_finished
+  const hasScore = score1 !== null && score1 !== undefined
 
   const t1Won = finished && score1 > score2
   const t2Won = finished && score2 > score1
