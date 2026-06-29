@@ -659,6 +659,7 @@ function TodayCarousel({ participant }) {
               hasPred={!!predictions[match.id]}
               locked={isLocked(match.date)}
               isLive={match.date && isLocked(match.date) && !matchResults[match.id]?.is_finished && matchResults[match.id]?.score1 !== null && matchResults[match.id]?.score1 !== undefined}
+              isFinished={!!matchResults[match.id]?.is_finished}
               today={dl.isToday}
               dateLabel={dl.label}
               formatTime={formatTime}
@@ -681,7 +682,7 @@ function TodayCarousel({ participant }) {
 const SUPABASE_URL = 'https://nkbumxaksiibljgpmgak.supabase.co'
 const getMatchThumb = (id) => `${SUPABASE_URL}/storage/v1/object/public/matches/match_${id}.png`
 
-function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTime, streamUrl, onTap }) {
+function MatchCard({ match, hasPred, locked, isLive, isFinished, today, dateLabel, formatTime, streamUrl, onTap }) {
   const [imgOk, setImgOk] = useState(true)
   const c1 = TEAM_COLORS[match.team1] || ['#1a2a4a','#2a4a6a']
   const c2 = TEAM_COLORS[match.team2] || ['#1a4a2a','#2a6a4a']
@@ -758,7 +759,7 @@ function MatchCard({ match, hasPred, locked, isLive, today, dateLabel, formatTim
               <span style={{ color:'#fff', fontWeight:900, fontSize:10 }}>▶ Assistir</span>
             </a>
           </div>
-        ) : locked && match.isBracket && streamUrl ? (
+        ) : locked && !isFinished && match.isBracket && streamUrl ? (
           <a href={streamUrl} target="_blank" rel="noopener noreferrer"
             onClick={e=>e.stopPropagation()}
             style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:5, background:'#dc2626', borderRadius:8, padding:'5px', textAlign:'center', textDecoration:'none' }}>
