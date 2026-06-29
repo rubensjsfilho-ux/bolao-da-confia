@@ -144,11 +144,11 @@ function KOMatchRow({ db }) {
           <span style={{ fontSize:12, fontWeight:800, color:'#002855', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team2}</span>
         </div>
       </div>
-      {hasScore && (
+      {hasScore && !isFinished && (
         <a href={db?.stream_url||'https://www.youtube.com/@CazeTV/live'} target="_blank" rel="noopener noreferrer"
           style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px', background:'#dc2626', textDecoration:'none' }}>
-          {!isFinished && <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>}
-          <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>{isFinished ? '📺 Assistir — CazéTV' : '🔴 AO VIVO — Assistir na CazéTV'}</span>
+          <span style={{ width:7, height:7, borderRadius:'50%', background:'#fff', display:'inline-block', opacity:.9 }}/>
+          <span style={{ color:'#fff', fontWeight:900, fontSize:11 }}>🔴 AO VIVO — Assistir na CazéTV</span>
         </a>
       )}
     </div>
