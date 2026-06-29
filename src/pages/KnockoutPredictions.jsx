@@ -53,6 +53,14 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
   else if (hasPred)   { borderColor='rgba(0,150,57,0.3)'; statusText='✓ Palpitado'; statusColor='#009639' }
   else                { borderColor='rgba(245,166,35,0.5)'; statusText='⚡ Palpitar'; statusColor='#D4890A' }
 
+  const pointsBadge = (() => {
+    if (!hasPred || prediction.points===null || prediction.points===undefined) return null
+    const p = prediction.points
+    if (p===3) return { label:'+3 Exato! 🎯', color:'#D4890A', bg:'rgba(245,166,35,0.1)' }
+    if (p===1) return { label:'+1 Resultado ✓', color:'#009639', bg:'rgba(0,150,57,0.08)' }
+    return { label:'0 Errou ✗', color:'#C0392B', bg:'rgba(220,53,69,0.07)' }
+  })()
+
   return (
     <div style={{ background:'#fff', borderRadius:12, border:`1.5px solid ${borderColor}`, marginBottom:8, overflow:'hidden', boxShadow:'0 1px 6px rgba(0,40,85,0.06)' }}>
       <div onClick={()=>hasTeams&&!isLocked&&setOpen(o=>!o)}
@@ -100,6 +108,19 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
             <span style={{ color:'#fff', fontWeight:900, fontSize:13 }}>🔴 Assistir ao vivo — CazéTV</span>
             <span style={{ fontSize:14 }}>📺</span>
           </a>
+        </div>
+      )}
+      {isFinished&&hasTeams&&dbMatch?.score1!==null&&dbMatch?.score1!==undefined&&(
+        <div style={{ padding:'0 14px 12px' }}>
+          <div style={{ textAlign:'center', background:'rgba(0,150,57,0.06)', borderRadius:10, padding:'8px', border:'1px solid rgba(0,150,57,0.15)', marginBottom:hasPred?8:0 }}>
+            <span style={{ color:'#6B7A8D', fontSize:11 }}>Resultado final: </span>
+            <span style={{ color:'#009639', fontWeight:900, fontSize:14 }}>{dbMatch.score1} × {dbMatch.score2}</span>
+          </div>
+          {pointsBadge && (
+            <div style={{ textAlign:'center' }}>
+              <span style={{ display:'inline-block', background:pointsBadge.bg, color:pointsBadge.color, borderRadius:20, padding:'4px 14px', fontSize:12, fontWeight:800 }}>{pointsBadge.label}</span>
+            </div>
+          )}
         </div>
       )}
       {open&&hasTeams&&!isLocked&&(
