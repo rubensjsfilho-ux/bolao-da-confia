@@ -23,7 +23,8 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
   const team2    = dbMatch?.team2
   const hasTeams = team1 && team2
   const matchDate = dbMatch?.date || match.date
-  const isLocked = dbMatch?.is_finished || (matchDate && new Date() >= new Date(new Date(matchDate).getTime() - 60000))
+  const isFinished = !!dbMatch?.is_finished
+  const isLocked = isFinished || (matchDate && new Date() >= new Date(new Date(matchDate).getTime() - 60000))
   const hasPred  = prediction !== null && prediction !== undefined
   const isFinal  = match.label?.includes('FINAL') || match.label?.includes('3º')
 
@@ -92,7 +93,7 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
         </div>
       </div>
 
-      {isLocked&&hasTeams&&(
+      {isLocked&&hasTeams&&!isFinished&&(
         <div style={{ padding:'0 14px 12px' }}>
           <a href={dbMatch?.stream_url||"https://www.youtube.com/@CazeTV/live"} target="_blank" rel="noopener noreferrer"
             style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, background:'#dc2626', borderRadius:10, padding:'10px', textDecoration:'none' }}>
