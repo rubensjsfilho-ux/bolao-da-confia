@@ -151,7 +151,7 @@ function KnockoutMatchCard({ match, dbMatch, prediction, onSave, participantId }
 }
 
 export default function KnockoutPredictions({ participant, onLogout }) {
-  const [activeRound,setActiveRound] = useState('r2')
+  const [activeRound,setActiveRound] = useState('r16')
   const [dbMatches,  setDbMatches]   = useState({})
   const [predictions,setPredictions] = useState({})
   const [loading,    setLoading]     = useState(true)
@@ -165,15 +165,20 @@ export default function KnockoutPredictions({ participant, onLogout }) {
     const mmap={}; matchRes.data?.forEach(m=>{mmap[m.id]=m}); setDbMatches(mmap)
     const pmap={}; predRes.data?.forEach(p=>{pmap[p.match_id]=p}); setPredictions(pmap)
     setLoading(false)
-    // Auto-scroll to first live or next upcoming match
+    // Auto-scroll para o jogo em andamento (ou o próximo a começar), em qualquer rodada
     setTimeout(() => {
-      const allR2 = matchRes.data?.filter(m => m.id?.startsWith('r2_')) || []
-      const live = allR2.find(m => m.score1 !== null && !m.is_finished)
-      const upcoming = allR2.find(m => m.team1 && m.team2 && !m.is_finished)
+      const all = matchRes.data || []
+      const live = all.find(m => m.score1 !== null && !m.is_finished)
+      const upcoming = all.filter(m => m.team1 && m.team2 && !m.is_finished)
+        .sort((a,b) => a.id.localeCompare(b.id))[0]
       const target = live || upcoming
       if (target) {
-        const el = document.getElementById('ko-pred-' + target.id)
-        if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
+        const round = target.id.split('_')[0]
+        setActiveRound(round)
+        setTimeout(() => {
+          const el = document.getElementById('ko-pred-' + target.id)
+          if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
+        }, 150)
       }
     }, 600)
   }, [participant?.id])
@@ -213,10 +218,10 @@ export default function KnockoutPredictions({ participant, onLogout }) {
         {city:'Vancouver',        date:'2026-07-07T20:00:00Z'}, // 17h BRT - Suíça x Colômbia
       ],
       qf:[
-        {city:'Los Angeles',date:'2026-07-09T16:00:00Z'},
-        {city:'Boston',     date:'2026-07-09T20:00:00Z'},
-        {city:'Miami',      date:'2026-07-10T21:00:00Z'},
-        {city:'Kansas City',date:'2026-07-11T21:00:00Z'},
+        {city:'Boston',      date:'2026-07-09T20:00:00Z'}, // 17h BRT
+        {city:'Los Angeles', date:'2026-07-10T19:00:00Z'}, // 16h BRT
+        {city:'Miami',       date:'2026-07-11T21:00:00Z'}, // 18h BRT
+        {city:'Kansas City', date:'2026-07-12T00:00:00Z'}, // 21h BRT (11/07)
       ],
       sf:[{city:'Dallas',date:'2026-07-14T19:00:00Z'},{city:'Dallas',date:'2026-07-15T19:00:00Z'}],
       f:[{city:'Miami',date:'2026-07-18T21:00:00Z',label:'🥉 3º Lugar'},{city:'Nova Jersey',date:'2026-07-19T19:00:00Z',label:'🏆 FINAL'}],
