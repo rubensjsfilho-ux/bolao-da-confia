@@ -30,6 +30,52 @@ const KO_ROUNDS = [
   { id:'f',   label:'Final',             count:2  },
 ]
 
+// Cidade/horário fixo de cada slot do chaveamento (horário de Brasília, convertido de UTC)
+const KO_SCHEDULE = {
+  r2:[
+    {city:'Los Angeles',      date:'2026-06-28T19:00:00Z'},
+    {city:'Houston',          date:'2026-06-29T17:00:00Z'},
+    {city:'Boston',           date:'2026-06-29T20:30:00Z'},
+    {city:'Monterrey',        date:'2026-06-30T01:00:00Z'},
+    {city:'Dallas',           date:'2026-06-30T17:00:00Z'},
+    {city:'Nova Jersey',      date:'2026-06-30T21:00:00Z'},
+    {city:'Cidade do México', date:'2026-07-01T01:00:00Z'},
+    {city:'Atlanta',          date:'2026-07-01T16:00:00Z'},
+    {city:'Seattle',          date:'2026-07-01T20:00:00Z'},
+    {city:'Santa Clara',      date:'2026-07-02T00:00:00Z'},
+    {city:'Los Angeles',      date:'2026-07-02T19:00:00Z'},
+    {city:'Toronto',          date:'2026-07-02T23:00:00Z'},
+    {city:'Vancouver',        date:'2026-07-03T03:00:00Z'},
+    {city:'Dallas',           date:'2026-07-03T18:00:00Z'},
+    {city:'Miami',            date:'2026-07-03T22:00:00Z'},
+    {city:'Kansas City',      date:'2026-07-04T01:30:00Z'},
+  ],
+  r16:[
+    {city:'Houston',          date:'2026-07-04T17:00:00Z'},
+    {city:'Filadélfia',       date:'2026-07-04T21:00:00Z'},
+    {city:'Nova Jersey',      date:'2026-07-05T20:00:00Z'},
+    {city:'Cidade do México', date:'2026-07-06T00:00:00Z'},
+    {city:'Dallas',           date:'2026-07-06T19:00:00Z'},
+    {city:'Seattle',          date:'2026-07-07T00:00:00Z'},
+    {city:'Atlanta',          date:'2026-07-07T16:00:00Z'},
+    {city:'Vancouver',        date:'2026-07-07T20:00:00Z'},
+  ],
+  qf:[
+    {city:'Boston',      date:'2026-07-09T20:00:00Z'},
+    {city:'Los Angeles', date:'2026-07-10T19:00:00Z'},
+    {city:'Miami',       date:'2026-07-11T21:00:00Z'},
+    {city:'Kansas City', date:'2026-07-12T00:00:00Z'},
+  ],
+  sf:[
+    {city:'Dallas', date:'2026-07-14T19:00:00Z'},
+    {city:'Dallas', date:'2026-07-15T19:00:00Z'},
+  ],
+  f:[
+    {city:'Miami',       date:'2026-07-18T21:00:00Z'},
+    {city:'Nova Jersey', date:'2026-07-19T19:00:00Z'},
+  ],
+}
+
 function calcStandings(groupLetter, results) {
   const teams = GROUP_TEAMS[groupLetter] || []
   const standings = {}
@@ -110,20 +156,36 @@ function MatchRow({ match, result }) {
   )
 }
 
-function KOMatchRow({ db }) {
+function KOMatchRow({ db, info }) {
   const hasTeams   = db?.team1 && db?.team2
   const hasScore   = db && db.score1 !== null && db.score1 !== undefined
   const isFinished = db?.is_finished
+  const d          = info?.date ? new Date(info.date) : null
+  const dateStr    = d ? d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',timeZone:'America/Sao_Paulo'}) : 'DD/MM'
+  const timeStr    = d ? d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}) : 'HH:MM'
 
   if (!hasTeams) return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'12px', background:'#F8FAFC', borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6 }}>
-      <span style={{ fontSize:11, color:'#9BABB8', fontWeight:700 }}>⏳ A definir</span>
+    <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px', background:'#F8FAFC', borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6 }}>
+      {info?.date && (
+        <div style={{ textAlign:'center', minWidth:46, flexShrink:0 }}>
+          <div style={{ fontSize:10, fontWeight:800, color:'#9BABB8' }}>{dateStr}</div>
+          <div style={{ fontSize:10, fontWeight:700, color:'#9BABB8' }}>{timeStr}</div>
+          {info?.city && <div style={{ fontSize:8, color:'#C8D5E0', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', maxWidth:44, textOverflow:'ellipsis' }}>{info.city.split('/')[0]}</div>}
+        </div>
+      )}
+      <span style={{ fontSize:11, color:'#9BABB8', fontWeight:700, flex:1, textAlign:'center' }}>⏳ A definir</span>
     </div>
   )
   return (
     <div style={{ borderRadius:10, border:'1px solid #E8EDF2', marginBottom:6, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,40,85,0.06)' }}>
       <div style={{ display:'flex', alignItems:'center', background:'#fff' }}>
         <div style={{ width:4, alignSelf:'stretch', background:isFinished?'#009639':hasScore?'#F5A623':'#1A73E8', flexShrink:0 }}/>
+        {/* Data/hora/cidade */}
+        <div style={{ padding:'10px 8px', textAlign:'center', minWidth:46, flexShrink:0 }}>
+          <div style={{ fontSize:10, fontWeight:800, color:'#002855' }}>{dateStr}</div>
+          <div style={{ fontSize:10, fontWeight:700, color:'#9BABB8' }}>{timeStr}</div>
+          {info?.city && <div style={{ fontSize:8, color:'#C8D5E0', marginTop:2, whiteSpace:'nowrap', overflow:'hidden', maxWidth:44, textOverflow:'ellipsis' }}>{info.city.split('/')[0]}</div>}
+        </div>
         <div style={{ flex:1, display:'flex', alignItems:'center', gap:5, justifyContent:'flex-end', padding:'10px 6px', minWidth:0 }}>
           <span style={{ fontSize:12, fontWeight:800, color:'#002855', textAlign:'right', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{db.team1}</span>
           <span style={{ fontSize:20, flexShrink:0 }}>{getFlag(db.team1)}</span>
@@ -363,7 +425,7 @@ function KnockoutTab({ koMatches, activeRound, setActiveRound }) {
             {roundIds.map((id, i) => (
               <div key={id} id={'ko-match-' + id}>
                 <div style={{ fontSize:9, fontWeight:800, color:'#9BABB8', textTransform:'uppercase', letterSpacing:.5, marginBottom:4, marginTop:i>0?8:0 }}>Jogo {i+1}</div>
-                <KOMatchRow db={koMatches[id]}/>
+                <KOMatchRow db={koMatches[id]} info={KO_SCHEDULE[activeRound]?.[i]}/>
               </div>
             ))}
           </div>
