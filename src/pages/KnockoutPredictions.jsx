@@ -203,14 +203,14 @@ export default function KnockoutPredictions({ participant, onLogout }) {
         {city:'Kansas City',      date:'2026-07-04T01:30:00Z',info:'1º K × 3º DEIJL'},
       ],
       r16:[
-        {city:'Filadélfia',      date:'2026-07-04T21:00:00Z'},
-        {city:'Cidade do México',date:'2026-07-05T00:00:00Z'},
-        {city:'Nova Jersey',     date:'2026-07-05T17:00:00Z'},
-        {city:'Seattle',         date:'2026-07-05T21:00:00Z'},
-        {city:'Dallas',          date:'2026-07-06T18:00:00Z'},
-        {city:'Seattle',         date:'2026-07-06T23:00:00Z'},
-        {city:'Atlanta',         date:'2026-07-07T16:00:00Z'},
-        {city:'Vancouver',       date:'2026-07-07T20:00:00Z'},
+        {city:'Houston',          date:'2026-07-04T17:00:00Z'}, // 14h BRT - Canadá x Marrocos
+        {city:'Filadélfia',       date:'2026-07-04T21:00:00Z'}, // 18h BRT - França x Paraguai
+        {city:'Nova Jersey',      date:'2026-07-05T20:00:00Z'}, // 17h BRT - Brasil x Noruega
+        {city:'Cidade do México', date:'2026-07-06T00:00:00Z'}, // 21h BRT (05/07) - México x Inglaterra
+        {city:'Dallas',           date:'2026-07-06T19:00:00Z'}, // 16h BRT - Portugal x Espanha
+        {city:'Seattle',          date:'2026-07-07T00:00:00Z'}, // 21h BRT (06/07) - EUA x Bélgica
+        {city:'Atlanta',          date:'2026-07-07T16:00:00Z'}, // 13h BRT - Argentina x Egito
+        {city:'Vancouver',        date:'2026-07-07T20:00:00Z'}, // 17h BRT - Suíça x Colômbia
       ],
       qf:[
         {city:'Los Angeles',date:'2026-07-09T16:00:00Z'},
