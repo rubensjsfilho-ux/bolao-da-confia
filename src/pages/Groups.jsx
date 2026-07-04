@@ -313,8 +313,7 @@ const thStyle = {
   whiteSpace:'nowrap',
 }
 
-function KnockoutTab({ koMatches }) {
-  const [activeRound, setActiveRound] = useState('r2')
+function KnockoutTab({ koMatches, activeRound, setActiveRound }) {
   const current  = KO_ROUNDS.find(r => r.id === activeRound)
   const roundIds = Array.from({ length:current.count }, (_,i) => `${activeRound}_${i+1}`)
   const hasAny   = roundIds.some(id => koMatches[id]?.team1)
@@ -477,6 +476,7 @@ export default function Groups({ participant, onLogout }) {
   const [viewAll,     setViewAll]     = useState(false)
   const [results,     setResults]     = useState({})
   const [koMatches,   setKoMatches]   = useState({})
+  const [koActiveRound, setKoActiveRound] = useState('r16')
   const [loading,     setLoading]     = useState(true)
   const matchRefs = useRef({})
 
@@ -520,17 +520,20 @@ export default function Groups({ participant, onLogout }) {
     supabase.from('bracket_matches').select('*')
       .then(({ data }) => {
         const map={}; data?.forEach(m=>{map[m.id]=m}); setKoMatches(map)
-        // If on knockout tab, auto-scroll to first live or upcoming match
+        // If on knockout tab, auto-scroll to first live or upcoming match (em qualquer rodada)
         if (tab === 'knockout') {
-          setTimeout(() => {
-            const firstLive = data?.find(m => m.score1 !== null && !m.is_finished)
-            const firstUpcoming = data?.find(m => m.team1 && m.team2 && !m.is_finished)
-            const target = firstLive || firstUpcoming
-            if (target) {
+          const firstLive = data?.find(m => m.score1 !== null && !m.is_finished)
+          const firstUpcoming = data?.filter(m => m.team1 && m.team2 && !m.is_finished)
+            .sort((a,b) => a.id.localeCompare(b.id))[0]
+          const target = firstLive || firstUpcoming
+          if (target) {
+            const round = target.id.split('_')[0]
+            setKoActiveRound(round)
+            setTimeout(() => {
               const el = document.getElementById('ko-match-' + target.id)
               if (el) el.scrollIntoView({ behavior:'smooth', block:'center' })
-            }
-          }, 600)
+            }, 250)
+          }
         }
       })
   }, [])
@@ -610,7 +613,7 @@ export default function Groups({ participant, onLogout }) {
             <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
           </div>
         ) : tab==='knockout' ? (
-          <KnockoutTab koMatches={koMatches}/>
+          <KnockoutTab koMatches={koMatches} activeRound={koActiveRound} setActiveRound={setKoActiveRound}/>
         ) : viewAll ? (
           <div>
             {GROUPS.map(g=><GroupTable key={g} letter={g} results={results}/>)}
