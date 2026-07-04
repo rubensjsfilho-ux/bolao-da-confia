@@ -72,9 +72,9 @@ const ROUNDS = [
     id: 'qf', label: 'Quartas de Final', short: 'Quartas',
     matches: [
       { id:'qf_1', pos:1, label:'Quartas 1', date:'2026-07-09T20:00:00Z', city:'Boston',       venue:'Gillette Stadium',        info:'Venc. Oitavas 1 × Venc. Oitavas 2' },
-      { id:'qf_2', pos:2, label:'Quartas 2', date:'2026-07-09T16:00:00Z', city:'Los Angeles',  venue:'SoFi Stadium',            info:'Venc. Oitavas 3 × Venc. Oitavas 4' },
-      { id:'qf_3', pos:3, label:'Quartas 3', date:'2026-07-10T21:00:00Z', city:'Miami',        venue:'Hard Rock Stadium',       info:'Venc. Oitavas 5 × Venc. Oitavas 6' },
-      { id:'qf_4', pos:4, label:'Quartas 4', date:'2026-07-11T21:00:00Z', city:'Kansas City',  venue:'Arrowhead Stadium',       info:'Venc. Oitavas 7 × Venc. Oitavas 8' },
+      { id:'qf_2', pos:2, label:'Quartas 2', date:'2026-07-10T19:00:00Z', city:'Los Angeles',  venue:'SoFi Stadium',            info:'Venc. Oitavas 3 × Venc. Oitavas 4' },
+      { id:'qf_3', pos:3, label:'Quartas 3', date:'2026-07-11T21:00:00Z', city:'Miami',        venue:'Hard Rock Stadium',       info:'Venc. Oitavas 5 × Venc. Oitavas 6' },
+      { id:'qf_4', pos:4, label:'Quartas 4', date:'2026-07-12T00:00:00Z', city:'Kansas City',  venue:'Arrowhead Stadium',       info:'Venc. Oitavas 7 × Venc. Oitavas 8' },
     ]
   },
   {
