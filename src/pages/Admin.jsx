@@ -846,9 +846,11 @@ export default function Admin(){
     const{data:ps}=await supabase.from('participants').select('id')
     for(const p of ps||[]){
       const{data:pr}=await supabase.from('predictions').select('points').eq('participant_id',p.id).not('points','is',null)
-      const total=pr?.reduce((s,x)=>s+(x.points||0),0)||0
-      const exact=pr?.filter(x=>x.points===3).length||0
-      const result=pr?.filter(x=>x.points===1).length||0
+      const{data:kp}=await supabase.from('knockout_predictions').select('points').eq('participant_id',p.id).not('points','is',null)
+      const all=[...(pr||[]),...(kp||[])]
+      const total=all.reduce((s,x)=>s+(x.points||0),0)
+      const exact=all.filter(x=>x.points===3).length
+      const result=all.filter(x=>x.points===1).length
       await supabase.from('participants').update({total_points:total,exact_hits:exact,result_hits:result,predictions_count:pr?.length||0}).eq('id',p.id)
     }
   }
