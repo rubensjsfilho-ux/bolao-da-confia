@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-import { GROUP_MATCHES, BRACKET_MATCHES, getFlag, formatDate, isMatchOpen } from '../data/matches'
+import { GROUP_MATCHES, getFlag, formatDate, isMatchOpen } from '../data/matches'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123'
 
@@ -26,15 +26,15 @@ function calcPoints(p1,p2,r1,r2){
 // A 2ª Fase é preenchida manualmente pelo admin.
 // A partir das Oitavas, o vencedor avança automaticamente.
 const BRACKET_ADVANCEMENT = {
-  // Oitavas → Quartas (pelos prints do chaveamento)
-  'r16_1': { next: 'qf_1', slot: 'team1' }, // W89 → Los Angeles team1
-  'r16_2': { next: 'qf_1', slot: 'team2' }, // W90 → Los Angeles team2
-  'r16_3': { next: 'qf_2', slot: 'team1' }, // W91 → Boston team1
-  'r16_4': { next: 'qf_2', slot: 'team2' }, // W92 → Boston team2
-  'r16_5': { next: 'qf_3', slot: 'team1' }, // W93 → Miami team1
-  'r16_6': { next: 'qf_3', slot: 'team2' }, // W94 → Miami team2
-  'r16_7': { next: 'qf_4', slot: 'team1' }, // W95 → Kansas City team1
-  'r16_8': { next: 'qf_4', slot: 'team2' }, // W96 → Kansas City team2
+  // Oitavas → Quartas (cidades conferidas contra ROUNDS em Bracket.jsx)
+  'r16_1': { next: 'qf_1', slot: 'team1' }, // → Boston team1
+  'r16_2': { next: 'qf_1', slot: 'team2' }, // → Boston team2
+  'r16_3': { next: 'qf_2', slot: 'team1' }, // → Los Angeles team1
+  'r16_4': { next: 'qf_2', slot: 'team2' }, // → Los Angeles team2
+  'r16_5': { next: 'qf_3', slot: 'team1' }, // → Miami team1
+  'r16_6': { next: 'qf_3', slot: 'team2' }, // → Miami team2
+  'r16_7': { next: 'qf_4', slot: 'team1' }, // → Kansas City team1
+  'r16_8': { next: 'qf_4', slot: 'team2' }, // → Kansas City team2
   // Quartas → Semis (pelos prints: QF1+QF2 → SF1, QF3+QF4 → SF2)
   'qf_1':  { next: 'sf_1', slot: 'team1' },
   'qf_2':  { next: 'sf_1', slot: 'team2' },
