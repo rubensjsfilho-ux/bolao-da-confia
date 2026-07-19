@@ -345,6 +345,115 @@ function ParticipantsTab(){
   )
 }
 
+
+// ── ABA RESULTADO FINAL ───────────────────────────────────────────────────────
+const CHAMPION_POSITIONS = [
+  { key:'champion',    label:'Campeão',      icon:'🥇', pts:10 },
+  { key:'runner_up',   label:'Vice-Campeão', icon:'🥈', pts:5  },
+  { key:'third_place', label:'3º Lugar',      icon:'🥉', pts:3  },
+]
+const ALL_TEAMS_ADMIN = ['África do Sul','Alemanha','Arábia Saudita','Argentina','Argélia','Austrália','Áustria','Bélgica','Bósnia e Herz.','Brasil','Cabo Verde','Canadá','Catar','Colômbia','Coreia do Sul','Costa do Marfim','Croácia','Curaçao','Egito','Equador','Escócia','Espanha','Estados Unidos','França','Gana','Haiti','Holanda','Inglaterra','Iraque','Irã','Japão','Jordânia','Marrocos','México','Nova Zelândia','Noruega','Panamá','Paraguai','Portugal','RD Congo','República Tcheca','Senegal','Suécia','Suíça','Tunísia','Turquia','Uruguai','Uzbequistão']
+
+function ChampionTab() {
+  const [result, setResult] = useState({ champion:'', runner_up:'', third_place:'' })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+
+  useEffect(() => {
+    supabase.from('champion_results').select('*').eq('id', 1).single()
+      .then(({ data }) => {
+        if (data) setResult({ champion: data.champion||'', runner_up: data.runner_up||'', third_place: data.third_place||'' })
+        setLoading(false)
+      })
+  }, [])
+
+  const calcAndSavePoints = async (res) => {
+    // Busca todos os palpites finais
+    const { data: preds } = await supabase.from('champion_predictions').select('*')
+    for (const p of preds || []) {
+      let pts = 0
+      if (res.champion    && p.champion    === res.champion)    pts += 10
+      if (res.runner_up   && p.runner_up   === res.runner_up)   pts += 5
+      if (res.third_place && p.third_place === res.third_place) pts += 3
+      await supabase.from('champion_predictions').update({ points: pts }).eq('id', p.id)
+    }
+    // Recalcula totais de todos os participantes
+    const { data: ps } = await supabase.from('participants').select('id')
+    for (const p of ps || []) {
+      const { data: gr } = await supabase.from('predictions').select('points').eq('participant_id', p.id).not('points','is',null)
+      const { data: kp } = await supabase.from('knockout_predictions').select('points').eq('participant_id', p.id).not('points','is',null)
+      const { data: cp } = await supabase.from('champion_predictions').select('points').eq('participant_id', p.id).not('points','is',null)
+      const all = [...(gr||[]),...(kp||[]),...(cp||[])]
+      const total = all.reduce((s,x)=>s+(x.points||0),0)
+      const exact = [...(gr||[]),...(kp||[])].filter(x=>x.points===3).length
+      const result2 = [...(gr||[]),...(kp||[])].filter(x=>x.points===1).length
+      await supabase.from('participants').update({ total_points:total, exact_hits:exact, result_hits:result2 }).eq('id', p.id)
+    }
+  }
+
+  const save = async () => {
+    if (!result.champion || !result.runner_up || !result.third_place) {
+      setMsg('❌ Preencha os 3 campos'); setTimeout(()=>setMsg(''),3000); return
+    }
+    setSaving(true)
+    setMsg('Salvando resultado e calculando pontos...')
+    // Upsert result
+    const { data: ex } = await supabase.from('champion_results').select('id').eq('id', 1).single()
+    if (ex) {
+      await supabase.from('champion_results').update({ ...result, updated_at: new Date().toISOString() }).eq('id', 1)
+    } else {
+      await supabase.from('champion_results').insert([{ id:1, ...result }])
+    }
+    await calcAndSavePoints(result)
+    setSaving(false)
+    setMsg('✅ Resultado salvo e pontos calculados!')
+    setTimeout(()=>setMsg(''),4000)
+  }
+
+  if (loading) return <div style={{ textAlign:'center', padding:40, color:C.textMuted }}>Carregando...</div>
+
+  return (
+    <div>
+      {msg && <div style={{ background: msg.startsWith('✅')?'rgba(74,222,128,0.1)':'rgba(248,113,113,0.1)', border:`1px solid ${msg.startsWith('✅')?'rgba(74,222,128,0.3)':'rgba(248,113,113,0.3)'}`, borderRadius:10, padding:'10px 14px', marginBottom:12, color: msg.startsWith('✅')?C.green:msg.startsWith('❌')?C.red:C.gold, fontSize:12 }}>{msg}</div>}
+      
+      <p style={{ color:C.textMuted, fontSize:11, marginBottom:16 }}>Registre o resultado oficial. Os pontos serão calculados automaticamente para todos os participantes.</p>
+
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:12, padding:'14px', marginBottom:16 }}>
+        {CHAMPION_POSITIONS.map(pos => (
+          <div key={pos.key} style={{ marginBottom:14 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+              <span style={{ fontSize:20 }}>{pos.icon}</span>
+              <span style={{ color:C.text, fontWeight:800, fontSize:13 }}>{pos.label}</span>
+              <span style={{ color:C.gold, fontSize:11, marginLeft:'auto' }}>+{pos.pts} pts</span>
+            </div>
+            <select
+              value={result[pos.key]}
+              onChange={e => setResult(r => ({ ...r, [pos.key]: e.target.value }))}
+              style={{ width:'100%', padding:'10px 12px', background:'rgba(255,255,255,0.08)', border:`1px solid ${C.border}`, borderRadius:8, color: result[pos.key]?C.text:C.textMuted, fontSize:13, outline:'none', fontFamily:'Nunito,sans-serif' }}
+            >
+              <option value="">Selecionar time...</option>
+              {ALL_TEAMS_ADMIN.map(t => <option key={t} value={t} style={{background:'#011901'}}>{t}</option>)}
+            </select>
+          </div>
+        ))}
+
+        <button onClick={save} disabled={saving}
+          style={{ width:'100%', background:C.gold, color:'#000', border:'none', borderRadius:10, padding:'12px', fontWeight:900, fontSize:13, cursor:'pointer', fontFamily:'Nunito,sans-serif', opacity:saving?.6:1 }}>
+          {saving ? '⏳ Calculando pontos...' : '🏆 Salvar Resultado e Calcular Pontos'}
+        </button>
+      </div>
+
+      <div style={{ background:'rgba(245,166,35,0.08)', border:`1px solid rgba(245,166,35,0.2)`, borderRadius:10, padding:'10px 14px' }}>
+        <div style={{ color:C.gold, fontWeight:800, fontSize:11, marginBottom:6 }}>ℹ️ Pontuação</div>
+        {CHAMPION_POSITIONS.map(p => (
+          <div key={p.key} style={{ color:C.textMuted, fontSize:11, marginBottom:3 }}>{p.icon} {p.label}: +{p.pts} pontos</div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── ABA MATA-MATA NO ADMIN ────────────────────────────────────────────────────
 const KO_ROUNDS = [
   { id:'r2', label:'2ª Fase', count:16 },
@@ -847,10 +956,11 @@ export default function Admin(){
     for(const p of ps||[]){
       const{data:pr}=await supabase.from('predictions').select('points').eq('participant_id',p.id).not('points','is',null)
       const{data:kp}=await supabase.from('knockout_predictions').select('points').eq('participant_id',p.id).not('points','is',null)
-      const all=[...(pr||[]),...(kp||[])]
+      const{data:cp}=await supabase.from('champion_predictions').select('points').eq('participant_id',p.id).not('points','is',null)
+      const all=[...(pr||[]),...(kp||[]),...(cp||[])]
       const total=all.reduce((s,x)=>s+(x.points||0),0)
-      const exact=all.filter(x=>x.points===3).length
-      const result=all.filter(x=>x.points===1).length
+      const exact=[...(pr||[]),...(kp||[])].filter(x=>x.points===3).length
+      const result=[...(pr||[]),...(kp||[])].filter(x=>x.points===1).length
       await supabase.from('participants').update({total_points:total,exact_hits:exact,result_hits:result,predictions_count:pr?.length||0}).eq('id',p.id)
     }
   }
@@ -923,7 +1033,7 @@ export default function Admin(){
 
       <main style={{ paddingTop:64, paddingBottom:32, padding:'72px 16px 32px', maxWidth:520, margin:'0 auto' }}>
         <div style={{ display:'flex', background:'rgba(255,255,255,0.05)', borderRadius:12, padding:4, marginBottom:20, gap:3, overflowX:'auto' }}>
-          {[{id:'results',label:'🎯 Grupos'},{id:'knockout',label:'⚔️ Mata-Mata'},{id:'participants',label:'👥 Participantes'},{id:'banners',label:'🖼️ Banners'}].map(t=>(
+          {[{id:'results',label:'🎯 Grupos'},{id:'knockout',label:'⚔️ Mata-Mata'},{id:'champion',label:'🏆 Final'},{id:'participants',label:'👥 Participantes'},{id:'banners',label:'🖼️ Banners'}].map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)} style={{
               flex:1, padding:'9px 6px', border: tab===t.id?`1px solid rgba(245,166,35,0.3)`:'1px solid transparent',
               borderRadius:10, fontWeight:800, fontSize:11, cursor:'pointer', fontFamily:'Nunito,sans-serif',
@@ -935,6 +1045,7 @@ export default function Admin(){
         {tab==='results'&&<ResultsTab matches={matches} loading={loading} onSave={saveResult} onFinish={finishMatch} onReset={resetMatch} onSaveStream={saveStreamUrl}/>}
         {tab==='knockout'&&<KnockoutTab/>}
         {tab==='participants'&&<ParticipantsTab/>}
+        {tab==='champion'&&<ChampionTab/>}
         {tab==='banners'&&<BannersTab/>}
       </main>
     </div>
